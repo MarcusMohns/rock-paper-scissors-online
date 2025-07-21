@@ -57,10 +57,6 @@ io.on("connection", (socket) => {
     leaveAllRooms();
     socket.join(roomName);
     updateLobby();
-
-    // socket
-    //   .to(roomName)
-    //   .emit("chatMessage", `${socket.id} has joined the room ${roomName}`);
   });
 
   socket.on("joinRoom", (roomName, callback) => {
@@ -69,9 +65,10 @@ io.on("connection", (socket) => {
     updateLobby();
   });
 
-  socket.on("chatMessage", (msg, callback) => {
+  socket.on("lobbyChat", (msg, callback) => {
+    console.log("Lobby chat message received:", msg);
     try {
-      io.emit("chatMessage", msg);
+      io.emit("lobbyChat", msg);
       callback({
         status: "ok",
       });

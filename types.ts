@@ -3,12 +3,17 @@ export interface ServerToClientEvents {
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
   chatMessage: (msg: string) => void;
+  lobbyChat: (msg: { username: string; message: string }) => void;
   response: (msg: string) => void;
   updateLobby: (msg: any) => void;
 }
 
 export interface ClientToServerEvents {
   hello: () => void;
+  lobbyChat: (
+    msg: { username: string; message: string },
+    callback: (response: any) => void
+  ) => void;
   chatMessage: (msg: string, callback: (response: any) => void) => void;
   createRoom: (roomName: string, callback: (response: any) => void) => void;
   joinRoom: (roomName: string, callback: (response: any) => void) => void;
