@@ -36,7 +36,6 @@ io.on("connection", (socket) => {
   };
 
   const updateLobby = () => {
-    console.log("Updating lobby state");
     const newLobbyState: LobbyStateType = {
       rooms: [],
     };
@@ -57,6 +56,7 @@ io.on("connection", (socket) => {
     leaveAllRooms();
     socket.join(roomName);
     updateLobby();
+    console.log(io.sockets.adapter.sids);
   });
 
   socket.on("joinRoom", (roomName, callback) => {
