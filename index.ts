@@ -8,6 +8,7 @@ import {
   SocketData,
   LobbyStateType,
   RoomType,
+  UserType,
 } from "./types";
 
 const app = express();
@@ -35,28 +36,58 @@ io.on("connection", (socket) => {
     });
   };
 
-  const updateLobby = () => {
-    const newLobbyState: LobbyStateType = {
-      rooms: [],
+  const updateLobby = async () => {
+    const socketCount = io.of("/").sockets.size;
+
+    const updatedRooms: Promise<RoomType>[] = Array.from(roomNames)
+      .slice(socketCount)
+      // Slice the userRooms that are joined by default by socket.io client
+      // to facilitate private messaging
+      .map(async (value) => {
+        const sockets = await fetchSocketsInRoom(value);
+        const users = sockets.map((socket) => socket.data.user);
+        return { name: value, users: users };
+      });
+    const lobby: LobbyStateType = {
+      rooms: await Promise.all(updatedRooms),
     };
 
-    rooms.forEach((value, key: string | { name: string }) => {
-      const users = Array.from(value);
-      if (key === users[0]) return; // Skip first key which is the default room
-      newLobbyState.rooms.push({
-        name: key,
-        users: users,
-      });
-    });
+    io.emit("updateLobby", lobby);
+  };
+  socket.on("setUser", (user, callback) => {
+    socket.data.user = user;
 
-    io.emit("updateLobby", newLobbyState);
+    io.emit("setUser", {
+      name: user.name,
+      id: user.id,
+    });
+  });
+
+  socket.on("fetchUsersInRoom", async (roomName, callback) => {
+    const sockets = await fetchSocketsInRoom(roomName);
+    const users = sockets.map((socket) => socket.data.user);
+    callback(users);
+  });
+
+  const fetchSocketsInRoom = async (roomName: string) => {
+    const sockets =
+      roomName === "lobby"
+        ? await io.fetchSockets()
+        : await io.in(roomName).fetchSockets();
+
+    return sockets;
   };
 
   socket.on("createRoom", (roomName, callback) => {
     leaveAllRooms();
+    if (rooms.has(roomName)) {
+      console.log(`Room ${roomName} already exists.`);
+      io.emit("response", `Room ${roomName} already exists.`);
+      // This needs to prompt user to change room name!
+      return;
+    }
     socket.join(roomName);
     updateLobby();
-    console.log(io.sockets.adapter.sids);
   });
 
   socket.on("joinRoom", (roomName, callback) => {
@@ -65,8 +96,12 @@ io.on("connection", (socket) => {
     updateLobby();
   });
 
+  socket.on("leaveAllRooms", () => {
+    leaveAllRooms();
+    updateLobby();
+  });
+
   socket.on("lobbyChat", (msg, callback) => {
-    console.log("Lobby chat message received:", msg);
     try {
       io.emit("lobbyChat", msg);
       callback({
