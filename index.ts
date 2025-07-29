@@ -25,27 +25,46 @@ const io = new Server<
 });
 
 io.on("connection", (socket) => {
+  socket.join("lobby");
   const rooms = io.of("/").adapter.rooms;
   const roomNames = rooms.keys();
+
+  socket.on("connected", async (user, callback) => {
+    socket.data.user = user;
+    io.emit("setUser", {
+      name: user.name,
+      id: user.id,
+    });
+
+    await updateUserList("lobby");
+  });
+
+  socket.on("disconnect", () => {
+    // updateLobby();
+    // updateUserList("lobby");
+  });
 
   const leaveAllRooms = () => {
     socket.rooms.forEach((room) => {
       if (room !== socket.id) {
+        // each socket is in a private room named by the socket id so leave all rooms that isnt that one
         socket.leave(room);
       }
     });
   };
 
   const updateLobby = async () => {
-    const socketCount = io.of("/").sockets.size;
+    const connectedSockets = await io.fetchSockets();
+    const socketsArray = Array.from(connectedSockets).map(
+      (socket) => socket.id
+    );
 
     const updatedRooms: Promise<RoomType>[] = Array.from(roomNames)
-      .slice(socketCount)
+      .filter((value) => !socketsArray.includes(value) && value !== "lobby")
       // Slice the userRooms that are joined by default by socket.io client
       // to facilitate private messaging
       .map(async (value) => {
-        const sockets = await fetchSocketsInRoom(value);
-        const users = sockets.map((socket) => socket.data.user);
+        const users = await fetchUsersInRoom(value);
         return { name: value, users: users };
       });
     const lobby: LobbyStateType = {
@@ -54,46 +73,41 @@ io.on("connection", (socket) => {
 
     io.emit("updateLobby", lobby);
   };
-  socket.on("setUser", (user, callback) => {
-    socket.data.user = user;
-
-    io.emit("setUser", {
-      name: user.name,
-      id: user.id,
-    });
-  });
-
-  socket.on("fetchUsersInRoom", async (roomName, callback) => {
-    const sockets = await fetchSocketsInRoom(roomName);
-    const users = sockets.map((socket) => socket.data.user);
-    callback(users);
-  });
-
-  const fetchSocketsInRoom = async (roomName: string) => {
-    const sockets =
-      roomName === "lobby"
-        ? await io.fetchSockets()
-        : await io.in(roomName).fetchSockets();
-
-    return sockets;
+  const updateUserList = async (roomName: string) => {
+    const users = await fetchUsersInRoom(roomName);
+    io.emit("updateUserList", users);
   };
 
-  socket.on("createRoom", (roomName, callback) => {
+  socket.on("fetchUsersInRoom", async (roomName, callback) => {
+    callback(await fetchUsersInRoom(roomName));
+  });
+
+  const fetchUsersInRoom = async (roomName: string) => {
+    const sockets = await io.in(roomName).fetchSockets();
+    const users = sockets.map((socket) => socket.data.user);
+    return users;
+  };
+
+  socket.on("createRoom", async (roomName, callback) => {
     leaveAllRooms();
-    if (rooms.has(roomName)) {
-      console.log(`Room ${roomName} already exists.`);
-      io.emit("response", `Room ${roomName} already exists.`);
-      // This needs to prompt user to change room name!
-      return;
-    }
+    // if (rooms.has(roomName)) {
+    //   console.log(`Room ${roomName} already exists.`);
+    //   io.emit("response", `Room ${roomName} already exists.`);
+    //   // This needs to prompt user to change room name!
+    //   return;
+    // }
     socket.join(roomName);
     updateLobby();
+    updateUserList(roomName);
+    updateUserList("lobby");
   });
 
   socket.on("joinRoom", (roomName, callback) => {
     leaveAllRooms();
     socket.join(roomName);
     updateLobby();
+    updateUserList(roomName);
+    updateUserList("lobby");
   });
 
   socket.on("leaveAllRooms", () => {

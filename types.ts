@@ -7,6 +7,10 @@ export interface ServerToClientEvents {
   response: (msg: string) => void;
   updateLobby: (lobby: LobbyStateType) => void;
   setUser: (msg: { name: string; id: string }) => void;
+  fetchSocketsInRoom: (sockets: any[]) => void;
+  fetchUsersInRoom: (users: any[]) => void;
+  usersInRoom: (users: any[]) => void;
+  updateUserList: (users: UserType[]) => void;
 }
 
 export interface ClientToServerEvents {
@@ -18,10 +22,7 @@ export interface ClientToServerEvents {
   chatMessage: (msg: string, callback: (response: any) => void) => void;
   createRoom: (socket: any, callback: (response: any) => void) => void;
   joinRoom: (roomName: string, callback: (response: any) => void) => void;
-  setUser: (
-    user: { name: string; id: string },
-    callback: (response: any) => void
-  ) => void;
+  connected: (user: UserType, callback: (response: any) => void) => void;
   leaveAllRooms: () => void;
   fetchSocketsInRoom: (
     roomName: string,
