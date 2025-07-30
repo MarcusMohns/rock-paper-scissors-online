@@ -26,17 +26,25 @@ const io = new Server<
 
 io.on("connection", (socket) => {
   socket.join("lobby");
-  const rooms = io.of("/").adapter.rooms;
-  const roomNames = rooms.keys();
+  // const rooms = io.of("/").adapter.rooms;
+  // const roomNames = rooms.keys();
 
   socket.on("connected", async (user, callback) => {
     socket.data.user = user;
-    io.emit("setUser", {
-      name: user.name,
-      id: user.id,
-    });
+    callback({ ...user, socketId: socket.id });
+    // Return socket id to client - we'll use this to send private messages.
 
     await updateUserList("lobby");
+    await updateLobby();
+  });
+
+  socket.on("setUser", async (user, callback) => {
+    socket.data.user = user;
+    callback(user);
+    await updateUserList("lobby");
+    await updateLobby();
+
+    // await updateUserList(roomName); when we get access to roomName somehow
   });
 
   socket.on("disconnect", () => {
@@ -54,6 +62,9 @@ io.on("connection", (socket) => {
   };
 
   const updateLobby = async () => {
+    const rooms = io.of("/").adapter.rooms;
+    const roomNames = rooms.keys();
+
     const connectedSockets = await io.fetchSockets();
     const socketsArray = Array.from(connectedSockets).map(
       (socket) => socket.id
@@ -61,8 +72,7 @@ io.on("connection", (socket) => {
 
     const updatedRooms: Promise<RoomType>[] = Array.from(roomNames)
       .filter((value) => !socketsArray.includes(value) && value !== "lobby")
-      // Slice the userRooms that are joined by default by socket.io client
-      // to facilitate private messaging
+      // Filter out the main lobby and rooms with the sockets.id (those are default rooms created by socket.io for private messsages)
       .map(async (value) => {
         const users = await fetchUsersInRoom(value);
         return { name: value, users: users };
@@ -70,7 +80,6 @@ io.on("connection", (socket) => {
     const lobby: LobbyStateType = {
       rooms: await Promise.all(updatedRooms),
     };
-
     io.emit("updateLobby", lobby);
   };
   const updateUserList = async (roomName: string) => {
@@ -97,9 +106,9 @@ io.on("connection", (socket) => {
     //   return;
     // }
     socket.join(roomName);
-    updateLobby();
-    updateUserList(roomName);
-    updateUserList("lobby");
+    await updateLobby();
+    await updateUserList(roomName);
+    await updateUserList("lobby");
   });
 
   socket.on("joinRoom", (roomName, callback) => {
@@ -112,7 +121,7 @@ io.on("connection", (socket) => {
 
   socket.on("leaveAllRooms", () => {
     leaveAllRooms();
-    updateLobby();
+    // updateLobby();
   });
 
   socket.on("lobbyChat", (msg, callback) => {

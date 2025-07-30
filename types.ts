@@ -32,6 +32,7 @@ export interface ClientToServerEvents {
     roomName: string,
     callback: (users: any[]) => void
   ) => void;
+  setUser: (user: UserType, callback: (response: any) => void) => void;
 }
 
 export interface InterServerEvents {
