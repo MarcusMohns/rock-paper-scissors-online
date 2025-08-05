@@ -47,9 +47,9 @@ io.on("connection", (socket) => {
     // await updateUserList(roomName); when we get access to roomName somehow
   });
 
-  socket.on("disconnect", () => {
-    // updateLobby();
-    // updateUserList("lobby");
+  socket.on("disconnect", async () => {
+    await updateUserList("lobby");
+    await updateLobby();
   });
 
   const leaveAllRooms = () => {
@@ -60,6 +60,11 @@ io.on("connection", (socket) => {
       }
     });
   };
+
+  socket.on("leaveAllRooms", () => {
+    leaveAllRooms();
+    // updateLobby();
+  });
 
   const updateLobby = async () => {
     const rooms = io.of("/").adapter.rooms;
@@ -109,19 +114,16 @@ io.on("connection", (socket) => {
     await updateLobby();
     await updateUserList(roomName);
     await updateUserList("lobby");
+    callback(roomName);
   });
 
-  socket.on("joinRoom", (roomName, callback) => {
+  socket.on("joinRoom", async (roomName, callback) => {
     leaveAllRooms();
     socket.join(roomName);
-    updateLobby();
-    updateUserList(roomName);
-    updateUserList("lobby");
-  });
-
-  socket.on("leaveAllRooms", () => {
-    leaveAllRooms();
-    // updateLobby();
+    await updateLobby();
+    await updateUserList(roomName);
+    await updateUserList("lobby");
+    callback(roomName);
   });
 
   socket.on("lobbyChat", (msg, callback) => {
