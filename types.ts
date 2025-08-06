@@ -11,6 +11,8 @@ export interface ServerToClientEvents {
   usersInRoom: (users: any[]) => void;
   updateUserList: (users: UserType[]) => void;
   roomChat: (msg: { room: string; message: string }) => void;
+  updateRoomUserList: (users: UserType[]) => void;
+  updateLobbyUserList: (users: UserType[]) => void;
 }
 
 export interface ClientToServerEvents {

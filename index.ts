@@ -61,11 +61,6 @@ io.on("connection", (socket) => {
     });
   };
 
-  socket.on("leaveAllRooms", () => {
-    leaveAllRooms();
-    // updateLobby();
-  });
-
   const updateLobby = async () => {
     const rooms = io.of("/").adapter.rooms;
     const roomNames = rooms.keys();
@@ -89,7 +84,13 @@ io.on("connection", (socket) => {
   };
   const updateUserList = async (roomName: string) => {
     const users = await fetchUsersInRoom(roomName);
-    io.emit("updateUserList", users);
+    if (roomName === "lobby") {
+      io.emit("updateLobbyUserList", users);
+    } else {
+      console.log("this is never reached or whats up...?");
+      io.to(roomName).emit("updateRoomUserList", users);
+      // io.emit("updateRoomUserList", users);
+    }
   };
 
   socket.on("fetchUsersInRoom", async (roomName, callback) => {
@@ -110,20 +111,20 @@ io.on("connection", (socket) => {
     //   // This needs to prompt user to change room name!
     //   return;
     // }
-    socket.join(roomName);
-    await updateLobby();
-    await updateUserList("lobby");
-    await updateUserList(roomName);
     callback(roomName);
+    await socket.join(roomName);
+
+    await updateLobby();
+    await updateUserList(roomName);
   });
 
   socket.on("joinRoom", async (roomName, callback) => {
     leaveAllRooms();
-    socket.join(roomName);
-    await updateLobby();
-    await updateUserList("lobby");
-    await updateUserList(roomName);
     callback(roomName);
+    await socket.join(roomName);
+
+    await updateLobby();
+    await updateUserList(roomName);
   });
 
   socket.on("chatMessage", (msg, callback) => {
