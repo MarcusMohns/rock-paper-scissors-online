@@ -38,11 +38,11 @@ io.on("connection", (socket) => {
     await updateLobby();
   });
 
-  socket.on("setUser", async (user, callback) => {
+  socket.on("setUser", async (user, room, callback) => {
     socket.data.user = user;
-    callback(user);
-    await updateUserList("lobby");
+    await updateUserList(room);
     await updateLobby();
+    callback(user);
 
     // await updateUserList(roomName); when we get access to roomName somehow
   });
@@ -112,8 +112,8 @@ io.on("connection", (socket) => {
     // }
     socket.join(roomName);
     await updateLobby();
-    await updateUserList(roomName);
     await updateUserList("lobby");
+    await updateUserList(roomName);
     callback(roomName);
   });
 
@@ -121,14 +121,14 @@ io.on("connection", (socket) => {
     leaveAllRooms();
     socket.join(roomName);
     await updateLobby();
-    await updateUserList(roomName);
     await updateUserList("lobby");
+    await updateUserList(roomName);
     callback(roomName);
   });
 
-  socket.on("lobbyChat", (msg, callback) => {
+  socket.on("chatMessage", (msg, callback) => {
     try {
-      io.emit("lobbyChat", msg);
+      io.to(msg.room).emit("chatMessage", msg);
       callback({
         status: "ok",
       });
