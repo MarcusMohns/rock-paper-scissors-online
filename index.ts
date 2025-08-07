@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
     await updateLobby();
   });
 
-  const leaveAllRooms = () => {
+  const leaveAllRooms = async () => {
     socket.rooms.forEach((room) => {
       if (room !== socket.id) {
         // each socket is in a private room named by the socket id so leave all rooms that isnt that one
@@ -83,11 +83,13 @@ io.on("connection", (socket) => {
     io.emit("updateLobby", lobby);
   };
   const updateUserList = async (roomName: string) => {
+    console.log("UpdateUserList is ran");
     const users = await fetchUsersInRoom(roomName);
     if (roomName === "lobby") {
+      console.log("updating lobby!");
       io.emit("updateLobbyUserList", users);
     } else {
-      console.log("this is never reached or whats up...?");
+      console.log("updating room!");
       io.to(roomName).emit("updateRoomUserList", users);
       // io.emit("updateRoomUserList", users);
     }
@@ -104,27 +106,28 @@ io.on("connection", (socket) => {
   };
 
   socket.on("createRoom", async (roomName, callback) => {
-    leaveAllRooms();
+    await leaveAllRooms();
     // if (rooms.has(roomName)) {
     //   console.log(`Room ${roomName} already exists.`);
     //   io.emit("response", `Room ${roomName} already exists.`);
     //   // This needs to prompt user to change room name!
     //   return;
     // }
-    callback(roomName);
-    await socket.join(roomName);
 
+    await socket.join(roomName);
+    const UsersInRoom = await fetchUsersInRoom(roomName);
     await updateLobby();
     await updateUserList(roomName);
+    callback(roomName, UsersInRoom);
   });
 
   socket.on("joinRoom", async (roomName, callback) => {
-    leaveAllRooms();
-    callback(roomName);
+    await leaveAllRooms();
     await socket.join(roomName);
-
+    const UsersInRoom = await fetchUsersInRoom(roomName);
     await updateLobby();
     await updateUserList(roomName);
+    callback(roomName, UsersInRoom);
   });
 
   socket.on("chatMessage", (msg, callback) => {

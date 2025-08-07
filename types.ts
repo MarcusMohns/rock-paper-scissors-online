@@ -30,8 +30,14 @@ export interface ClientToServerEvents {
     },
     callback: (response: any) => void
   ) => void;
-  createRoom: (socket: any, callback: (response: any) => void) => void;
-  joinRoom: (roomName: string, callback: (response: any) => void) => void;
+  createRoom: (
+    roomName: string,
+    callback: (roomName: any, users: any) => void
+  ) => void;
+  joinRoom: (
+    roomName: string,
+    callback: (roomName: any, users: any) => void
+  ) => void;
   connected: (user: UserType, callback: (response: any) => void) => void;
   leaveAllRooms: () => void;
   fetchSocketsInRoom: (
