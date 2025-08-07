@@ -23,9 +23,82 @@ const io = new Server<
     origin: "http://localhost:5173",
   },
 });
+io.of("/").adapter.on("create-room", (room) => {
+  console.log(`room ${room} was created`);
+  // Restarting using this as jump off point. -> this emits that room has been created, so on client side it should emit updateLobby and
+  // use the return value from that to update the state
+});
+
+io.of("/").adapter.on("join-room", (room, id) => {
+  console.log(`socket ${id} has joined room ${room}`);
+  // Yep same here, joins a room , its emitted to the room that someone is joined, emit updateRoom and use the return value from that to update the state
+});
+
+// io.of("/").adapter.on("leave-room", async (room, id) => {
+//   const connectedSockets = await io.fetchSockets();
+//   const filteredRooms = await filterRooms(connectedSockets);
+//   if (filteredRooms.includes(room)) {
+//     updateLobby();
+//     updateUserList(room);
+//   }
+// });
 
 io.on("connection", (socket) => {
   socket.join("lobby");
+
+  const fetchUsersInRoom = async (roomName: string) => {
+    const sockets = await io.in(roomName).fetchSockets();
+    const users = sockets
+      .filter((socket) => socket.data.user !== undefined)
+      .map((socket) => socket.data.user);
+    return users;
+  };
+
+  const updateUserList = async (roomName: string) => {
+    const users = await fetchUsersInRoom(roomName);
+    if (roomName === "lobby") {
+      io.emit("updateLobbyUserList", users);
+    } else {
+      io.to(roomName).emit("updateRoomUserList", users);
+    }
+  };
+
+  const filterRooms = async (connectedSockets: any[]) => {
+    // Filter out the main lobby and rooms with the sockets.id (those are default rooms created by socket.io for private messsages)
+
+    const rooms = io.of("/").adapter.rooms;
+    const roomNames = rooms.keys();
+    const socketsArray = Array.from(connectedSockets).map(
+      (socket) => socket.id
+    );
+    const filteredSockets = Array.from(roomNames).filter(
+      (value) => !socketsArray.includes(value) && value !== "lobby"
+    );
+
+    return filteredSockets;
+  };
+
+  const updateLobby = async () => {
+    const connectedSockets = await io.fetchSockets();
+    const filteredRooms = await filterRooms(connectedSockets);
+
+    const updatedRooms = filteredRooms.map(async (value) => {
+      const users = await fetchUsersInRoom(value);
+      return { name: value, users: users };
+    });
+
+    const lobby: LobbyStateType = {
+      rooms: await Promise.all(updatedRooms),
+    };
+    io.emit("updateLobby", lobby);
+  };
+
+  socket.on("fetchUsersInRoom", async (roomName, callback) => {
+    callback(await fetchUsersInRoom(roomName));
+  });
+
+  updateLobby();
+  updateUserList("lobby");
   // const rooms = io.of("/").adapter.rooms;
   // const roomNames = rooms.keys();
 
@@ -33,9 +106,6 @@ io.on("connection", (socket) => {
     socket.data.user = user;
     callback({ ...user, socketId: socket.id });
     // Return socket id to client - we'll use this to send private messages.
-
-    await updateUserList("lobby");
-    await updateLobby();
   });
 
   socket.on("setUser", async (user, room, callback) => {
@@ -43,12 +113,9 @@ io.on("connection", (socket) => {
     await updateUserList(room);
     await updateLobby();
     callback(user);
-
-    // await updateUserList(roomName); when we get access to roomName somehow
   });
 
   socket.on("disconnect", async () => {
-    await updateUserList("lobby");
     await updateLobby();
   });
 
@@ -59,50 +126,6 @@ io.on("connection", (socket) => {
         socket.leave(room);
       }
     });
-  };
-
-  const updateLobby = async () => {
-    const rooms = io.of("/").adapter.rooms;
-    const roomNames = rooms.keys();
-
-    const connectedSockets = await io.fetchSockets();
-    const socketsArray = Array.from(connectedSockets).map(
-      (socket) => socket.id
-    );
-
-    const updatedRooms: Promise<RoomType>[] = Array.from(roomNames)
-      .filter((value) => !socketsArray.includes(value) && value !== "lobby")
-      // Filter out the main lobby and rooms with the sockets.id (those are default rooms created by socket.io for private messsages)
-      .map(async (value) => {
-        const users = await fetchUsersInRoom(value);
-        return { name: value, users: users };
-      });
-    const lobby: LobbyStateType = {
-      rooms: await Promise.all(updatedRooms),
-    };
-    io.emit("updateLobby", lobby);
-  };
-  const updateUserList = async (roomName: string) => {
-    console.log("UpdateUserList is ran");
-    const users = await fetchUsersInRoom(roomName);
-    if (roomName === "lobby") {
-      console.log("updating lobby!");
-      io.emit("updateLobbyUserList", users);
-    } else {
-      console.log("updating room!");
-      io.to(roomName).emit("updateRoomUserList", users);
-      // io.emit("updateRoomUserList", users);
-    }
-  };
-
-  socket.on("fetchUsersInRoom", async (roomName, callback) => {
-    callback(await fetchUsersInRoom(roomName));
-  });
-
-  const fetchUsersInRoom = async (roomName: string) => {
-    const sockets = await io.in(roomName).fetchSockets();
-    const users = sockets.map((socket) => socket.data.user);
-    return users;
   };
 
   socket.on("createRoom", async (roomName, callback) => {
@@ -116,8 +139,8 @@ io.on("connection", (socket) => {
 
     await socket.join(roomName);
     const UsersInRoom = await fetchUsersInRoom(roomName);
-    await updateLobby();
-    await updateUserList(roomName);
+    // await updateLobby();
+    // await updateUserList(roomName);
     callback(roomName, UsersInRoom);
   });
 
@@ -125,8 +148,8 @@ io.on("connection", (socket) => {
     await leaveAllRooms();
     await socket.join(roomName);
     const UsersInRoom = await fetchUsersInRoom(roomName);
-    await updateLobby();
-    await updateUserList(roomName);
+    // await updateLobby();
+    // await updateUserList(roomName);
     callback(roomName, UsersInRoom);
   });
 

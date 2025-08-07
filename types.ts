@@ -13,9 +13,11 @@ export interface ServerToClientEvents {
   roomChat: (msg: { room: string; message: string }) => void;
   updateRoomUserList: (users: UserType[]) => void;
   updateLobbyUserList: (users: UserType[]) => void;
+  userDisconnecting: (user: UserType) => void;
 }
 
 export interface ClientToServerEvents {
+  updateRoom: (roomName: string) => void;
   hello: () => void;
   lobbyChat: (
     msg: { username: string; message: string },
@@ -65,6 +67,7 @@ export interface InterServerEvents {
 }
 
 export interface SocketData {
+  id: string;
   user: { name: string; id: string };
 }
 
