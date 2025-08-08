@@ -4,7 +4,7 @@ export interface ServerToClientEvents {
   withAck: (d: string, callback: (e: number) => void) => void;
   chatMessage: (msg: ChatMessageType) => void;
   response: (msg: string) => void;
-  updateLobby: (lobby: LobbyStateType) => void;
+  updateLobby: (lobby: RoomType[]) => void;
   setUser: (msg: { name: string; id: string }) => void;
   fetchSocketsInRoom: (sockets: any[]) => void;
   fetchUsersInRoom: (users: any[]) => void;
@@ -14,9 +14,14 @@ export interface ServerToClientEvents {
   updateRoomUserList: (users: UserType[]) => void;
   updateLobbyUserList: (users: UserType[]) => void;
   userDisconnecting: (user: UserType) => void;
+  updateUser: (user: UserType) => void;
+  roomCreated: (roomName: string) => void;
+  roomJoined: (roomName: string) => void;
+  roomLeft: (roomName: string) => void;
 }
 
 export interface ClientToServerEvents {
+  fetchRoomsInLobby: (callback: (lobby: RoomType[]) => void) => void;
   updateRoom: (roomName: string) => void;
   hello: () => void;
   lobbyChat: (
@@ -50,11 +55,8 @@ export interface ClientToServerEvents {
     roomName: string,
     callback: (users: any[]) => void
   ) => void;
-  setUser: (
-    user: UserType,
-    roomName: string,
-    callback: (response: any) => void
-  ) => void;
+  setUser: (user: UserType, callback: (response: any) => void) => void;
+
   UserListRendered: (
     roomName: string,
     callback: (response: any) => void
@@ -86,7 +88,4 @@ export type UserType = {
 export type RoomType = {
   name: string;
   users: UserType[];
-};
-export type LobbyStateType = {
-  rooms: RoomType[];
 };
