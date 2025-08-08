@@ -37,7 +37,7 @@ io.of("/").adapter.on("join-room", async (room, id) => {
 });
 
 io.of("/").adapter.on("leave-room", (room, id) => {
-  io.emit("roomLeft", room);
+  io.to(room).emit("roomLeft", room);
   console.log(`socket ${id} has left room ${room}`);
 });
 
