@@ -128,8 +128,7 @@ io.on("connection", async (socket) => {
   socket.on("joinRoom", async (roomName, callback) => {
     await leaveAllRooms();
     await socket.join(roomName);
-    const UsersInRoom = await fetchUsersInRoom(roomName);
-    callback(roomName, UsersInRoom);
+    callback(roomName);
   });
 
   socket.on("chatMessage", (msg, callback) => {
