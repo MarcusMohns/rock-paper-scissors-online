@@ -41,14 +41,14 @@ io.of("/").adapter.on("leave-room", (room, id) => {
   console.log(`socket ${id} has left room ${room}`);
 });
 
-io.on("connection", async (socket) => {
-  socket.on("connected", async (user, callback) => {
+io.on("connection", (socket) => {
+  socket.on("connected", (user, callback) => {
     socket.data.user = user;
     callback({ ...user, socketId: socket.id });
     // Return socket id to client - we'll use this to send private messages.
   });
 
-  socket.on("setUser", async (user, callback) => {
+  socket.on("setUser", (user, callback) => {
     socket.data.user = user;
     io.emit("updateUser", user);
     callback(user);
