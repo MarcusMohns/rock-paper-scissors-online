@@ -10,6 +10,8 @@ import {
   UserType,
 } from "./types";
 
+const ROOM_CAPACITY = 2;
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server<
@@ -26,8 +28,6 @@ const io = new Server<
 io.of("/").adapter.on("create-room", (room) => {
   console.log(`room ${room} was created`);
   // io.to(room).emit("roomJoined", room);
-  // Restarting using this as jump off point. -> this emits that room has been created, so on client side it should emit updateLobby and
-  // use the return value from that to update the state
 });
 
 io.of("/").adapter.on("join-room", async (room, id) => {
@@ -112,23 +112,25 @@ io.on("connection", (socket) => {
   };
 
   socket.on("createRoom", async (roomName, callback) => {
+    const rooms = io.of("/").adapter.rooms;
+    if (rooms.has(roomName)) {
+      callback({ roomName: roomName, status: "Room already exists" });
+      return;
+    }
     await leaveAllRooms();
-    // if (rooms.has(roomName)) {
-    //   console.log(`Room ${roomName} already exists.`);
-    //   io.emit("response", `Room ${roomName} already exists.`);
-    //   // This needs to prompt user to change room name!
-    //   return;
-    // }
-
     await socket.join(roomName);
-    const UsersInRoom = await fetchUsersInRoom(roomName);
-    callback(roomName, UsersInRoom);
+    callback({ roomName: roomName, status: "ok" });
   });
 
   socket.on("joinRoom", async (roomName, callback) => {
+    const users = await fetchUsersInRoom(roomName);
+    if (users.length >= ROOM_CAPACITY && roomName !== "lobby") {
+      callback({ roomName: roomName, status: "Room already full" });
+      return;
+    }
     await leaveAllRooms();
     await socket.join(roomName);
-    callback(roomName);
+    callback({ roomName: roomName, status: "ok" });
   });
 
   socket.on("chatMessage", (msg, callback) => {
