@@ -7,7 +7,7 @@ export interface ServerToClientEvents {
   updateLobby: (lobby: RoomType[]) => void;
   setUser: (msg: { name: string; id: string }) => void;
   fetchSocketsInRoom: (sockets: any[]) => void;
-  fetchUsersInRoom: (users: any[]) => void;
+  fetchUsersInRoom: (roomName: string) => Promise<UserType[]>;
   usersInRoom: (users: any[]) => void;
   updateUserList: (users: UserType[]) => void;
   roomChat: (msg: { room: string; message: string }) => void;
@@ -39,9 +39,13 @@ export interface ClientToServerEvents {
   ) => void;
   createRoom: (
     roomName: string,
-    callback: (roomName: any, users: any) => void
+    callback: (result: { roomName: string; status: string }) => void
   ) => void;
-  joinRoom: (roomName: string, callback: (roomName: any) => void) => void;
+  joinRoom: (
+    roomName: string,
+    callback: (result: { roomName: string; status: string }) => void
+  ) => void;
+
   leaveRoom: (roomName: string, callback: (roomName: any) => void) => void;
   connected: (user: UserType, callback: (response: any) => void) => void;
   leaveAllRooms: () => void;
