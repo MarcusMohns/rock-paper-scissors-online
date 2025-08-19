@@ -41,6 +41,10 @@ export interface ClientToServerEvents {
     roomName: string,
     callback: (result: { roomName: string; status: string }) => void
   ) => void;
+  createGame: (
+    roomName: string,
+    callback: (result: { roomName: string; status: string }) => void
+  ) => void;
   joinRoom: (
     roomName: string,
     callback: (result: { roomName: string; status: string }) => void
