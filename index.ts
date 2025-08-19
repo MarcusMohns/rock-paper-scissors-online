@@ -25,8 +25,11 @@ const io = new Server<
     origin: "http://localhost:5173",
   },
 });
+
+/// ADAPTER EVENTS
 io.of("/").adapter.on("create-room", (room) => {
   console.log(`room ${room} was created`);
+
   // io.to(room).emit("roomJoined", room);
 });
 
@@ -40,7 +43,31 @@ io.of("/").adapter.on("leave-room", (room, id) => {
   io.to(room).emit("roomLeft", room);
   console.log(`socket ${id} has left room ${room}`);
 });
+///
 
+const gamesNamespace = io.of("/games");
+gamesNamespace.on("connection", (socket) => {
+  const leaveAllRooms = async () => {
+    socket.rooms.forEach((room) => {
+      if (room !== socket.id) {
+        // each socket is in a private room named by the socket id so leave all rooms that isnt that one
+        socket.leave(room);
+      }
+    });
+  };
+  socket.on("createGame", async (roomName: string, callback) => {
+    const rooms = io.of("/").adapter.rooms;
+    if (rooms.has(roomName)) {
+      callback({ roomName: roomName, status: "Room already exists" });
+      return;
+    }
+    await leaveAllRooms();
+    await socket.join(roomName);
+    callback({ roomName: roomName, status: "ok" });
+  });
+});
+
+/// SOCKET EVENTS
 io.on("connection", (socket) => {
   socket.on("connected", (user, callback) => {
     socket.data.user = user;
