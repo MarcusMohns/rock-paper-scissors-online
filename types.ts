@@ -6,8 +6,6 @@ export interface ServerToClientEvents {
   response: (msg: string) => void;
   updateLobby: (lobby: RoomType[]) => void;
   setUser: (msg: { name: string; id: string }) => void;
-  fetchSocketsInRoom: (sockets: any[]) => void;
-  fetchUsersInRoom: (roomName: string) => Promise<UserType[]>;
   usersInRoom: (users: any[]) => void;
   updateUserList: (users: UserType[]) => void;
   roomChat: (msg: { room: string; message: string }) => void;
@@ -18,6 +16,9 @@ export interface ServerToClientEvents {
   roomCreated: (roomName: string) => void;
   roomJoined: (roomName: string) => void;
   roomLeft: (roomName: string) => void;
+  gameLeft: (roomName: string) => void;
+  gameJoined: (gameName: string) => void;
+  gameCreated: (gameName: string) => void;
 }
 
 export interface ClientToServerEvents {
@@ -42,14 +43,29 @@ export interface ClientToServerEvents {
     callback: (result: { roomName: string; status: string }) => void
   ) => void;
   createGame: (
-    roomName: string,
-    callback: (result: { roomName: string; status: string }) => void
+    gameName: string,
+    callback: (result: {
+      players: {
+        player1: UserType | null;
+        player2: UserType | null;
+      };
+      status: string;
+    }) => void
   ) => void;
   joinRoom: (
     roomName: string,
     callback: (result: { roomName: string; status: string }) => void
   ) => void;
-
+  createOrJoinGame: (
+    gameName: string,
+    callback: (result: {
+      players: {
+        player1: UserType | null;
+        player2: UserType | null;
+      };
+      status: string;
+    }) => void
+  ) => void;
   leaveRoom: (roomName: string, callback: (roomName: any) => void) => void;
   connected: (user: UserType, callback: (response: any) => void) => void;
   leaveAllRooms: () => void;
@@ -60,6 +76,10 @@ export interface ClientToServerEvents {
   fetchUsersInRoom: (
     roomName: string,
     callback: (users: any[]) => void
+  ) => void;
+  fetchPlayersInGame: (
+    roomName: string,
+    callback: (players: PlayersType) => void
   ) => void;
   setUser: (user: UserType, callback: (response: any) => void) => void;
 
@@ -94,4 +114,9 @@ export type UserType = {
 export type RoomType = {
   name: string;
   users: UserType[];
+};
+
+export type PlayersType = {
+  player1: UserType | null;
+  player2: UserType | null;
 };

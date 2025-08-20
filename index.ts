@@ -28,26 +28,54 @@ const io = new Server<
 
 /// ADAPTER EVENTS
 io.of("/").adapter.on("create-room", (room) => {
-  console.log(`room ${room} was created`);
-
+  // console.log(`room ${room} was created`);
   // io.to(room).emit("roomJoined", room);
 });
 
 io.of("/").adapter.on("join-room", async (room, id) => {
   io.to(room).emit("roomJoined", room);
-  console.log(`socket ${id} has joined room ${room}`);
+  // console.log(`socket ${id} has joined room ${room}`);
   // Yep same here, joins a room , its emitted to the room that someone is joined, emit updateRoom and use the return value from that to update the state
 });
 
 io.of("/").adapter.on("leave-room", (room, id) => {
   io.to(room).emit("roomLeft", room);
-  console.log(`socket ${id} has left room ${room}`);
+  // console.log(`socket ${id} has left room ${room}`);
 });
 ///
+io.of("/games").adapter.on("join-room", async (room, id) => {
+  console.log("room joined!");
+  io.to(room).emit("gameJoined", room);
+});
 
+io.of("/games").adapter.on("leave-room", (room, id) => {
+  io.to(room).emit("gameLeft", room);
+});
+
+// GAMES NAMESPACE
+// This is a separate namespace for games, it can be used for game-specific logic and events
 const gamesNamespace = io.of("/games");
+
 gamesNamespace.on("connection", (socket) => {
-  const leaveAllRooms = async () => {
+  socket.on("connected", (user) => {
+    socket.data.user = user;
+  });
+
+  const fetchPlayersInGame = async (roomName: string) => {
+    const sockets = await gamesNamespace.in(roomName).fetchSockets();
+    const players = sockets.map((socket) => socket.data.user);
+    const playersInGame = {
+      player1: players[0] ? players[0] : null,
+      player2: players[1] ? players[1] : null,
+    };
+    return playersInGame;
+  };
+  socket.on("fetchPlayersInGame", async (roomName, callback) => {
+    const playersInGame = await fetchPlayersInGame(roomName);
+    callback(playersInGame);
+  });
+
+  const leaveAllGames = async () => {
     socket.rooms.forEach((room) => {
       if (room !== socket.id) {
         // each socket is in a private room named by the socket id so leave all rooms that isnt that one
@@ -55,15 +83,39 @@ gamesNamespace.on("connection", (socket) => {
       }
     });
   };
-  socket.on("createGame", async (roomName: string, callback) => {
-    const rooms = io.of("/").adapter.rooms;
-    if (rooms.has(roomName)) {
-      callback({ roomName: roomName, status: "Room already exists" });
-      return;
+
+  socket.on("createOrJoinGame", async (gameName: string, callback) => {
+    // Review
+    const games = io.of("/games").adapter.rooms;
+    const playersInGame = await fetchPlayersInGame(gameName);
+    const atCapacity = playersInGame.player1 && playersInGame.player2;
+    // If the game already exists
+    if (games.has(gameName)) {
+      // check if the games full
+      if (atCapacity) {
+        callback({
+          players: playersInGame,
+          status: "Seat Taken",
+        });
+        return;
+      } else {
+        // Join the game
+        await leaveAllGames();
+        await socket.join(gameName);
+
+        // This shouldtn be necessary we should update it on join or leave room fix
+        const playersInGame = await fetchPlayersInGame(gameName);
+        callback({ players: playersInGame, status: "ok" });
+      }
+    } else if (!games.has(gameName)) {
+      // Create the game
+      await leaveAllGames();
+      await socket.join(gameName);
+
+      // This shouldtn be necessary we should update it on join or leave room fix
+      const playersInGame = await fetchPlayersInGame(gameName);
+      callback({ players: playersInGame, status: "ok" });
     }
-    await leaveAllRooms();
-    await socket.join(roomName);
-    callback({ roomName: roomName, status: "ok" });
   });
 });
 
