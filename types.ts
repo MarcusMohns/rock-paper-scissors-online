@@ -58,16 +58,11 @@ export interface ClientToServerEvents {
   ) => void;
   createOrJoinGame: (
     gameName: string,
-    callback: (result: {
-      players: {
-        player1: UserType | null;
-        player2: UserType | null;
-      };
-      status: string;
-    }) => void
+    callback: (result: { status: string }) => void
   ) => void;
   leaveRoom: (roomName: string, callback: (roomName: any) => void) => void;
   connected: (user: UserType, callback: (response: any) => void) => void;
+  leaveAllGames: () => void;
   leaveAllRooms: () => void;
   fetchSocketsInRoom: (
     roomName: string,

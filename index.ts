@@ -10,7 +10,8 @@ import {
   UserType,
 } from "./types";
 
-const ROOM_CAPACITY = 2;
+const ROOM_CAPACITY = 10;
+const GAME_CAPACITY = 2;
 
 const app = express();
 const httpServer = createServer(app);
@@ -27,33 +28,32 @@ const io = new Server<
 });
 
 /// ADAPTER EVENTS
-io.of("/").adapter.on("create-room", (room) => {
-  // console.log(`room ${room} was created`);
-  // io.to(room).emit("roomJoined", room);
-});
+// io.of("/").adapter.on("create-room", (room) => {
+
+// });
 
 io.of("/").adapter.on("join-room", async (room, id) => {
   io.to(room).emit("roomJoined", room);
-  // console.log(`socket ${id} has joined room ${room}`);
-  // Yep same here, joins a room , its emitted to the room that someone is joined, emit updateRoom and use the return value from that to update the state
 });
 
 io.of("/").adapter.on("leave-room", (room, id) => {
   io.to(room).emit("roomLeft", room);
-  // console.log(`socket ${id} has left room ${room}`);
 });
-///
+
+// GAMES NAMESPACE
+// This is a separate namespace for games, it can be used for game-specific logic and events
+
 io.of("/games").adapter.on("join-room", async (room, id) => {
-  console.log("room joined!");
+  // Emit to the room in the main namespace that a player has joined the game
+  // we do this to alert players in the room not just the players that are in the game
   io.to(room).emit("gameJoined", room);
+  // The room name is the same in both gamesNamespace and the main namspace
 });
 
 io.of("/games").adapter.on("leave-room", (room, id) => {
   io.to(room).emit("gameLeft", room);
 });
 
-// GAMES NAMESPACE
-// This is a separate namespace for games, it can be used for game-specific logic and events
 const gamesNamespace = io.of("/games");
 
 gamesNamespace.on("connection", (socket) => {
@@ -65,6 +65,7 @@ gamesNamespace.on("connection", (socket) => {
     const sockets = await gamesNamespace.in(roomName).fetchSockets();
     const players = sockets.map((socket) => socket.data.user);
     const playersInGame = {
+      // Return players in a format that is easy to use on the client side (null = empty player slot)
       player1: players[0] ? players[0] : null,
       player2: players[1] ? players[1] : null,
     };
@@ -73,6 +74,10 @@ gamesNamespace.on("connection", (socket) => {
   socket.on("fetchPlayersInGame", async (roomName, callback) => {
     const playersInGame = await fetchPlayersInGame(roomName);
     callback(playersInGame);
+  });
+
+  socket.on("leaveAllGames", async () => {
+    await leaveAllGames();
   });
 
   const leaveAllGames = async () => {
@@ -85,7 +90,6 @@ gamesNamespace.on("connection", (socket) => {
   };
 
   socket.on("createOrJoinGame", async (gameName: string, callback) => {
-    // Review
     const games = io.of("/games").adapter.rooms;
     const playersInGame = await fetchPlayersInGame(gameName);
     const atCapacity = playersInGame.player1 && playersInGame.player2;
@@ -93,28 +97,18 @@ gamesNamespace.on("connection", (socket) => {
     if (games.has(gameName)) {
       // check if the games full
       if (atCapacity) {
-        callback({
-          players: playersInGame,
-          status: "Seat Taken",
-        });
+        console.log(playersInGame);
+        callback({ status: "Game full" });
         return;
       } else {
         // Join the game
         await leaveAllGames();
         await socket.join(gameName);
-
-        // This shouldtn be necessary we should update it on join or leave room fix
-        const playersInGame = await fetchPlayersInGame(gameName);
-        callback({ players: playersInGame, status: "ok" });
       }
     } else if (!games.has(gameName)) {
       // Create the game
       await leaveAllGames();
       await socket.join(gameName);
-
-      // This shouldtn be necessary we should update it on join or leave room fix
-      const playersInGame = await fetchPlayersInGame(gameName);
-      callback({ players: playersInGame, status: "ok" });
     }
   });
 });
@@ -204,7 +198,7 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", async (roomName, callback) => {
     const users = await fetchUsersInRoom(roomName);
     if (users.length >= ROOM_CAPACITY && roomName !== "lobby") {
-      callback({ roomName: roomName, status: "Room already full" });
+      callback({ roomName: roomName, status: "Room is full" });
       return;
     }
     await leaveAllRooms();
