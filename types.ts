@@ -19,6 +19,7 @@ export interface ServerToClientEvents {
   gameLeft: (roomName: string) => void;
   gameJoined: (gameName: string) => void;
   gameCreated: (gameName: string) => void;
+  startCountdown: () => void;
 }
 
 export interface ClientToServerEvents {
@@ -76,6 +77,10 @@ export interface ClientToServerEvents {
     roomName: string,
     callback: (players: PlayersType) => void
   ) => void;
+  startGameCountdown: (
+    roomName: string,
+    callback: (response: { status: string }) => void
+  ) => void;
   setUser: (user: UserType, callback: (response: any) => void) => void;
 
   UserListRendered: (
@@ -92,7 +97,28 @@ export interface InterServerEvents {
 export interface SocketData {
   id: string;
   user: { name: string; id: string };
+  game: GameType;
 }
+
+export type GameType = {
+  name: string;
+  players: {
+    player1: UserType | null;
+    player2: UserType | null;
+  };
+  state: {
+    winner: "player1" | "player2" | "draw" | null;
+    status: "waiting" | "playing" | "finished";
+    rounds: RoundType[];
+    combatLog: [];
+  };
+};
+
+export type RoundType = {
+  player1Choice: "rock" | "paper" | "scissors" | null;
+  player2Choice: "rock" | "paper" | "scissors" | null;
+  winner: "player1" | "player2" | "draw" | null;
+};
 
 export type ChatMessageType = {
   username: string;

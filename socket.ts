@@ -8,6 +8,7 @@ import {
 } from "./types";
 
 const ROOM_CAPACITY = 10;
+const GAME_CAPACITY = 2;
 
 export function registerSocketHandlers(
   io: Server<
@@ -145,30 +146,9 @@ export function registerGameNamespaceHandlers(
 
   gamesNamespace.on("connection", (socket) => {
     socket.on("connected", (user) => {
+      // User sends their user data & we save it on the socket.data 'session'
       socket.data.user = user;
     });
-
-    const fetchPlayersInGame = async (roomName: string) => {
-      const sockets = await gamesNamespace.in(roomName).fetchSockets();
-      const players = sockets.map((socket) => socket.data.user);
-      return {
-        player1: players[0] ? players[0] : null,
-        player2: players[1] ? players[1] : null,
-      };
-    };
-
-    socket.on("fetchPlayersInGame", async (roomName, callback) => {
-      const playersInGame = await fetchPlayersInGame(roomName);
-      callback(playersInGame);
-    });
-
-    const leaveAllGames = async () => {
-      socket.rooms.forEach((room) => {
-        if (room !== socket.id) {
-          socket.leave(room);
-        }
-      });
-    };
 
     socket.on("leaveAllGames", async () => {
       await leaveAllGames();
@@ -186,16 +166,102 @@ export function registerGameNamespaceHandlers(
           return;
         } else {
           // If game has space and exists, join the game
-          await leaveAllGames();
-          await socket.join(gameName);
-          callback({ status: "ok" });
+          try {
+            await leaveAllGames();
+            await socket.join(gameName);
+            initializeGameState(gameName);
+            callback({ status: "ok" });
+          } catch (error) {
+            callback({ status: "Error joining game" });
+            return;
+          }
         }
       } else {
         // If game does not exist, create and join the game
-        await leaveAllGames();
-        await socket.join(gameName);
-        callback({ status: "ok" });
+        try {
+          await leaveAllGames();
+          await socket.join(gameName);
+          initializeGameState(gameName);
+          callback({ status: "ok" });
+        } catch (error) {
+          callback({ status: "Error creating game" });
+          return;
+        }
       }
     });
+
+    socket.on("fetchPlayersInGame", async (roomName, callback) => {
+      const playersInGame = await fetchPlayersInGame(roomName);
+      callback(playersInGame);
+    });
+
+    // Game logic events
+
+    socket.on("startGameCountdown", async (roomName, callback) => {
+      const playersInGame = await fetchPlayersInGame(roomName);
+      const bothPlayersConnected =
+        playersInGame && playersInGame.player1 && playersInGame.player2;
+      console.log(socket.data.game);
+
+      if (bothPlayersConnected) {
+        io.to(roomName).emit("startCountdown");
+        callback({ status: "ok" });
+        return;
+      } else {
+        callback({ status: "Missing players" });
+        return;
+      }
+    });
+
+    // socket.on("startGame", async (roomName, callback) => {
+    //   if (!(await veriFyPlayerInGame(roomName, socket.data.user))) {
+    //     callback({ status: "User not in game" });
+    //     return;
+    //   }
+    //   callback({ status: "ok" });
+    // });
+
+    // Helper functions for game namespace
+
+    const initializeGameState = async (gameName) => {
+      socket.data.game = {
+        name: gameName,
+        players: {
+          player1: null,
+          player2: null,
+        },
+        state: {
+          winner: null,
+          status: "waiting",
+          rounds: [
+            { player1Choice: null, player2Choice: null, winner: null },
+            { player1Choice: null, player2Choice: null, winner: null },
+            { player1Choice: null, player2Choice: null, winner: null },
+          ],
+          combatLog: [],
+        },
+      };
+    };
+
+    const updateGameState = async (gameState: any) => {
+      socket.data.game = { ...socket.data.game, state: gameState };
+    };
+
+    const leaveAllGames = async () => {
+      socket.rooms.forEach((room) => {
+        if (room !== socket.id) {
+          socket.leave(room);
+        }
+      });
+    };
+
+    const fetchPlayersInGame = async (roomName: string) => {
+      const sockets = await gamesNamespace.in(roomName).fetchSockets();
+      const players = sockets.map((socket) => socket.data.user);
+      return {
+        player1: players[0] ? players[0] : null,
+        player2: players[1] ? players[1] : null,
+      };
+    };
   });
 }
