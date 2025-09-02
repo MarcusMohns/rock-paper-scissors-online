@@ -82,7 +82,12 @@ export interface ClientToServerEvents {
     callback: (response: { status: string }) => void
   ) => void;
   setUser: (user: UserType, callback: (response: any) => void) => void;
-
+  startGame: (
+    roomName: string,
+    callback: (
+      response: { status: string; gameState: GameType } | { status: string }
+    ) => void
+  ) => void;
   UserListRendered: (
     roomName: string,
     callback: (response: any) => void
@@ -106,12 +111,10 @@ export type GameType = {
     player1: UserType | null;
     player2: UserType | null;
   };
-  state: {
-    winner: "player1" | "player2" | "draw" | null;
-    status: "waiting" | "playing" | "finished";
-    rounds: RoundType[];
-    combatLog: [];
-  };
+  winner: "player1" | "player2" | "draw" | null;
+  status: "waiting" | "playing" | "finished";
+  rounds: RoundType[];
+  combatLog: [];
 };
 
 export type RoundType = {
