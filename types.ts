@@ -20,6 +20,7 @@ export interface ServerToClientEvents {
   gameJoined: (gameName: string) => void;
   gameCreated: (gameName: string) => void;
   startCountdown: () => void;
+  cancelCountdown: () => void;
 }
 
 export interface ClientToServerEvents {
@@ -63,7 +64,8 @@ export interface ClientToServerEvents {
   ) => void;
   leaveRoom: (roomName: string, callback: (roomName: any) => void) => void;
   connected: (user: UserType, callback: (response: any) => void) => void;
-  leaveAllGames: () => void;
+  leaveAllGames: (gameName: string) => void;
+  cancelGame: (gameName: string) => void;
   leaveAllRooms: () => void;
   fetchSocketsInRoom: (
     roomName: string,
@@ -88,6 +90,7 @@ export interface ClientToServerEvents {
       response: { status: string; gameState: GameType } | { status: string }
     ) => void
   ) => void;
+  cancelGameCountdown: (roomName: string) => void;
   UserListRendered: (
     roomName: string,
     callback: (response: any) => void
@@ -115,7 +118,7 @@ export type GameType = {
   status: "waiting" | "playing" | "finished";
   rounds: RoundType[];
   combatLog: [];
-};
+} | null;
 
 export type RoundType = {
   player1Choice: "rock" | "paper" | "scissors" | null;

@@ -142,16 +142,13 @@ export function registerGameNamespaceHandlers(
     // Emit to the room on the main namespace (not the games namespace) that a player has left
     // This is used to update everyone in the room (players and spectators)
     io.to(room).emit("gameLeft", room);
+    io.to(room).emit("cancelCountdown");
   });
 
   gamesNamespace.on("connection", (socket) => {
     socket.on("connected", (user) => {
       // User sends their user data & we save it on the socket.data 'session'
       socket.data.user = user;
-    });
-
-    socket.on("leaveAllGames", async () => {
-      await leaveAllGames();
     });
 
     socket.on("createOrJoinGame", async (gameName: string, callback) => {
@@ -210,18 +207,25 @@ export function registerGameNamespaceHandlers(
       }
     });
 
+    socket.on("cancelGameCountdown", async (gameName) => {
+      io.to(gameName).emit("cancelCountdown");
+    });
+
     socket.on("startGame", async (gameName, callback) => {
-      await initializeGameState(gameName);
-      if (socket.data.game.name === gameName) {
+      await playingGameStateInit(gameName);
+      if (socket.data.game && socket.data.game.name === gameName) {
         callback({ status: "ok", gameState: socket.data.game });
       } else {
         callback({ status: "error" });
       }
     });
+    socket.on("leaveAllGames", async (gameName) => {
+      await leaveAllGames();
+    });
 
     // Helper functions for game namespace
 
-    const initializeGameState = async (gameName) => {
+    const playingGameStateInit = async (gameName: string) => {
       socket.data.game = {
         name: gameName,
         players: await fetchPlayersInGame(gameName),
@@ -244,8 +248,8 @@ export function registerGameNamespaceHandlers(
       });
     };
 
-    const fetchPlayersInGame = async (roomName: string) => {
-      const sockets = await gamesNamespace.in(roomName).fetchSockets();
+    const fetchPlayersInGame = async (gameName: string) => {
+      const sockets = await gamesNamespace.in(gameName).fetchSockets();
       const players = sockets.map((socket) => socket.data.user);
       return {
         player1: players[0] ? players[0] : null,
