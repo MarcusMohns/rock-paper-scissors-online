@@ -5,7 +5,9 @@ import {
   InterServerEvents,
   SocketData,
   UserType,
+  GameStateType,
 } from "./types";
+import { gameData, defaultGameState, startedGameState } from "./store";
 
 const ROOM_CAPACITY = 10;
 const GAME_CAPACITY = 2;
@@ -212,32 +214,47 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("startGame", async (gameName, callback) => {
-      await playingGameStateInit(gameName);
-      if (socket.data.game && socket.data.game.name === gameName) {
-        callback({ status: "ok", gameState: socket.data.game });
+      if ((await setSocketGameData(gameName, startedGameState)) === "ok") {
+        callback({ status: "ok", game: socket.data.game });
+        io.to(gameName).emit("gameStarted", socket.data.game);
       } else {
-        callback({ status: "error" });
+        callback({ status: "error", game: null });
       }
     });
+
+    socket.on("resetGame", async (gameName, callback) => {
+      if ((await setSocketGameData(gameName, defaultGameState)) === "ok") {
+        callback({ status: "ok", game: socket.data.game });
+        io.to(gameName).emit("gameReset", socket.data.game);
+      } else {
+        callback({ status: "error", game: null });
+      }
+    });
+
+    // socket.on("loseGame", async (gameName, callback) => {
+    //   if (socket.data.game) {
+    //     const lostGameState = {
+    //       ...socket.data.game,
+    //       state: { ...socket.data.game.state, player1: null, player2: null },
+    //     };
+    //   }
+    // });
+
     socket.on("leaveAllGames", async (gameName) => {
       await leaveAllGames();
     });
-
     // Helper functions for game namespace
 
-    const playingGameStateInit = async (gameName: string) => {
-      socket.data.game = {
-        name: gameName,
-        players: await fetchPlayersInGame(gameName),
-        winner: null,
-        status: "playing",
-        rounds: [
-          { player1Choice: null, player2Choice: null, winner: null },
-          { player1Choice: null, player2Choice: null, winner: null },
-          { player1Choice: null, player2Choice: null, winner: null },
-        ],
-        combatLog: [],
-      };
+    const setSocketGameData = async (
+      gameName: string,
+      state: GameStateType
+    ) => {
+      const players = await fetchPlayersInGame(gameName);
+      const socketGameData = gameData({ gameName, players, state });
+      socket.data.game = socketGameData;
+
+      console.log(socket.data.game);
+      return "ok";
     };
 
     const leaveAllGames = async () => {

@@ -21,6 +21,8 @@ export interface ServerToClientEvents {
   gameCreated: (gameName: string) => void;
   startCountdown: () => void;
   cancelCountdown: () => void;
+  gameReset: (data: GameType) => void;
+  gameStarted: (data: GameType) => void;
 }
 
 export interface ClientToServerEvents {
@@ -86,9 +88,11 @@ export interface ClientToServerEvents {
   setUser: (user: UserType, callback: (response: any) => void) => void;
   startGame: (
     roomName: string,
-    callback: (
-      response: { status: string; gameState: GameType } | { status: string }
-    ) => void
+    callback: ({ status, game }: { status: string; game: GameType }) => void
+  ) => void;
+  resetGame: (
+    roomName: string,
+    callback: ({ status, game }: { status: string; game: GameType }) => void
   ) => void;
   cancelGameCountdown: (roomName: string) => void;
   UserListRendered: (
@@ -114,11 +118,15 @@ export type GameType = {
     player1: UserType | null;
     player2: UserType | null;
   };
+  state: GameStateType;
+} | null;
+
+export type GameStateType = {
   winner: "player1" | "player2" | "draw" | null;
   status: "waiting" | "playing" | "finished";
   rounds: RoundType[];
   combatLog: [];
-} | null;
+};
 
 export type RoundType = {
   player1Choice: "rock" | "paper" | "scissors" | null;
