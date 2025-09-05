@@ -214,7 +214,7 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("startGame", async (gameName, callback) => {
-      if ((await setSocketGameData(gameName, startedGameState)) === "ok") {
+      if ((await setSocketGameState(gameName, startedGameState)) === "ok") {
         callback({ status: "ok", game: socket.data.game });
         io.to(gameName).emit("gameStarted", socket.data.game);
       } else {
@@ -223,7 +223,7 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("resetGame", async (gameName, callback) => {
-      if ((await setSocketGameData(gameName, defaultGameState)) === "ok") {
+      if ((await setSocketGameState(gameName, defaultGameState)) === "ok") {
         callback({ status: "ok", game: socket.data.game });
         io.to(gameName).emit("gameReset", socket.data.game);
       } else {
@@ -231,30 +231,55 @@ export function registerGameNamespaceHandlers(
       }
     });
 
-    // socket.on("loseGame", async (gameName, callback) => {
-    //   if (socket.data.game) {
-    //     const lostGameState = {
-    //       ...socket.data.game,
-    //       state: { ...socket.data.game.state, player1: null, player2: null },
-    //     };
-    //   }
-    // });
+    socket.on("loseGame", async (gameName, user, callback) => {
+      if (
+        socket.data.game &&
+        socket.data.game.players.player1 &&
+        socket.data.game.players.player2
+      ) {
+        const winner =
+          socket.data.game.players.player1.id === user.id
+            ? // If the player who lost is player 1, return player 2
+              socket.data.game.players.player2
+            : socket.data.game.players.player1;
+        const lostGameState: GameStateType = {
+          ...socket.data.game.state,
+          winner: winner,
+          status: "finished",
+          combatLog: [
+            ...socket.data.game.state.combatLog,
+            `${winner.name} won!`,
+          ],
+        };
+        const response = await setSocketGameState(gameName, lostGameState);
+        if (response === "ok") {
+          callback({ status: "ok", game: socket.data.game });
+          io.to(gameName).emit("gameLost", socket.data.game);
+        } else {
+          callback({ status: response, game: null });
+        }
+      }
+    });
 
     socket.on("leaveAllGames", async (gameName) => {
       await leaveAllGames();
     });
     // Helper functions for game namespace
 
-    const setSocketGameData = async (
+    const setSocketGameState = async (
       gameName: string,
       state: GameStateType
     ) => {
-      const players = await fetchPlayersInGame(gameName);
-      const socketGameData = gameData({ gameName, players, state });
-      socket.data.game = socketGameData;
+      try {
+        const players = await fetchPlayersInGame(gameName);
+        const socketGameData = gameData({ gameName, players, state });
+        socket.data.game = socketGameData;
+        return "ok";
+      } catch (error) {
+        return "error setting socket.data.game";
+      }
 
-      console.log(socket.data.game);
-      return "ok";
+      // console.log(socket.data.game);
     };
 
     const leaveAllGames = async () => {
