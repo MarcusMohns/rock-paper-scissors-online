@@ -223,7 +223,11 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("resetGame", async (gameName, callback) => {
-      if ((await setSocketGameState(gameName, defaultGameState)) === "ok") {
+      const resetGameState = {
+        ...defaultGameState,
+        combatLog: [`Game was reset by ${socket.data.user.name}`],
+      };
+      if ((await setSocketGameState(gameName, resetGameState)) === "ok") {
         callback({ status: "ok", game: socket.data.game });
         io.to(gameName).emit("gameReset", socket.data.game);
       } else {
@@ -264,8 +268,8 @@ export function registerGameNamespaceHandlers(
     socket.on("leaveAllGames", async (gameName) => {
       await leaveAllGames();
     });
-    // Helper functions for game namespace
 
+    // Helper functions for game namespace
     const setSocketGameState = async (
       gameName: string,
       state: GameStateType
