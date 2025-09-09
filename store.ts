@@ -17,7 +17,7 @@ export const defaultGameState: GameStateType = {
     { player1Choice: null, player2Choice: null, winner: null },
     { player1Choice: null, player2Choice: null, winner: null },
   ],
-  combatLog: ["Game has been reset"],
+  combatLog: [],
 };
 
 export const startedGameState: GameStateType = {
@@ -42,20 +42,5 @@ export const gameData = ({
     state,
   };
 };
-
-// const playingGameState = {
-//   name: "",
-//   players: players,
-//   state: {
-//     winner: null,
-//     status: "playing",
-//     rounds: [
-//       { player1Choice: null, player2Choice: null, winner: null },
-//       { player1Choice: null, player2Choice: null, winner: null },
-//       { player1Choice: null, player2Choice: null, winner: null },
-//     ],
-//     combatLog: [],
-//   },
-// };
 
 export default gameData;

@@ -153,10 +153,16 @@ export function registerGameNamespaceHandlers(
       socket.data.user = user;
     });
 
+    // Game logic events
+
     socket.on("createOrJoinGame", async (gameName: string, callback) => {
       const games = gamesNamespace.adapter.rooms;
-      const playersInGame = await fetchPlayersInGame(gameName);
-      const atCapacity = playersInGame.player1 && playersInGame.player2;
+      const playersResponse = await fetchPlayersInGame(gameName);
+      if (playersResponse === "error fetching players") {
+        callback({ status: playersResponse });
+        return;
+      }
+      const atCapacity = playersResponse.player1 && playersResponse.player2;
       if (games.has(gameName)) {
         // If game exists already
         if (atCapacity) {
@@ -187,17 +193,14 @@ export function registerGameNamespaceHandlers(
       }
     });
 
-    socket.on("fetchPlayersInGame", async (gameName, callback) => {
-      const playersInGame = await fetchPlayersInGame(gameName);
-      callback(playersInGame);
-    });
-
-    // Game logic events
-
     socket.on("startGameCountdown", async (gameName, callback) => {
-      const playersInGame = await fetchPlayersInGame(gameName);
+      const playersResponse = await fetchPlayersInGame(gameName);
+      if (playersResponse === "error fetching players") {
+        callback({ status: playersResponse });
+        return;
+      }
       const bothPlayersConnected =
-        playersInGame && playersInGame.player1 && playersInGame.player2;
+        playersResponse.player1 && playersResponse.player2;
 
       if (bothPlayersConnected) {
         io.to(gameName).emit("startCountdown");
@@ -214,6 +217,11 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("startGame", async (gameName, callback) => {
+      if (isGameRunning(gameName)) {
+        // Dont start the game if it is already running
+        callback({ status: "Game already running", game: socket.data.game });
+        return;
+      }
       if ((await setSocketGameState(gameName, startedGameState)) === "ok") {
         callback({ status: "ok", game: socket.data.game });
         io.to(gameName).emit("gameStarted", socket.data.game);
@@ -223,11 +231,8 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("resetGame", async (gameName, callback) => {
-      const resetGameState = {
-        ...defaultGameState,
-        combatLog: [`Game was reset by ${socket.data.user.name}`],
-      };
-      if ((await setSocketGameState(gameName, resetGameState)) === "ok") {
+      const response = await setSocketGameState(gameName, defaultGameState);
+      if (response === "ok") {
         callback({ status: "ok", game: socket.data.game });
         io.to(gameName).emit("gameReset", socket.data.game);
       } else {
@@ -237,6 +242,7 @@ export function registerGameNamespaceHandlers(
 
     socket.on("loseGame", async (gameName, user, callback) => {
       if (
+        // Game exists and both players are present
         socket.data.game &&
         socket.data.game.players.player1 &&
         socket.data.game.players.player2
@@ -257,11 +263,14 @@ export function registerGameNamespaceHandlers(
         };
         const response = await setSocketGameState(gameName, lostGameState);
         if (response === "ok") {
+          // Socket data has been updated
           callback({ status: "ok", game: socket.data.game });
           io.to(gameName).emit("gameLost", socket.data.game);
         } else {
           callback({ status: response, game: null });
         }
+      } else {
+        console.log("Game does not exist");
       }
     });
 
@@ -269,21 +278,44 @@ export function registerGameNamespaceHandlers(
       await leaveAllGames();
     });
 
+    socket.on("fetchPlayers", async (gameName, callback) => {
+      const response = await fetchPlayersInGame(gameName);
+      if (response === "error fetching players") {
+        callback({ status: response, players: null });
+      } else {
+        callback({ status: "ok", players: response });
+      }
+    });
+
     // Helper functions for game namespace
     const setSocketGameState = async (
       gameName: string,
       state: GameStateType
     ) => {
+      // Create and set the complete socket.data.game object with the provided state
       try {
         const players = await fetchPlayersInGame(gameName);
+        if (players === "error fetching players") {
+          return players;
+        }
         const socketGameData = gameData({ gameName, players, state });
         socket.data.game = socketGameData;
         return "ok";
       } catch (error) {
         return "error setting socket.data.game";
       }
+    };
 
-      // console.log(socket.data.game);
+    const isGameRunning = (gameName: string) => {
+      if (
+        socket.data.game &&
+        socket.data.game.state.status === "playing" &&
+        socket.data.game.name === gameName
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     };
 
     const leaveAllGames = async () => {
@@ -295,12 +327,16 @@ export function registerGameNamespaceHandlers(
     };
 
     const fetchPlayersInGame = async (gameName: string) => {
-      const sockets = await gamesNamespace.in(gameName).fetchSockets();
-      const players = sockets.map((socket) => socket.data.user);
-      return {
-        player1: players[0] ? players[0] : null,
-        player2: players[1] ? players[1] : null,
-      };
+      try {
+        const sockets = await gamesNamespace.in(gameName).fetchSockets();
+        const players = sockets.map((socket) => socket.data.user);
+        return {
+          player1: players[0] ? players[0] : null,
+          player2: players[1] ? players[1] : null,
+        };
+      } catch (error) {
+        return "error fetching players";
+      }
     };
   });
 }

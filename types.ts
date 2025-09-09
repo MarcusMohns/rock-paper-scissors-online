@@ -95,6 +95,10 @@ export interface ClientToServerEvents {
     gameName: string,
     callback: ({ status, game }: { status: string; game: GameType }) => void
   ) => void;
+  updatePlayers: (
+    gameName: string,
+    callback: ({ status, game }: { status: string; game: GameType }) => void
+  ) => void;
   loseGame: (
     gameName: string,
     user: UserType,
@@ -104,6 +108,16 @@ export interface ClientToServerEvents {
   UserListRendered: (
     roomName: string,
     callback: (response: any) => void
+  ) => void;
+  fetchPlayers: (
+    gameName: string,
+    callback: ({
+      status,
+      players,
+    }: {
+      status: string;
+      players: PlayersType | null;
+    }) => void
   ) => void;
 }
 
