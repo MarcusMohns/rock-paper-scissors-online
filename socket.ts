@@ -274,6 +274,75 @@ export function registerGameNamespaceHandlers(
       }
     });
 
+    socket.on("endRound", async (gameName, selected, user, callback) => {
+      // selected
+      if (isGameRunning(gameName) && socket.data.game) {
+        const player1 = socket.data.game.players.player1;
+        const player2 = socket.data.game.players.player2;
+
+        // check if socket is player1 or player2
+        const isPlayer1 = player1 && player1.id === user.id ? true : false;
+        const isPlayer2 = player2 && player2.id === user.id ? true : false;
+
+        const roundNum = socket.data.game.state.round;
+        if (roundNum > socket.data.game.state.rounds.length) {
+          callback({ status: "Round does not exist", game: null });
+          // Game should already been ended and reset before this case
+          console.log("game finished");
+          return;
+        }
+
+        // Set socket data to the selected choice
+        if (isPlayer1) {
+          socket.data.game.state.rounds[roundNum - 1].player1Choice = selected;
+        } else if (isPlayer2) {
+          socket.data.game.state.rounds[roundNum - 1].player2Choice = selected;
+        }
+
+        if (roundNum === socket.data.game.state.rounds.length) {
+          // Last round and should end the game
+          // socket.data.game.state.status = "finished";
+        }
+
+        const winnerOfRound = getWinnerOfRound(roundNum);
+
+        if (!winnerOfRound) {
+          // getWinnerofRound returns null if one of the players move havnt been registered yet or socket.data.game doesnt exist.
+          // in other words we should prolly separate those two cases and make sure socket.data.game exists before calling getWinnerOfRound
+          // prolly
+          return;
+        }
+
+        const updatedRound = {
+          player1Choice: isPlayer1 ? selected : null,
+          player2Choice: isPlayer2 ? selected : null,
+          winner: winnerOfRound,
+        };
+
+        const newGameState = {
+          ...socket.data.game.state,
+          round: roundNum + 1,
+          rounds: [
+            ...socket.data.game.state.rounds,
+            (socket.data.game.state.rounds[roundNum - 1] = updatedRound),
+          ],
+          winner: null,
+          combatLog: [
+            ...socket.data.game.state.combatLog,
+            `${user.name} chose ${selected}`,
+          ],
+        };
+
+        const response = await setSocketGameState(gameName, newGameState);
+        if (response === "ok") {
+          callback({ status: "ok", game: socket.data.game });
+          io.to(gameName).emit("roundEnded", socket.data.game);
+        } else {
+          callback({ status: response, game: null });
+        }
+      }
+    });
+
     socket.on("leaveAllGames", async (gameName) => {
       await leaveAllGames();
     });
@@ -306,17 +375,42 @@ export function registerGameNamespaceHandlers(
       }
     };
 
-    const isGameRunning = (gameName: string) => {
-      if (
-        socket.data.game &&
-        socket.data.game.state.status === "playing" &&
-        socket.data.game.name === gameName
-      ) {
-        return true;
+    const getWinnerOfRound = (round: number): UserType | null | "draw" => {
+      if (socket.data.game) {
+        const player1Choice =
+          socket.data.game.state.rounds[round].player1Choice;
+        const player2Choice =
+          socket.data.game.state.rounds[round].player2Choice;
+        if (player2Choice === null || player1Choice === null) {
+          return null;
+        }
+
+        if (player1Choice === player2Choice) {
+          return "draw";
+        } else if (player1Choice === "none") {
+          return socket.data.game.players.player2;
+        } else if (player2Choice === "none") {
+          return socket.data.game.players.player1;
+        } else if (
+          (player1Choice === "rock" && player2Choice === "scissors") ||
+          (player1Choice === "paper" && player2Choice === "rock") ||
+          (player1Choice === "scissors" && player2Choice === "paper")
+        ) {
+          return socket.data.game.players.player1;
+        } else {
+          return socket.data.game.players.player2;
+        }
       } else {
-        return false;
+        return null;
       }
     };
+
+    const isGameRunning = (gameName: string) =>
+      socket.data.game &&
+      socket.data.game.state.status === "playing" &&
+      socket.data.game.name === gameName
+        ? true
+        : false;
 
     const leaveAllGames = async () => {
       socket.rooms.forEach((room) => {
