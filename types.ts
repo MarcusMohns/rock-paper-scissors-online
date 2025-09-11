@@ -144,15 +144,18 @@ export type GameType = {
 export type GameStateType = {
   winner: UserType | "draw" | null;
   status: "waiting" | "playing" | "finished";
+  round: number;
   rounds: RoundType[];
   combatLog: string[];
 };
 
 export type RoundType = {
-  player1Choice: "rock" | "paper" | "scissors" | null;
-  player2Choice: "rock" | "paper" | "scissors" | null;
+  player1Choice: RockPaperScissor;
+  player2Choice: RockPaperScissor;
   winner: UserType | "draw" | null;
 };
+
+export type RockPaperScissor = "rock" | "paper" | "scissors" | "none" | null;
 
 export type ChatMessageType = {
   username: string;
