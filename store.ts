@@ -12,7 +12,7 @@ type initialGameStateProp = {
 export const defaultGameState: GameStateType = {
   winner: null,
   status: "waiting",
-  round: 0,
+  roundNum: 0,
   rounds: [
     { player1Choice: null, player2Choice: null, winner: null },
     { player1Choice: null, player2Choice: null, winner: null },
@@ -24,7 +24,7 @@ export const defaultGameState: GameStateType = {
 export const startedGameState: GameStateType = {
   winner: null,
   status: "playing",
-  round: 1,
+  roundNum: 1,
   rounds: [
     { player1Choice: null, player2Choice: null, winner: null },
     { player1Choice: null, player2Choice: null, winner: null },

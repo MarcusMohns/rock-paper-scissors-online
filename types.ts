@@ -24,6 +24,7 @@ export interface ServerToClientEvents {
   gameReset: (data: GameType) => void;
   gameLost: (data: GameType) => void;
   gameStarted: (data: GameType) => void;
+  roundEnded: (data: GameStateType) => void;
 }
 
 export interface ClientToServerEvents {
@@ -104,6 +105,18 @@ export interface ClientToServerEvents {
     user: UserType,
     callback: ({ status, game }: { status: string; game: GameType }) => void
   ) => void;
+  registerMove: (
+    gameName: string,
+    selected: RockPaperScissor,
+    user: UserType,
+    callback: ({
+      status,
+      gameState,
+    }: {
+      status: string;
+      gameState: GameStateType | null;
+    }) => void
+  ) => void;
   cancelGameCountdown: (roomName: string) => void;
   UserListRendered: (
     roomName: string,
@@ -144,7 +157,7 @@ export type GameType = {
 export type GameStateType = {
   winner: UserType | "draw" | null;
   status: "waiting" | "playing" | "finished";
-  round: number;
+  roundNum: number;
   rounds: RoundType[];
   combatLog: string[];
 };
@@ -178,3 +191,5 @@ export type PlayersType = {
   player1: UserType | null;
   player2: UserType | null;
 };
+
+export type WinnerOfRoundResponseType = "error" | "draw" | UserType;
