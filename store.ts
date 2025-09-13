@@ -1,4 +1,4 @@
-import { UserType, GameStateType } from "./types";
+import { UserType, GameStateType, RoundType } from "./types";
 
 type initialGameStateProp = {
   gameName: string;
@@ -9,34 +9,49 @@ type initialGameStateProp = {
   state: GameStateType;
 };
 
-export const defaultGameState: GameStateType = {
-  winner: null,
-  status: "waiting",
-  roundNum: 0,
-  rounds: [
-    { player1Choice: null, player2Choice: null, winner: null },
-    { player1Choice: null, player2Choice: null, winner: null },
-    { player1Choice: null, player2Choice: null, winner: null },
-  ],
-  combatLog: [],
+export const defaultGameData = (): initialGameStateProp => {
+  return {
+    gameName: "",
+    players: {
+      player1: null,
+      player2: null,
+    },
+    state: { ...defaultGameState(3) },
+  };
 };
 
-export const startedGameState: GameStateType = {
-  winner: null,
-  status: "playing",
-  roundNum: 1,
-  rounds: [
-    { player1Choice: null, player2Choice: null, winner: null },
-    { player1Choice: null, player2Choice: null, winner: null },
-    { player1Choice: null, player2Choice: null, winner: null },
-  ],
-  combatLog: ["Game has started!"],
+export const defaultGameState = (rounds: number): GameStateType => {
+  return {
+    winner: null,
+    status: "waiting",
+    roundNum: 0,
+    rounds: Array.from({ length: rounds }, () => ({
+      player1Choice: null,
+      player2Choice: null,
+      winner: null, // 'player1', 'player2', 'draw'
+    })),
+    combatLog: [],
+  };
+};
+
+export const startedGameState = (rounds: number): GameStateType => {
+  return {
+    winner: null,
+    status: "playing",
+    roundNum: 1,
+    rounds: Array.from({ length: rounds }, () => ({
+      player1Choice: null,
+      player2Choice: null,
+      winner: null, // 'player1', 'player2', 'draw'
+    })),
+    combatLog: ["Game has started!"],
+  };
 };
 
 export const gameData = ({
   gameName,
   players,
-  state = defaultGameState,
+  state,
 }: initialGameStateProp) => {
   return {
     name: gameName,
@@ -45,4 +60,9 @@ export const gameData = ({
   };
 };
 
+export let roundState: RoundType = {
+  player1Choice: null,
+  player2Choice: null,
+  winner: null,
+};
 export default gameData;

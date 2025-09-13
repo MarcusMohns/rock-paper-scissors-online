@@ -145,6 +145,12 @@ export interface SocketData {
   game: GameType;
 }
 
+export type SetSocketGameStateResponse = {
+  status: string;
+  gameState: GameStateType | null;
+  game: GameType | null;
+};
+
 export type GameType = {
   name: string;
   players: {
