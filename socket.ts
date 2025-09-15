@@ -5,6 +5,7 @@ import {
   InterServerEvents,
   SocketData,
   UserType,
+  RoundType,
   GameStateType,
   WinnerOfRoundResponseType,
   SetSocketGameStateResponse,
@@ -18,7 +19,6 @@ import {
 
 const ROOM_CAPACITY = 10;
 const GAME_CAPACITY = 2;
-let localRoundState = roundState;
 
 export function registerSocketHandlers(
   io: Server<
@@ -254,10 +254,8 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("resetGame", async (gameName, callback) => {
-      // Purpose of this is to reset game state locally for users in the room
-      // It does not reset socket.data.game for all sockets only for the one who send the request
-      // Games will be reset every time a game is started or when a user leaves or joins the game
-
+      // Pressing the reset button will only reset the `socket.data.game` for the user who presses the button.
+      // It will also emit a signal to reset the local state for both players, but the other players' `socket.data.game` will remain unchanged
       const gameStateResponse = await setSocketGameState(
         gameName,
         defaultGameState(3)
@@ -309,28 +307,26 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("registerMove", async (gameName, selected, user, callback) => {
-      // this should send the state shouldnt it... ehhhh its so slow :Xxx
       if (!isGameRunning(gameName) || !socket.data.game) {
+        // Game hasn't started
         callback({ status: "Game not running", gameState: null });
         console.log("Game not running");
         return;
       }
       if (selected === null) {
-        // Might be too much
+        // If theres no data for selected somethings gone wrong.
+        // selected type = rock | paper | scissors | 'none'
         callback({ status: "No move registered", gameState: null });
         console.log("selected is null");
         return;
       }
-      const roundNum = socket.data.game.state.roundNum;
-      const round = socket.data.game.state.rounds[roundNum - 1];
-      const player1 = socket.data.game.players.player1;
-      const player2 = socket.data.game.players.player2;
-      // check if socket is player1 or player2
-      const isPlayer1 = player1 && player1.id === user.id ? true : false;
-      const isPlayer2 = player2 && player2.id === user.id ? true : false;
-
-      if (round.player1Choice && round.player2Choice) {
-        console.log(socket.data.game.state.rounds[roundNum - 1]);
+      if (
+        // Check if both moves has already been registered
+        socket.data.game.state.rounds[socket.data.game.state.roundNum - 1]
+          .player1Choice &&
+        socket.data.game.state.rounds[socket.data.game.state.roundNum - 1]
+          .player2Choice
+      ) {
         callback({ status: "Both moves already registered", gameState: null });
         console.log("Both moves already registered");
         return;
@@ -338,46 +334,54 @@ export function registerGameNamespaceHandlers(
         console.log("ya it was fine eh");
       }
 
-      // if user isnt player1 or player2
-      if (!isPlayer1 && !isPlayer2) {
-        callback({ status: "User not in game", gameState: null });
-        console.log("User not in game");
-        return;
-      }
+      let newGameData = { ...socket.data.game };
+
+      const roundNum = newGameData.state.roundNum;
+      const round = newGameData.state.rounds[roundNum - 1];
+      const player1 = newGameData.players.player1;
+      const player2 = newGameData.players.player2;
+      // check if socket is player1 or player2
+      const isPlayer1 = player1 && player1.id === user.id ? true : false;
+      const isPlayer2 = player2 && player2.id === user.id ? true : false;
 
       // Register move
       if (isPlayer1) {
-        roundState.player1Choice = selected;
         round.player1Choice = selected;
       } else if (isPlayer2) {
-        roundState.player2Choice = selected;
         round.player2Choice = selected;
       } else {
-        callback({ status: "Error registering move", gameState: null });
+        callback({ status: "User not in game", gameState: null });
+        console.log("User not in game");
       }
 
-      if (round.player1Choice && round.player2Choice) {
-        // Both players have made a move - End round
-        endRound(gameName);
-        callback({ status: "ok", gameState: socket.data.game.state });
-      } else {
-        localRoundState = {
-          player1Choice: null,
-          player2Choice: null,
-          winner: null,
-        };
+      const gameStateResponse = await setSocketGameState(
+        gameName,
+        newGameData.state
+      );
+      if (gameStateResponse.status === "ok") {
+        callback({ status: "ok", gameState: gameStateResponse.gameState });
+        socket.to(gameName).emit("moveRegistered", gameStateResponse.gameState);
+        console.log("Move registered");
+      }
+    });
+
+    socket.on("endRound", async (gameName, callback) => {
+      const gameStateResponse = await endRound(gameName);
+      if (gameStateResponse.status === "ok") {
+        callback({ status: "ok", game: gameStateResponse.game });
       }
     });
 
     const endRound = async (gameName: string) => {
+      // MOve this to client side. use this to register the round info instead.
       // Error checking
       if (!isGameRunning(gameName) || !socket.data.game) {
-        console.log("Game not running");
+        console.log("Game not running in endRound");
         return { status: "Game not running", game: null };
       }
-      const winner = getWinnerOfRound(socket.data.game.state.roundNum - 1);
-      const round =
-        socket.data.game.state.rounds[socket.data.game.state.roundNum - 1];
+      const roundNum = socket.data.game.state.roundNum;
+      const round = socket.data.game.state.rounds[roundNum - 1];
+      const winner = getWinnerOfRound(round);
 
       if (winner === "error") {
         console.log("Error getting winner of round");
@@ -457,17 +461,15 @@ export function registerGameNamespaceHandlers(
       }
     };
 
-    const getWinnerOfRound = (round: number): WinnerOfRoundResponseType => {
+    const getWinnerOfRound = (round: RoundType): WinnerOfRoundResponseType => {
       if (
         // Check if socket.data.game and both players are present
         socket.data.game &&
         socket.data.game.players.player2 &&
         socket.data.game.players.player1
       ) {
-        const player1Choice =
-          socket.data.game.state.rounds[round].player1Choice;
-        const player2Choice =
-          socket.data.game.state.rounds[round].player2Choice;
+        const player1Choice = round.player1Choice;
+        const player2Choice = round.player2Choice;
         if (player2Choice === null || player1Choice === null) {
           return "error";
         }
