@@ -25,6 +25,7 @@ export interface ServerToClientEvents {
   gameLost: (data: GameType) => void;
   gameStarted: (data: GameType) => void;
   roundEnded: (data: GameStateType) => void;
+  choiceSubmitted: (data: RoundType[]) => void;
 }
 
 export interface ClientToServerEvents {
@@ -105,10 +106,22 @@ export interface ClientToServerEvents {
     user: UserType,
     callback: ({ status, game }: { status: string; game: GameType }) => void
   ) => void;
-  registerMove: (
+  submitChoice: (
     gameName: string,
     selected: RockPaperScissor,
+    localRoundsState: RoundType[] | null,
     user: UserType,
+    callback: ({
+      status,
+      updatedRounds,
+    }: {
+      status: string;
+      updatedRounds: RoundType[] | null;
+    }) => void
+  ) => void;
+  endRound: (
+    gameName: string,
+    updatedGameState: GameStateType,
     callback: ({
       status,
       gameState,

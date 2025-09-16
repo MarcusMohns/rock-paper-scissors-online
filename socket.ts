@@ -149,6 +149,7 @@ export function registerGameNamespaceHandlers(
   });
 
   gamesNamespace.adapter.on("leave-room", (room, id) => {
+    // emit to gamesNameSpace
     // Emit to the room on the main namespace (not the games namespace) that a player has left
     // This is used to update everyone in the room (players and spectators)
     io.to(room).emit("gameLeft", room);
@@ -306,119 +307,60 @@ export function registerGameNamespaceHandlers(
       }
     });
 
-    socket.on("registerMove", async (gameName, selected, user, callback) => {
-      if (!isGameRunning(gameName) || !socket.data.game) {
-        // Game hasn't started
-        callback({ status: "Game not running", gameState: null });
-        console.log("Game not running");
-        return;
-      }
-      if (selected === null) {
-        // If theres no data for selected somethings gone wrong.
-        // selected type = rock | paper | scissors | 'none'
-        callback({ status: "No move registered", gameState: null });
-        console.log("selected is null");
-        return;
-      }
-      if (
-        // Check if both moves has already been registered
-        socket.data.game.state.rounds[socket.data.game.state.roundNum - 1]
-          .player1Choice &&
-        socket.data.game.state.rounds[socket.data.game.state.roundNum - 1]
-          .player2Choice
-      ) {
-        callback({ status: "Both moves already registered", gameState: null });
-        console.log("Both moves already registered");
-        return;
-      } else {
-        console.log("ya it was fine eh");
-      }
+    socket.on(
+      "submitChoice",
+      async (gameName, selected, localRoundsState, user, callback) => {
+        if (!isGameRunning(gameName) || !socket.data.game) {
+          // Game hasn't started
+          callback({ status: "Game not running", updatedRounds: null });
+          console.log("Game not running");
+          return;
+        }
+        if (selected === null) {
+          // Remove this and add it to one error handler prolly after development
+          // If theres no data for selected somethings gone wrong.
+          // selected type = rock | paper | scissors | 'none'
+          callback({ status: "No move registered", updatedRounds: null });
+          console.log("selected is null");
+          return;
+        }
 
-      let newGameData = { ...socket.data.game };
+        let gameData = { ...socket.data.game };
+        gameData.state.rounds = localRoundsState
+          ? localRoundsState
+          : gameData.state.rounds;
 
-      const roundNum = newGameData.state.roundNum;
-      const round = newGameData.state.rounds[roundNum - 1];
-      const player1 = newGameData.players.player1;
-      const player2 = newGameData.players.player2;
-      // check if socket is player1 or player2
-      const isPlayer1 = player1 && player1.id === user.id ? true : false;
-      const isPlayer2 = player2 && player2.id === user.id ? true : false;
+        const roundNum = gameData.state.roundNum;
+        const round = gameData.state.rounds[roundNum - 1];
+        const player1 = gameData.players.player1;
+        // check if socket is player1 or player2
+        const isPlayer1 = player1 && player1.id === user.id ? true : false;
 
-      // Register move
-      if (isPlayer1) {
-        round.player1Choice = selected;
-      } else if (isPlayer2) {
-        round.player2Choice = selected;
-      } else {
-        callback({ status: "User not in game", gameState: null });
-        console.log("User not in game");
+        const updatedRounds: RoundType[] = {
+          ...gameData.state.rounds,
+          [roundNum - 1]: {
+            ...round,
+            [isPlayer1 ? "player1Choice" : "player2Choice"]: selected,
+          },
+        };
+
+        callback({ status: "ok", updatedRounds: updatedRounds });
+        socket.to(gameName).emit("choiceSubmitted", updatedRounds);
       }
+    );
 
-      const gameStateResponse = await setSocketGameState(
-        gameName,
-        newGameData.state
-      );
-      if (gameStateResponse.status === "ok") {
-        callback({ status: "ok", gameState: gameStateResponse.gameState });
-        socket.to(gameName).emit("moveRegistered", gameStateResponse.gameState);
-        console.log("Move registered");
-      }
-    });
-
-    socket.on("endRound", async (gameName, callback) => {
-      const gameStateResponse = await endRound(gameName);
-      if (gameStateResponse.status === "ok") {
-        callback({ status: "ok", game: gameStateResponse.game });
-      }
-    });
-
-    const endRound = async (gameName: string) => {
-      // MOve this to client side. use this to register the round info instead.
-      // Error checking
-      if (!isGameRunning(gameName) || !socket.data.game) {
-        console.log("Game not running in endRound");
-        return { status: "Game not running", game: null };
-      }
-      const roundNum = socket.data.game.state.roundNum;
-      const round = socket.data.game.state.rounds[roundNum - 1];
-      const winner = getWinnerOfRound(round);
-
-      if (winner === "error") {
-        console.log("Error getting winner of round");
-        return { status: "Error getting winner of round", game: null };
-      }
-      if (!round.player1Choice || !round.player2Choice) {
-        console.log("No move registered");
-        return { status: "No move registered", game: null };
-      }
-
-      let updatedGameState = { ...socket.data.game.state };
-      // Update this round winner
-      updatedGameState.rounds[socket.data.game.state.roundNum - 1].winner =
-        winner;
-      // Update combat log
-      updatedGameState.combatLog = [
-        ...socket.data.game.state.combatLog,
-        // TODO Make cooler probably
-        `Round ${socket.data.game.state.roundNum}: ${round.player1Choice} vs ${
-          round.player2Choice
-        } - ${winner === "draw" ? "Draw" : `${winner.name} won!`}`,
-      ];
-      // Update round number
-      updatedGameState.roundNum = socket.data.game.state.roundNum + 1;
-      // Update game state
+    socket.on("endRound", async (gameName, updatedGameState, callback) => {
       const gameStateResponse = await setSocketGameState(
         gameName,
         updatedGameState
       );
       if (gameStateResponse.status === "ok" && gameStateResponse.gameState) {
-        // Socket data has been updated
         io.to(gameName).emit("roundEnded", gameStateResponse.gameState);
-        return { status: "ok", gameState: gameStateResponse.gameState };
+        callback({ status: "ok", gameState: gameStateResponse.gameState });
       } else {
-        return { status: gameStateResponse.status, game: null };
+        callback({ status: "error", gameState: null });
       }
-    };
+    });
 
     socket.on("leaveAllGames", async (gameName) => {
       await leaveAllGames();
@@ -458,39 +400,6 @@ export function registerGameNamespaceHandlers(
         };
       } catch (error) {
         return { status: "error", game: null, gameState: null };
-      }
-    };
-
-    const getWinnerOfRound = (round: RoundType): WinnerOfRoundResponseType => {
-      if (
-        // Check if socket.data.game and both players are present
-        socket.data.game &&
-        socket.data.game.players.player2 &&
-        socket.data.game.players.player1
-      ) {
-        const player1Choice = round.player1Choice;
-        const player2Choice = round.player2Choice;
-        if (player2Choice === null || player1Choice === null) {
-          return "error";
-        }
-
-        if (player1Choice === player2Choice) {
-          return "draw";
-        } else if (player1Choice === "none") {
-          return socket.data.game.players.player2;
-        } else if (player2Choice === "none") {
-          return socket.data.game.players.player1;
-        } else if (
-          (player1Choice === "rock" && player2Choice === "scissors") ||
-          (player1Choice === "paper" && player2Choice === "rock") ||
-          (player1Choice === "scissors" && player2Choice === "paper")
-        ) {
-          return socket.data.game.players.player1;
-        } else {
-          return socket.data.game.players.player2;
-        }
-      } else {
-        return "error";
       }
     };
 
