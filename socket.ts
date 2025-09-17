@@ -336,12 +336,10 @@ export function registerGameNamespaceHandlers(
         // check if socket is player1 or player2
         const isPlayer1 = player1 && player1.id === user.id ? true : false;
 
-        const updatedRounds: RoundType[] = {
-          ...gameData.state.rounds,
-          [roundNum - 1]: {
-            ...round,
-            [isPlayer1 ? "player1Choice" : "player2Choice"]: selected,
-          },
+        const updatedRounds = [...gameData.state.rounds];
+        updatedRounds[roundNum - 1] = {
+          ...round,
+          [isPlayer1 ? "player1Choice" : "player2Choice"]: selected,
         };
 
         callback({ status: "ok", updatedRounds: updatedRounds });
@@ -355,7 +353,6 @@ export function registerGameNamespaceHandlers(
         updatedGameState
       );
       if (gameStateResponse.status === "ok" && gameStateResponse.gameState) {
-        io.to(gameName).emit("roundEnded", gameStateResponse.gameState);
         callback({ status: "ok", gameState: gameStateResponse.gameState });
       } else {
         callback({ status: "error", gameState: null });
