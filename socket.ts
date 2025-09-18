@@ -330,14 +330,14 @@ export function registerGameNamespaceHandlers(
           ? localRoundsState
           : gameData.state.rounds;
 
-        const roundNum = gameData.state.roundNum;
-        const round = gameData.state.rounds[roundNum - 1];
+        const currRound = gameData.state.currRound;
+        const round = gameData.state.rounds[currRound - 1];
         const player1 = gameData.players.player1;
         // check if socket is player1 or player2
         const isPlayer1 = player1 && player1.id === user.id ? true : false;
 
         const updatedRounds = [...gameData.state.rounds];
-        updatedRounds[roundNum - 1] = {
+        updatedRounds[currRound - 1] = {
           ...round,
           [isPlayer1 ? "player1Choice" : "player2Choice"]: selected,
         };

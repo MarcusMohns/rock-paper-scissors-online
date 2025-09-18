@@ -176,7 +176,7 @@ export type GameType = {
 export type GameStateType = {
   winner: UserType | "draw" | null;
   status: "waiting" | "playing" | "finished";
-  roundNum: number;
+  currRound: number;
   rounds: RoundType[];
   combatLog: string[];
 };

@@ -24,7 +24,7 @@ export const defaultGameState = (rounds: number): GameStateType => {
   return {
     winner: null,
     status: "waiting",
-    roundNum: 0,
+    currRound: 0,
     rounds: Array.from({ length: rounds }, () => ({
       player1Choice: null,
       player2Choice: null,
@@ -38,7 +38,7 @@ export const startedGameState = (rounds: number): GameStateType => {
   return {
     winner: null,
     status: "playing",
-    roundNum: 1,
+    currRound: 1,
     rounds: Array.from({ length: rounds }, () => ({
       player1Choice: null,
       player2Choice: null,
