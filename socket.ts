@@ -388,6 +388,7 @@ export function registerGameNamespaceHandlers(
           gameName: gameName,
           players: players,
           state: newState,
+          totalRounds: 3,
         });
         socket.data.game = { ...socketGameData };
         return {
