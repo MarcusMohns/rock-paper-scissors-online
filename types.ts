@@ -177,6 +177,7 @@ export type GameStateType = {
   winner: UserType | "draw" | null;
   status: "waiting" | "playing" | "finished";
   currRound: number;
+  history: RoundType[];
   rounds: RoundType[];
   combatLog: string[];
 };

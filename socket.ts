@@ -288,7 +288,7 @@ export function registerGameNamespaceHandlers(
           status: "finished",
           combatLog: [
             ...socket.data.game.state.combatLog,
-            `${winner.name} won!`,
+            `${user.name} gave up. ${winner.name} won!`,
           ],
         };
         const gameStateResponse = await setSocketGameState(
