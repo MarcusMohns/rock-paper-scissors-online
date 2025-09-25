@@ -226,31 +226,15 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("startGame", async (gameName, callback) => {
-      if (isGameRunning(gameName)) {
-        // Dont start the game if it is already running
-        // Reset game state
-        const resetGameState = await setSocketGameState(
-          gameName,
-          defaultGameState(3)
-        );
-        if (resetGameState.status === "ok") {
-          callback({ status: "ok", game: resetGameState.game });
-          io.to(gameName).emit("gameStarted", resetGameState.game);
-          console.log("game was reset");
-        } else {
-          callback({ status: "Game already running", game: socket.data.game });
-        }
+      const gameStateResponse = await setSocketGameState(
+        gameName,
+        startedGameState(3)
+      );
+      if (gameStateResponse.status === "ok") {
+        callback({ status: "ok", game: gameStateResponse.game });
+        io.to(gameName).emit("gameStarted", gameStateResponse.game);
       } else {
-        const gameStateResponse = await setSocketGameState(
-          gameName,
-          startedGameState(3)
-        );
-        if (gameStateResponse.status === "ok") {
-          callback({ status: "ok", game: gameStateResponse.game });
-          io.to(gameName).emit("gameStarted", gameStateResponse.game);
-        } else {
-          callback({ status: "error", game: null });
-        }
+        callback({ status: "error", game: null });
       }
     });
 
@@ -295,7 +279,7 @@ export function registerGameNamespaceHandlers(
           gameName,
           lostGameState
         );
-        if (gameStateResponse.status === "ok" && gameStateResponse.gameState) {
+        if (gameStateResponse.status === "ok" && gameStateResponse.game) {
           // Socket data has been updated
           callback({ status: "ok", game: gameStateResponse.game });
           io.to(gameName).emit("gameLost", gameStateResponse.game);
@@ -400,6 +384,8 @@ export function registerGameNamespaceHandlers(
         return { status: "error", game: null, gameState: null };
       }
     };
+
+    // make a quicker endround function and see if that helps.
 
     const isGameRunning = (gameName: string) =>
       socket.data.game &&
