@@ -26,6 +26,7 @@ export interface ServerToClientEvents {
   gameStarted: (data: GameType) => void;
   roundEnded: (data: GameStateType) => void;
   choiceSubmitted: (data: RoundType[]) => void;
+  readyForNextRound: (isPlayer1: boolean) => void;
 }
 
 export interface ClientToServerEvents {
@@ -122,12 +123,15 @@ export interface ClientToServerEvents {
   endRound: (
     gameName: string,
     updatedGameState: GameStateType,
+
     callback: ({
       status,
       gameState,
+      isPlayer1,
     }: {
       status: string;
       gameState: GameStateType | null;
+      isPlayer1: boolean | null;
     }) => void
   ) => void;
   cancelGameCountdown: (roomName: string) => void;

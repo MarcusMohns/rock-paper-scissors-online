@@ -143,22 +143,23 @@ export function registerGameNamespaceHandlers(
   // Games are named after the room they are in - The game room is for the two players playing the game only.
 
   gamesNamespace.adapter.on("join-room", async (room, id) => {
+    // When a player joins a game room
+    io.to(room).emit("gameJoined", room);
     // Emit to the room on the main namespace (not the games namespace) that a player has joined
     // This is used to update everyone in the room (players and spectators)
-    io.to(room).emit("gameJoined", room);
   });
 
   gamesNamespace.adapter.on("leave-room", (room, id) => {
-    // emit to gamesNameSpace
+    // When a player leaves a game room
+    io.to(room).emit("gameLeft", room);
     // Emit to the room on the main namespace (not the games namespace) that a player has left
     // This is used to update everyone in the room (players and spectators)
-    io.to(room).emit("gameLeft", room);
     io.to(room).emit("cancelCountdown");
   });
 
   gamesNamespace.on("connection", (socket) => {
     socket.on("connected", (user) => {
-      // User sends their user data & we save it on the socket.data 'session'
+      // User sends their user data & we save it in socket.data
       socket.data.user = user;
     });
 
@@ -241,6 +242,7 @@ export function registerGameNamespaceHandlers(
     socket.on("resetGame", async (gameName, callback) => {
       // Pressing the reset button will only reset the `socket.data.game` for the user who presses the button.
       // It will also emit a signal to reset the local state for both players, but the other players' `socket.data.game` will remain unchanged
+      // socket.data.game will reset for both on start of games or when a player leaves / joins the game.
       const gameStateResponse = await setSocketGameState(
         gameName,
         defaultGameState(3)
@@ -316,9 +318,8 @@ export function registerGameNamespaceHandlers(
 
         const currRound = gameData.state.currRound;
         const round = gameData.state.rounds[currRound - 1];
-        const player1 = gameData.players.player1;
         // check if socket is player1 or player2
-        const isPlayer1 = player1 && player1.id === user.id ? true : false;
+        const isPlayer1 = getIsPlayer1(user);
 
         const updatedRounds = [...gameData.state.rounds];
         updatedRounds[currRound - 1] = {
@@ -337,9 +338,17 @@ export function registerGameNamespaceHandlers(
         updatedGameState
       );
       if (gameStateResponse.status === "ok" && gameStateResponse.gameState) {
-        callback({ status: "ok", gameState: gameStateResponse.gameState });
+        const isPlayer1 = getIsPlayer1(socket.data.user);
+        callback({
+          status: "ok",
+          gameState: gameStateResponse.gameState,
+          isPlayer1,
+        });
+        if (gameStateResponse.gameState.status === "playing") {
+          socket.to(gameName).emit("readyForNextRound", isPlayer1);
+        }
       } else {
-        callback({ status: "error", gameState: null });
+        callback({ status: "error", gameState: null, isPlayer1: null });
       }
     });
 
@@ -356,7 +365,7 @@ export function registerGameNamespaceHandlers(
       }
     });
 
-    // Helper functions for game namespace
+    // HERLPER FUNCTIONS FOR GAME NAMESPACE
     const setSocketGameState = async (
       gameName: string,
       state: GameStateType
@@ -413,6 +422,17 @@ export function registerGameNamespaceHandlers(
       } catch (error) {
         return "error fetching players";
       }
+    };
+
+    const getIsPlayer1 = (user: UserType) => {
+      if (!socket.data.game) {
+        return false;
+      }
+      const player1 = socket.data.game.players.player1;
+      if (player1 && player1.id === user.id) {
+        return true;
+      }
+      return false;
     };
   });
 }
