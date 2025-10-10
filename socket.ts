@@ -346,6 +346,15 @@ export function registerGameNamespaceHandlers(
         });
         if (gameStateResponse.gameState.status === "playing") {
           socket.to(gameName).emit("readyForNextRound", isPlayer1);
+          io.to(gameName).emit(
+            "roundEndedForSpectators",
+            gameStateResponse.gameState
+          );
+        } else if (gameStateResponse.gameState.status === "finished") {
+          io.to(gameName).emit(
+            "roundEndedForSpectators",
+            gameStateResponse.gameState
+          );
         }
       } else {
         callback({ status: "error", gameState: null, isPlayer1: null });

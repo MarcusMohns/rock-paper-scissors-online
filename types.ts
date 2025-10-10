@@ -24,7 +24,7 @@ export interface ServerToClientEvents {
   gameReset: (data: GameType) => void;
   gameLost: (data: GameType) => void;
   gameStarted: (data: GameType) => void;
-  roundEnded: (data: GameStateType) => void;
+  roundEndedForSpectators: (data: GameStateType) => void;
   choiceSubmitted: (data: RoundType[]) => void;
   readyForNextRound: (isPlayer1: boolean) => void;
 }
