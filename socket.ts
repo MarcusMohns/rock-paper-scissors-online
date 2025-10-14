@@ -232,10 +232,9 @@ export function registerGameNamespaceHandlers(
         startedGameState(3)
       );
       if (gameStateResponse.status === "ok") {
-        callback({ status: "ok", game: gameStateResponse.game });
-        io.to(gameName).emit("gameStarted", gameStateResponse.game);
+        callback({ status: "ok", gameState: gameStateResponse.gameState });
       } else {
-        callback({ status: "error", game: null });
+        callback({ status: "error", gameState: null });
       }
     });
 

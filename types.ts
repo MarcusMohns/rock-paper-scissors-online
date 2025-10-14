@@ -92,7 +92,13 @@ export interface ClientToServerEvents {
   setUser: (user: UserType, callback: (response: any) => void) => void;
   startGame: (
     gameName: string,
-    callback: ({ status, game }: { status: string; game: GameType }) => void
+    callback: ({
+      status,
+      gameState,
+    }: {
+      status: string;
+      gameState: GameStateType | null;
+    }) => void
   ) => void;
   resetGame: (
     gameName: string,
