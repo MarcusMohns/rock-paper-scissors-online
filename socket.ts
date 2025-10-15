@@ -226,13 +226,18 @@ export function registerGameNamespaceHandlers(
       io.to(gameName).emit("cancelCountdown");
     });
 
-    socket.on("startGame", async (gameName, callback) => {
+    socket.on("startGame", async (gameName, user, callback) => {
       const gameStateResponse = await setSocketGameState(
         gameName,
         startedGameState(3)
       );
       if (gameStateResponse.status === "ok") {
-        callback({ status: "ok", gameState: gameStateResponse.gameState });
+        callback({
+          status: "ok",
+          gameState: gameStateResponse.gameState,
+        });
+        // Annunce to the game room that this player is ready
+        socket.to(gameName).emit("opponentReady");
       } else {
         callback({ status: "error", gameState: null });
       }
@@ -344,7 +349,9 @@ export function registerGameNamespaceHandlers(
           isPlayer1,
         });
         if (gameStateResponse.gameState.status === "playing") {
-          socket.to(gameName).emit("readyForNextRound", isPlayer1);
+          // Annunce to the game room that this player is ready
+          socket.to(gameName).emit("opponentReady");
+
           io.to(gameName).emit(
             "roundEndedForSpectators",
             gameStateResponse.gameState

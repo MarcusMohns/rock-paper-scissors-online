@@ -26,7 +26,7 @@ export interface ServerToClientEvents {
   gameStarted: (data: GameType) => void;
   roundEndedForSpectators: (data: GameStateType) => void;
   choiceSubmitted: (data: RoundType[]) => void;
-  readyForNextRound: (isPlayer1: boolean) => void;
+  opponentReady: () => void;
 }
 
 export interface ClientToServerEvents {
@@ -92,6 +92,7 @@ export interface ClientToServerEvents {
   setUser: (user: UserType, callback: (response: any) => void) => void;
   startGame: (
     gameName: string,
+    user: UserType,
     callback: ({
       status,
       gameState,
