@@ -332,7 +332,7 @@ export function registerGameNamespaceHandlers(
         };
 
         callback({ status: "ok", updatedRounds: updatedRounds });
-        socket.to(gameName).emit("choiceSubmitted", updatedRounds);
+        socket.to(gameName).emit("opponentChoice", updatedRounds);
       }
     );
 
