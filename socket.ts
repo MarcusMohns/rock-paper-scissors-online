@@ -37,18 +37,29 @@ export function registerSocketHandlers(
   });
 
   io.on("connection", (socket) => {
-    socket.on("connected", (user, callback) => {
+    socket.on("connected", async (user, callback) => {
       socket.data.user = user;
-      callback({ ...user, socketId: socket.id });
+      const sockets = await io.fetchSockets();
+      const isAlreadyConnected = sockets.find((s) => {
+        // If a socket with the same user ID exists and it's not this socket
+        return s.data.user && s.data.user.id === user.id && s.id !== socket.id;
+      });
+      isAlreadyConnected
+        ? // Disconnect the older socket
+          isAlreadyConnected.disconnect()
+        : // Else proceed as normal
+          callback({ ...user, socketId: socket.id });
     });
 
     socket.on("setUser", (user, callback) => {
+      // Update user data
       socket.data.user = user;
       io.emit("updateUser", user);
       callback(user);
     });
 
     const filterRooms = async (connectedSockets: any[]) => {
+      // Filter out socketID rooms & the 'lobby' room
       const rooms = io.of("/").adapter.rooms;
       const roomNames = rooms.keys();
       const socketsArray = Array.from(connectedSockets).map(
@@ -61,6 +72,8 @@ export function registerSocketHandlers(
     };
 
     const fetchRoomsInLobby = async () => {
+      // Return all the rooms that are not socketID rooms & not the 'lobby' room
+      // Also return the users in those rooms
       const connectedSockets = await io.fetchSockets();
       const filteredRooms = await filterRooms(connectedSockets);
 
