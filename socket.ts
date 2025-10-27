@@ -273,37 +273,26 @@ export function registerGameNamespaceHandlers(
       }
     });
 
-    socket.on("loseGame", async (gameName, user, callback) => {
+    socket.on("concede", async (gameName, concededGameState, callback) => {
       if (
         // Game exists and both players are present
         socket.data.game &&
         socket.data.game.players.player1 &&
         socket.data.game.players.player2
       ) {
-        const winner =
-          socket.data.game.players.player1.id === user.id
-            ? // If the player who lost is player 1, return player 2
-              socket.data.game.players.player2
-            : socket.data.game.players.player1;
-        const lostGameState: GameStateType = {
-          ...socket.data.game.state,
-          winner: winner,
-          status: "finished",
-          combatLog: [
-            ...socket.data.game.state.combatLog,
-            `${user.name} gave up. ${winner.name} won!`,
-          ],
-        };
         const gameStateResponse = await setSocketGameState(
           gameName,
-          lostGameState
+          concededGameState
         );
-        if (gameStateResponse.status === "ok" && gameStateResponse.game) {
+        if (gameStateResponse.status === "ok" && gameStateResponse.gameState) {
+          console.log("Socket data has been updated");
           // Socket data has been updated
-          callback({ status: "ok", game: gameStateResponse.game });
-          io.to(gameName).emit("gameLost", gameStateResponse.game);
+          callback({ status: "ok", gameState: gameStateResponse.gameState });
+          socket
+            .to(gameName)
+            .emit("opponentConceded", gameStateResponse.gameState);
         } else {
-          callback({ status: gameStateResponse.status, game: null });
+          callback({ status: gameStateResponse.status, gameState: null });
         }
       } else {
         console.log("Game does not exist");

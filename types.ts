@@ -22,7 +22,7 @@ export interface ServerToClientEvents {
   startCountdown: () => void;
   cancelCountdown: () => void;
   gameReset: (data: GameType) => void;
-  gameLost: (data: GameType) => void;
+  opponentConceded: (data: GameStateType) => void;
   gameStarted: (data: GameType) => void;
   roundEndedForSpectators: (data: GameStateType) => void;
   opponentChoice: (data: RoundType[]) => void;
@@ -109,10 +109,16 @@ export interface ClientToServerEvents {
     gameName: string,
     callback: ({ status, game }: { status: string; game: GameType }) => void
   ) => void;
-  loseGame: (
+  concede: (
     gameName: string,
-    user: UserType,
-    callback: ({ status, game }: { status: string; game: GameType }) => void
+    concededGameState: GameStateType,
+    callback: ({
+      status,
+      gameState,
+    }: {
+      status: string;
+      gameState: GameStateType | null;
+    }) => void
   ) => void;
   submitChoice: (
     gameName: string,
