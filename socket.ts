@@ -7,15 +7,9 @@ import {
   UserType,
   RoundType,
   GameStateType,
-  WinnerOfRoundResponseType,
   SetSocketGameStateResponse,
 } from "./types";
-import {
-  gameData,
-  defaultGameState,
-  startedGameState,
-  roundState,
-} from "./store";
+import { gameData, defaultGameState, startedGameState } from "./store";
 
 const ROOM_CAPACITY = 10;
 const GAME_CAPACITY = 2;
@@ -239,7 +233,7 @@ export function registerGameNamespaceHandlers(
       io.to(gameName).emit("cancelCountdown");
     });
 
-    socket.on("startGame", async (gameName, user, callback) => {
+    socket.on("startGame", async (gameName, callback) => {
       const gameStateResponse = await setSocketGameState(
         gameName,
         startedGameState(3)

@@ -50,7 +50,6 @@ export interface ClientToServerEvents {
   setUser: (user: UserType, callback: (response: any) => void) => void;
   startGame: (
     gameName: string,
-    user: UserType,
     callback: ({
       status,
       gameState,
@@ -90,7 +89,6 @@ export interface ClientToServerEvents {
   endRound: (
     gameName: string,
     updatedGameState: GameStateType,
-
     callback: ({
       status,
       gameState,
@@ -116,7 +114,6 @@ export interface ClientToServerEvents {
 
 export interface InterServerEvents {
   ping: () => void;
-  //   message: (msg: string) => void;
 }
 
 export interface SocketData {
@@ -178,5 +175,3 @@ export type PlayersType = {
   player1: UserType | null;
   player2: UserType | null;
 };
-
-export type WinnerOfRoundResponseType = "error" | "draw" | UserType;
