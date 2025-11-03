@@ -5,7 +5,6 @@ import {
   InterServerEvents,
   SocketData,
   UserType,
-  RoundType,
   GameStateType,
   SetSocketGameStateResponse,
 } from "./types";
@@ -14,6 +13,7 @@ import { gameData, defaultGameState, startedGameState } from "./store";
 const ROOM_CAPACITY = 10;
 const GAME_CAPACITY = 2;
 
+// MAIN NAMESPACE
 export function registerSocketHandlers(
   io: Server<
     ClientToServerEvents,
@@ -52,58 +52,15 @@ export function registerSocketHandlers(
       callback(user);
     });
 
-    const filterRooms = async (connectedSockets: any[]) => {
-      // Filter out socketID rooms & the 'lobby' room
-      const rooms = io.of("/").adapter.rooms;
-      const roomNames = rooms.keys();
-      const socketsArray = Array.from(connectedSockets).map(
-        (socket) => socket.id
-      );
-      const filteredSockets = Array.from(roomNames).filter(
-        (value) => !socketsArray.includes(value) && value !== "lobby"
-      );
-      return filteredSockets;
-    };
-
-    const fetchRoomsInLobby = async () => {
-      // Return all the rooms that are not socketID rooms & not the 'lobby' room
-      // Also return the users in those rooms
-      const connectedSockets = await io.fetchSockets();
-      const filteredRooms = await filterRooms(connectedSockets);
-
-      const updatedRooms = filteredRooms.map(async (value) => {
-        const users = await fetchUsersInRoom(value);
-        return { name: value, users: users };
-      });
-
-      const roomsInLobby = await Promise.all(updatedRooms);
-
-      return roomsInLobby;
-    };
-
-    socket.on("fetchRoomsInLobby", async (callback) => {
-      const lobby = await fetchRoomsInLobby();
-      callback(lobby);
-    });
-
-    const fetchUsersInRoom = async (roomName: string) => {
-      const sockets = await io.in(roomName).fetchSockets();
-      const users = sockets.map((socket) => socket.data.user);
-      return users;
-    };
-
     socket.on("fetchUsersInRoom", async (roomName, callback) => {
       const usersInRoom = await fetchUsersInRoom(roomName);
       callback(usersInRoom);
     });
 
-    const leaveAllRooms = async () => {
-      socket.rooms.forEach((room) => {
-        if (room !== socket.id) {
-          socket.leave(room);
-        }
-      });
-    };
+    socket.on("fetchRoomsInLobby", async (callback) => {
+      const lobby = await fetchRoomsInLobby();
+      callback(lobby);
+    });
 
     socket.on("createRoom", async (roomName, callback) => {
       const rooms = io.of("/").adapter.rooms;
@@ -135,9 +92,53 @@ export function registerSocketHandlers(
         callback({ status: "error" });
       }
     });
+
+    // HELPER FUNCTIONS
+    const fetchRoomsInLobby = async () => {
+      // Return all the rooms that are not socketID rooms & not the 'lobby' room
+      // Also return the users in those rooms
+      const connectedSockets = await io.fetchSockets();
+      const filteredRooms = await filterRooms(connectedSockets);
+
+      const updatedRooms = filteredRooms.map(async (value) => {
+        const users = await fetchUsersInRoom(value);
+        return { name: value, users: users };
+      });
+
+      const roomsInLobby = await Promise.all(updatedRooms);
+
+      return roomsInLobby;
+    };
+
+    const filterRooms = async (connectedSockets: any[]) => {
+      // Filter out socketID rooms & the 'lobby' room
+      const rooms = io.of("/").adapter.rooms;
+      const roomNames = rooms.keys();
+      const socketsArray = Array.from(connectedSockets).map(
+        (socket) => socket.id
+      );
+      const filteredSockets = Array.from(roomNames).filter(
+        (value) => !socketsArray.includes(value) && value !== "lobby"
+      );
+      return filteredSockets;
+    };
+
+    const fetchUsersInRoom = async (roomName: string) => {
+      const sockets = await io.in(roomName).fetchSockets();
+      const users = sockets.map((socket) => socket.data.user);
+      return users;
+    };
+    const leaveAllRooms = async () => {
+      socket.rooms.forEach((room) => {
+        if (room !== socket.id) {
+          socket.leave(room);
+        }
+      });
+    };
   });
 }
 
+// GAME NAMESPACE
 export function registerGameNamespaceHandlers(
   io: Server<
     ClientToServerEvents,
@@ -289,7 +290,7 @@ export function registerGameNamespaceHandlers(
           callback({ status: gameStateResponse.status, gameState: null });
         }
       } else {
-        console.log("Game does not exist");
+        callback({ status: "error - game does not exist", gameState: null });
       }
     });
 
@@ -299,7 +300,6 @@ export function registerGameNamespaceHandlers(
         if (!isGameRunning(gameName) || !socket.data.game) {
           // Game hasn't started
           callback({ status: "Game not running", updatedRounds: null });
-          console.log("Game not running");
           return;
         }
         if (selected === null) {
@@ -307,7 +307,6 @@ export function registerGameNamespaceHandlers(
           // If theres no data for selected somethings gone wrong.
           // selected type = rock | paper | scissors | 'none'
           callback({ status: "No move registered", updatedRounds: null });
-          console.log("selected is null");
           return;
         }
 
