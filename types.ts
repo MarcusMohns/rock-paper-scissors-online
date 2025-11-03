@@ -1,42 +1,21 @@
 export interface ServerToClientEvents {
-  noArg: () => void;
-  basicEmit: (a: number, b: string, c: Buffer) => void;
-  withAck: (d: string, callback: (e: number) => void) => void;
   chatMessage: (msg: ChatMessageType) => void;
-  response: (msg: string) => void;
-  updateLobby: (lobby: RoomType[]) => void;
-  setUser: (msg: { name: string; id: string }) => void;
-  usersInRoom: (users: any[]) => void;
-  updateUserList: (users: UserType[]) => void;
-  roomChat: (msg: { room: string; message: string }) => void;
-  updateRoomUserList: (users: UserType[]) => void;
-  updateLobbyUserList: (users: UserType[]) => void;
-  userDisconnecting: (user: UserType) => void;
   updateUser: (user: UserType) => void;
-  roomCreated: (roomName: string) => void;
   roomJoined: (roomName: string) => void;
   roomLeft: (roomName: string) => void;
   gameLeft: (roomName: string) => void;
   gameJoined: (gameName: string) => void;
-  gameCreated: (gameName: string) => void;
   startCountdown: () => void;
   cancelCountdown: () => void;
   gameReset: (data: GameType) => void;
   gameLost: (data: GameType) => void;
   gameStarted: (data: GameType) => void;
-  roundEnded: (data: GameStateType) => void;
   choiceSubmitted: (data: RoundType[]) => void;
   readyForNextRound: (isPlayer1: boolean) => void;
 }
 
 export interface ClientToServerEvents {
   fetchRoomsInLobby: (callback: (lobby: RoomType[]) => void) => void;
-  updateRoom: (roomName: string) => void;
-  hello: () => void;
-  lobbyChat: (
-    msg: { username: string; message: string },
-    callback: (response: any) => void
-  ) => void;
   chatMessage: (
     msg: {
       username: string;
@@ -50,16 +29,6 @@ export interface ClientToServerEvents {
     roomName: string,
     callback: (result: { roomName: string; status: string }) => void
   ) => void;
-  createGame: (
-    gameName: string,
-    callback: (result: {
-      players: {
-        player1: UserType | null;
-        player2: UserType | null;
-      };
-      status: string;
-    }) => void
-  ) => void;
   joinRoom: (
     roomName: string,
     callback: (result: { roomName: string; status: string }) => void
@@ -68,22 +37,11 @@ export interface ClientToServerEvents {
     gameName: string,
     callback: (result: { status: string }) => void
   ) => void;
-  leaveRoom: (roomName: string, callback: (roomName: any) => void) => void;
   connected: (user: UserType, callback: (response: any) => void) => void;
   leaveAllGames: (gameName: string) => void;
-  cancelGame: (gameName: string) => void;
-  leaveAllRooms: () => void;
-  fetchSocketsInRoom: (
-    roomName: string,
-    callback: (sockets: any[]) => void
-  ) => void;
   fetchUsersInRoom: (
     roomName: string,
     callback: (users: any[]) => void
-  ) => void;
-  fetchPlayersInGame: (
-    roomName: string,
-    callback: (players: PlayersType) => void
   ) => void;
   startGameCountdown: (
     roomName: string,
@@ -95,10 +53,6 @@ export interface ClientToServerEvents {
     callback: ({ status, game }: { status: string; game: GameType }) => void
   ) => void;
   resetGame: (
-    gameName: string,
-    callback: ({ status, game }: { status: string; game: GameType }) => void
-  ) => void;
-  updatePlayers: (
     gameName: string,
     callback: ({ status, game }: { status: string; game: GameType }) => void
   ) => void;
@@ -123,7 +77,6 @@ export interface ClientToServerEvents {
   endRound: (
     gameName: string,
     updatedGameState: GameStateType,
-
     callback: ({
       status,
       gameState,
@@ -135,10 +88,6 @@ export interface ClientToServerEvents {
     }) => void
   ) => void;
   cancelGameCountdown: (roomName: string) => void;
-  UserListRendered: (
-    roomName: string,
-    callback: (response: any) => void
-  ) => void;
   fetchPlayers: (
     gameName: string,
     callback: ({
@@ -153,7 +102,6 @@ export interface ClientToServerEvents {
 
 export interface InterServerEvents {
   ping: () => void;
-  //   message: (msg: string) => void;
 }
 
 export interface SocketData {
@@ -215,5 +163,3 @@ export type PlayersType = {
   player1: UserType | null;
   player2: UserType | null;
 };
-
-export type WinnerOfRoundResponseType = "error" | "draw" | UserType;

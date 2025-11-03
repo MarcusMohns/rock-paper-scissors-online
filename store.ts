@@ -66,9 +66,4 @@ export const gameData = ({
   };
 };
 
-export let roundState: RoundType = {
-  player1Choice: "none",
-  player2Choice: "none",
-  winner: null,
-};
 export default gameData;

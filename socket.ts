@@ -5,17 +5,10 @@ import {
   InterServerEvents,
   SocketData,
   UserType,
-  RoundType,
   GameStateType,
-  WinnerOfRoundResponseType,
   SetSocketGameStateResponse,
 } from "./types";
-import {
-  gameData,
-  defaultGameState,
-  startedGameState,
-  roundState,
-} from "./store";
+import { gameData, defaultGameState, startedGameState } from "./store";
 
 const ROOM_CAPACITY = 10;
 const GAME_CAPACITY = 2;
