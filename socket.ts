@@ -221,7 +221,8 @@ export function registerGameNamespaceHandlers(
         playersResponse.player1 && playersResponse.player2;
 
       if (bothPlayersConnected) {
-        io.to(gameName).emit("startCountdown");
+        socket.to(gameName).emit("startCountdown");
+        callback({ status: "ok" });
         // emits to the entire room not just the two gamers
         return;
       } else {
@@ -235,6 +236,8 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("startGame", async (gameName, callback) => {
+      // called at the end of the starting game countdown for both players
+      // set Game State
       const gameStateResponse = await setSocketGameState(
         gameName,
         startedGameState(3)
