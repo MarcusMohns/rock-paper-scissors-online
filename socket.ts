@@ -38,11 +38,24 @@ export function registerSocketHandlers(
         // If a socket with the same user ID exists and it's not this socket
         return s.data.user && s.data.user.id === user.id && s.id !== socket.id;
       });
-      isAlreadyConnected
-        ? // Disconnect the older socket
-          isAlreadyConnected.disconnect()
-        : // Else proceed as normal
-          callback({ ...user, socketId: socket.id });
+      if (isAlreadyConnected) {
+        // Disconnect the older socket
+        isAlreadyConnected.disconnect();
+        callback({
+          type: "error",
+          data: {
+            status: true,
+            message:
+              "Old connection disconnected. A new connection has been established.",
+          },
+        });
+      } else {
+        callback({
+          // Else proceed as normal
+          type: "ok",
+          data: { ...user, socketId: socket.id },
+        });
+      }
     });
 
     socket.on("setUser", (user, callback) => {
@@ -169,13 +182,13 @@ export function registerGameNamespaceHandlers(
     socket.on("connected", async (user) => {
       // User sends their user data & we save it in socket.data
       socket.data.user = user;
-      // Needs to DC gameoskcet too. =) TODO
 
       const sockets = await gamesNamespace.fetchSockets();
       const isAlreadyConnected = sockets.find((s) => {
         // If a socket with the same user ID exists and it's not this socket
         return s.data.user && s.data.user.id === user.id && s.id !== socket.id;
       });
+      // If a socket with the same user ID exists and it's not this socket then disconnect it
       isAlreadyConnected ? isAlreadyConnected.disconnect() : null;
     });
 
