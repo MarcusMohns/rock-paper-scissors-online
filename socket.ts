@@ -46,7 +46,7 @@ export function registerSocketHandlers(
           data: {
             status: true,
             message:
-              "Old connection disconnected. A new connection has been established.",
+              "Old connection disconnected. A new connection has been established. ",
           },
         });
       } else {
