@@ -166,9 +166,17 @@ export function registerGameNamespaceHandlers(
   });
 
   gamesNamespace.on("connection", (socket) => {
-    socket.on("connected", (user) => {
+    socket.on("connected", async (user) => {
       // User sends their user data & we save it in socket.data
       socket.data.user = user;
+      // Needs to DC gameoskcet too. =) TODO
+
+      const sockets = await gamesNamespace.fetchSockets();
+      const isAlreadyConnected = sockets.find((s) => {
+        // If a socket with the same user ID exists and it's not this socket
+        return s.data.user && s.data.user.id === user.id && s.id !== socket.id;
+      });
+      isAlreadyConnected ? isAlreadyConnected.disconnect() : null;
     });
 
     // Game logic events
