@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "concurrently \"tsx watch index.ts\" \"npm --prefix client run dev\"",
     "build-client": "npm --prefix client ci && npm --prefix client run build",
+    "prebuild-server": "npm install typescript@^5.5.0 --no-audit --no-fund",
     "build-server": "npx tsc -p tsconfig.build.json",
     "build": "npm run build-server && npm run build-client",
     "start": "NODE_ENV=production node dist/index.js",
