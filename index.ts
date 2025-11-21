@@ -20,7 +20,9 @@ const app = express();
 const clientDist = path.join(__dirname, "../client/dist");
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(clientDist));
-  app.get("*", (req, res) => {
+  // Use a regex route to avoid issues with path-to-regexp parsing of '*' in
+  // some environments. The regex matches any path and serves the SPA entry.
+  app.get(/.*/, (req, res) => {
     res.sendFile(path.join(clientDist, "index.html"));
   });
 }
