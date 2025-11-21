@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"tsx watch index.ts\" \"npm --prefix client run dev\"",
-    "build-client": "npm --prefix client run build",
-    "start": "NODE_ENV=production tsx index.ts",
+    "build-client": "npm --prefix client ci && npm --prefix client run build",
+    "build-server": "npx tsc -p tsconfig.build.json",
+    "build": "npm run build-server && npm run build-client",
+    "start": "NODE_ENV=production node dist/index.js",
     "start:prod": "NODE_ENV=production node dist/index.js"
   },
   "dependencies": {
@@ -15,6 +17,8 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
-    "concurrently": "^8.2.0"
+    "concurrently": "^8.2.0",
+    "typescript": "^5.5.0",
+    "@types/node": "^20.5.1"
   }
 }
