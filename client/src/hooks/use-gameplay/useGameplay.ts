@@ -1,0 +1,166 @@
+import type { RoundType, GameStateType, PlayersType } from "../../types";
+import { useCallback, useEffect, useState, useContext } from "react";
+import { UserContext } from "../../Context";
+import { gamesSocket } from "../../socketio/socket";
+import { useError } from "../useError";
+import {
+  endRound,
+  submitChoice,
+  gameResults,
+  startGame,
+  gameOver,
+} from "./store";
+
+type Props = {
+  gameName: string;
+  gameState: GameStateType;
+  players: PlayersType;
+  rounds: RoundType[];
+  handleSetGameState: (gameState: GameStateType) => void;
+};
+
+export const useGameplay = ({
+  gameName,
+  gameState,
+  players,
+  rounds,
+  handleSetGameState,
+}: Props) => {
+  const { user, updateGameStats } = useContext(UserContext);
+  const { error, handleSetError } = useError();
+  const [showIngameCountdown, setShowIngameCountdown] =
+    useState<boolean>(false);
+  const [playersReady, setPlayersReady] = useState<{
+    player1: boolean;
+    player2: boolean;
+  }>({
+    player1: false,
+    player2: false,
+  });
+  const isFirstRound = gameState.history.length === 0;
+  const isPlayer1 =
+    players.player1 && user.id === players.player1.id ? true : false;
+  const { player1, player2 } = gameResults(rounds, players);
+
+  const handleGameOver = useCallback(() => {
+    gameOver(gameState, user, updateGameStats);
+  }, [gameState, user, updateGameStats]);
+
+  const onOpponentChoice = useCallback(
+    // Called when the opponent selects rock paper or scissors
+    (rounds: RoundType[]) => {
+      handleSetGameState({ ...gameState, rounds: rounds });
+    },
+    [gameState, handleSetGameState]
+  );
+
+  const handleShowIngameCountdown = useCallback((bool: boolean) => {
+    setShowIngameCountdown(bool);
+  }, []);
+
+  const handleSetPlayerReady = useCallback(() => {
+    // Called when this user is ready for the next round
+    setPlayersReady((prevPlayersReady) =>
+      isPlayer1
+        ? { ...prevPlayersReady, player1: true }
+        : { ...prevPlayersReady, player2: true }
+    );
+  }, [isPlayer1]);
+
+  const onOpponentReady = useCallback(() => {
+    // Called when the opponent is ready for the next round
+    setPlayersReady((prevPlayersReady) =>
+      isPlayer1
+        ? { ...prevPlayersReady, player2: true }
+        : { ...prevPlayersReady, player1: true }
+    );
+  }, [isPlayer1]);
+
+  const handleStartGame = (gameName: string) => {
+    // This is called at the end of the game starting countdown for both users
+    startGame(
+      gameName,
+      handleSetGameState,
+      handleSetPlayerReady,
+      handleSetError
+    );
+  };
+
+  const handleEndRound = useCallback(() => {
+    // This is called at the end of countdown
+    endRound(
+      gameName,
+      players,
+      gameState,
+      handleGameOver,
+      handleShowIngameCountdown,
+      handleSetGameState,
+      handleSetPlayerReady,
+      handleSetError
+    );
+  }, [
+    gameName,
+    players,
+    gameState,
+    handleGameOver,
+    handleShowIngameCountdown,
+    handleSetGameState,
+    handleSetPlayerReady,
+    handleSetError,
+  ]);
+
+  const handleSubmitChoice = useCallback(
+    (selected: string | null) => {
+      // This is called when a player makes a choice
+      submitChoice(
+        gameState,
+        gameName,
+        selected,
+        user,
+        handleSetGameState,
+        handleSetError
+      );
+    },
+    [gameState, gameName, user, handleSetGameState, handleSetError]
+  );
+
+  useEffect(() => {
+    if (playersReady.player1 && playersReady.player2) {
+      // If both players ready for the next stage - start the countdown & reset playersReady
+      if (isFirstRound) {
+        setShowIngameCountdown(true);
+      } else {
+        setTimeout(() => setShowIngameCountdown(true), 3000);
+      }
+      setPlayersReady({ player1: false, player2: false });
+    }
+  }, [playersReady, isFirstRound, setShowIngameCountdown]);
+  useEffect(() => {
+    // Make sure to reset the countdown when game is finished or reset
+    if (gameState.status === "finished" || gameState.status === "waiting") {
+      setShowIngameCountdown(false);
+    }
+  }, [showIngameCountdown, gameState.status]);
+
+  useEffect(() => {
+    gamesSocket.on("opponentChoice", onOpponentChoice);
+    gamesSocket.on("opponentReady", onOpponentReady);
+    return () => {
+      gamesSocket.off("opponentChoice", onOpponentChoice);
+      gamesSocket.off("opponentReady", onOpponentReady);
+    };
+  }, [onOpponentChoice, onOpponentReady]);
+
+  return {
+    showIngameCountdown,
+    player1,
+    player2,
+    isPlayer1,
+    user,
+    error,
+    handleSetError,
+    handleStartGame,
+    handleEndRound,
+    handleSubmitChoice,
+  };
+};
