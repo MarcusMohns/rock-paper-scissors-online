@@ -158,6 +158,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
   useEffect(() => {
     // Connect to the game socket & fetch players when the component mounts
     gamesSocket.emit("connected", user);
+    console.log("Emitted connected with user:", user);
     updatePlayers();
   }, [user, updatePlayers]);
 

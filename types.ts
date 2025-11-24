@@ -118,7 +118,7 @@ export interface InterServerEvents {
 
 export interface SocketData {
   id: string;
-  user: { name: string; id: string };
+  user: UserType;
   game: GameType;
 }
 
@@ -164,6 +164,15 @@ export type ChatMessageType = {
 export type UserType = {
   name: string;
   id: string;
+  socketId: string;
+  stats: {
+    wins: number;
+    losses: number;
+    draws: number;
+    rating: number;
+  };
+  color: string;
+  themePreference: string;
 };
 
 export type RoomType = {
