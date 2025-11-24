@@ -36,7 +36,6 @@ export function registerSocketHandlers(
     console.log("a user connected");
     socket.on("connected", async (user, callback) => {
       console.log("connected");
-      socket.data.user = user;
       const sockets = await io.fetchSockets();
       const isAlreadyConnected = sockets.find((s) => {
         // If a socket with the same user ID exists and it's not this socket
@@ -56,9 +55,10 @@ export function registerSocketHandlers(
           },
         });
       } else {
+        // Else proceed as normal
+        socket.data.user = user;
         console.log("User not already connected");
         callback({
-          // Else proceed as normal
           type: "ok",
           data: { ...user, socketId: socket.id },
         });
