@@ -5,6 +5,7 @@ import useUserList from "../../../hooks/useUserList";
 
 const LobbyUserList = () => {
   const { userList } = useUserList({ roomName: "lobby" });
+  console.log("LobbyUserList userList:", userList);
   return (
     <Box
       className="lobby-user-list"

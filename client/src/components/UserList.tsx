@@ -24,6 +24,7 @@ const UserList = ({ userList }: Props) => {
                   <UserAvatar user={user} size={40} />
                 </ListItemIcon>
                 <ListItemText
+                  disableTypography
                   primary={
                     <Typography
                       variant="body1"
