@@ -7,6 +7,7 @@ const useUserList = ({ roomName }: { roomName: string }) => {
 
   const updateUserList = useCallback(() => {
     socket.emit("fetchUsersInRoom", roomName, (response: UserType[]) => {
+      console.log("Fetched user list:", response, "updateUserList called");
       setUserList(response);
     });
   }, [roomName, setUserList]);

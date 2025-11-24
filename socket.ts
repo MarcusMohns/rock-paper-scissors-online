@@ -64,9 +64,9 @@ export function registerSocketHandlers(
       io.emit("updateUser", user);
       callback(user);
     });
-
     socket.on("fetchUsersInRoom", async (roomName, callback) => {
       const usersInRoom = await fetchUsersInRoom(roomName);
+      console.log("fetchUsersInRoom called:", usersInRoom);
       callback(usersInRoom);
     });
 
