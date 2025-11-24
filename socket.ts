@@ -67,7 +67,10 @@ export function registerSocketHandlers(
     socket.on("fetchUsersInRoom", async (roomName, callback) => {
       const usersInRoom = await fetchUsersInRoom(roomName);
       console.log("fetchUsersInRoom called:", usersInRoom);
-      callback(usersInRoom);
+      usersInRoom
+        ? callback(usersInRoom)
+        : console.log("No users found in room");
+      // callback(usersInRoom)
     });
 
     socket.on("fetchRoomsInLobby", async (callback) => {
@@ -85,6 +88,7 @@ export function registerSocketHandlers(
       await leaveAllRooms();
       await socket.join(roomName);
       callback({ roomName: roomName, status: "ok" });
+      console.log("Room created and joined:", roomName);
     });
 
     socket.on("joinRoom", async (roomName, callback) => {
