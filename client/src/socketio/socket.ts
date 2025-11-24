@@ -8,7 +8,7 @@ const URL: string | undefined =
 
 const GAMES_URL: string | undefined =
   process.env.NODE_ENV === "production"
-    ? window.location.origin
+    ? `${window.location.origin}/games`
     : "http://localhost:3000/games";
 
 export const socket = io(URL, { autoConnect: true });
