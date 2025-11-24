@@ -18,7 +18,7 @@ const UserList = ({ userList }: Props) => {
       <TransitionGroup>
         {userList.map((user) => {
           return (
-            <Zoom key={user.socketId}>
+            <Zoom key={user.id}>
               <ListItem>
                 <ListItemIcon>
                   <UserAvatar user={user} size={40} />

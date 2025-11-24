@@ -77,6 +77,7 @@ export function registerSocketHandlers(
 
     socket.on("createRoom", async (roomName, callback) => {
       const rooms = io.of("/").adapter.rooms;
+      console.log(`Room ${roomName} created by ${socket.id}`);
       if (rooms.has(roomName)) {
         callback({ roomName: roomName, status: "Room already exists" });
         return;
@@ -88,6 +89,7 @@ export function registerSocketHandlers(
 
     socket.on("joinRoom", async (roomName, callback) => {
       const users = await fetchUsersInRoom(roomName);
+      console.log(`User ${socket.id} joining room ${roomName}`, users);
       if (users.length >= ROOM_CAPACITY && roomName !== "lobby") {
         callback({ roomName: roomName, status: "Room is full" });
         return;
@@ -166,6 +168,7 @@ export function registerGameNamespaceHandlers(
   gamesNamespace.adapter.on("join-room", async (room, id) => {
     // When a player joins a game room
     io.to(room).emit("gameJoined", room);
+    console.log(`Player joined game room: ${room}`);
     // Emit to the room on the main namespace (not the games namespace) that a player has joined
     // This is used to update everyone in the room (players and spectators)
   });
