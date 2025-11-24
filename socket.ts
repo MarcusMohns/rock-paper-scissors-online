@@ -43,6 +43,7 @@ export function registerSocketHandlers(
         return s.data.user && s.data.user.id === user.id && s.id !== socket.id;
       });
       if (isAlreadyConnected) {
+        console.log(isAlreadyConnected, "isAlreadyConnected");
         console.log("User already connected, disconnecting older socket");
         // Disconnect the older socket
         isAlreadyConnected.disconnect();
