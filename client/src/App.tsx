@@ -38,7 +38,7 @@ export default function App() {
   );
 
   return (
-    <UserContext value={contextValue}>
+    <UserContext.Provider value={contextValue}>
       <ThemeProvider
         theme={user.themePreference === "light" ? lightTheme : darkTheme}
       >
@@ -80,6 +80,6 @@ export default function App() {
           <Footer />
         </Box>
       </ThemeProvider>
-    </UserContext>
+    </UserContext.Provider>
   );
 }
