@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import LobbyRoom from "./LobbyRoom";
-import Grow from "@mui/material/Grow";
+import Zoom from "@mui/material/Zoom";
 import { TransitionGroup } from "react-transition-group";
 import CreateRoomBtnDialog from "./CreateRoomBtnDialog";
 import useRoomList from "../../../hooks/useRoomList";
@@ -43,11 +43,11 @@ const LobbyRoomList = ({ handleSetInRoom }: Props) => {
       >
         <TransitionGroup>
           {roomList.map((room) => (
-            <Grow in key={room.name}>
+            <Zoom in key={room.name}>
               <Box sx={{ height: "100%", mb: 1 }}>
                 <LobbyRoom handleSetInRoom={handleSetInRoom} room={room} />
               </Box>
-            </Grow>
+            </Zoom>
           ))}
         </TransitionGroup>
       </Box>
