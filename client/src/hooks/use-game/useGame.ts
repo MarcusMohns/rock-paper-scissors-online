@@ -8,8 +8,8 @@ import type {
   SetSocketDataResponse,
 } from "../../types";
 import { socket, gamesSocket } from "../../socketio/socket";
-import { UserContext } from "../../Context";
 import { concede, winGame, loseGame, initialGame } from "./store";
+import { UserContext } from "../../Context";
 
 type Props = {
   gameName: string;
@@ -89,6 +89,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
 
   const handleWinGame = useCallback(() => {
     winGame(game.state, handleSetGameState, user);
+    updateGameStats("win");
   }, [game.state, handleSetGameState, user]);
 
   const handleLoseGame = useCallback(
@@ -156,9 +157,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
   }, [inGame, updateGameStats, handleLoseGame, user, game]);
 
   useEffect(() => {
-    // Connect to the game socket & fetch players when the component mounts
-    gamesSocket.emit("connected", user);
-    console.log("Emitted connected with user:", user);
+    // fetch players when the component mounts
     updatePlayers();
   }, [user, updatePlayers]);
 
@@ -169,7 +168,6 @@ export const useGame = ({ gameName, inGame }: Props) => {
         if (inGame) {
           // If we are the remaining player - win.
           handleWinGame();
-          updateGameStats("win");
         } else {
           // Error handleing TODO
         }

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { socket } from "../../socketio/socket";
+import { socket, gamesSocket } from "../../socketio/socket";
 import type {
   UserType,
   UserResponseType,
@@ -21,6 +21,7 @@ export const useUser = () => {
   }, []);
 
   useEffect(() => {
+    // Register onConnect for both sockets (provide both namespaces on the server with user data)
     const onConnect = () => {
       setIsConnected(true);
       socket.emit(
@@ -32,15 +33,17 @@ export const useUser = () => {
             : handleSetError(response.data)
       );
     };
+    const onGamesConnect = () => gamesSocket.emit("connected", user);
 
     const onDisconnect = () => {
       setIsConnected(false);
     };
-
+    gamesSocket.on("connect", onGamesConnect);
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
 
     return () => {
+      gamesSocket.off("connect", onGamesConnect);
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
     };

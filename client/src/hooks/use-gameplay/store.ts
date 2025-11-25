@@ -159,6 +159,7 @@ export const endRound = (
       // If last round, or game has a winner - end game
       updatedGameState.winner = gameWinner;
       updatedGameState.status = "finished";
+      handleGameOver();
     } else {
       // Otherwise progress to next round
       updatedGameState.currRound = gameState.currRound + 1;
