@@ -23,12 +23,10 @@ export function registerSocketHandlers(
   >
 ) {
   io.of("/").adapter.on("join-room", async (room, id) => {
-    console.log(`Socket ${id} joined room: ${room}`);
     io.to(room).emit("roomJoined", room);
   });
 
   io.of("/").adapter.on("leave-room", (room, id) => {
-    console.log(`Socket ${id} left room: ${room}`);
     io.to(room).emit("roomLeft", room);
   });
 
@@ -37,14 +35,11 @@ export function registerSocketHandlers(
     socket.on("connected", async (user, callback) => {
       console.log("connected");
       const sockets = await io.fetchSockets();
-      console.log("Fetched sockets:", sockets);
       const isAlreadyConnected = sockets.find((s) => {
         // If a socket with the same user ID exists and it's not this socket
         return s.data.user && s.data.user.id === user.id && s.id !== socket.id;
       });
       if (isAlreadyConnected) {
-        console.log(isAlreadyConnected, "isAlreadyConnected");
-        console.log("User already connected, disconnecting older socket");
         // Disconnect the older socket
         isAlreadyConnected.disconnect();
         callback({
@@ -58,7 +53,6 @@ export function registerSocketHandlers(
       } else {
         // Else proceed as normal
         socket.data.user = { ...user, socketId: socket.id };
-        console.log("User not already connected");
         callback({
           type: "ok",
           data: { ...user, socketId: socket.id },
@@ -74,13 +68,8 @@ export function registerSocketHandlers(
       callback(user);
     });
     socket.on("fetchUsersInRoom", async (roomName, callback) => {
-      console.log("fetchUsersInRoom called");
       const usersInRoom = await fetchUsersInRoom(roomName);
-      console.log("fetchUsersInRoom called:", usersInRoom);
-      usersInRoom
-        ? callback(usersInRoom)
-        : console.log("No users found in room");
-      // callback(usersInRoom)
+      callback(usersInRoom);
     });
 
     socket.on("fetchRoomsInLobby", async (callback) => {
@@ -90,9 +79,7 @@ export function registerSocketHandlers(
     });
 
     socket.on("createRoom", async (roomName, callback) => {
-      console.log("createRoom called");
       const rooms = io.of("/").adapter.rooms;
-      console.log(`Room ${roomName} created by ${socket.id}`);
       if (rooms.has(roomName)) {
         callback({ roomName: roomName, status: "Room already exists" });
         return;
@@ -104,9 +91,7 @@ export function registerSocketHandlers(
     });
 
     socket.on("joinRoom", async (roomName, callback) => {
-      console.log("joinRoom called");
       const users = await fetchUsersInRoom(roomName);
-      console.log(`User ${socket.id} joining room ${roomName}`, users);
       if (users.length >= ROOM_CAPACITY && roomName !== "lobby") {
         callback({ roomName: roomName, status: "Room is full" });
         return;
@@ -201,7 +186,6 @@ export function registerGameNamespaceHandlers(
   gamesNamespace.on("connection", (socket) => {
     console.log("a user connected to games namespace");
     socket.on("connected", async (user) => {
-      console.log("connected to games namespace");
       // User sends their user data & we save it in socket.data
       socket.data.user = user;
 
@@ -217,7 +201,6 @@ export function registerGameNamespaceHandlers(
     // Game logic events
 
     socket.on("createOrJoinGame", async (gameName: string, callback) => {
-      console.log("createOrJoinGame");
       const games = gamesNamespace.adapter.rooms;
       const playersResponse = await fetchPlayersInGame(gameName);
       if (playersResponse === "error fetching players") {
@@ -327,7 +310,6 @@ export function registerGameNamespaceHandlers(
           concededGameState
         );
         if (gameStateResponse.status === "ok" && gameStateResponse.gameState) {
-          console.log("Socket data has been updated");
           // Socket data has been updated
           callback({ status: "ok", gameState: gameStateResponse.gameState });
           socket
