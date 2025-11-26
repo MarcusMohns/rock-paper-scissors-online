@@ -92,11 +92,20 @@ export interface ClientToServerEvents {
     callback: ({
       status,
       gameState,
-      isPlayer1,
     }: {
       status: string;
       gameState: GameStateType | null;
-      isPlayer1: boolean | null;
+    }) => void
+  ) => void;
+  endGame: (
+    gameName: string,
+    updatedGame: GameType,
+    callback: ({
+      status,
+      game,
+    }: {
+      status: string;
+      game: GameType | null;
     }) => void
   ) => void;
   cancelGameCountdown: (roomName: string) => void;
