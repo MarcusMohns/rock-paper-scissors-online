@@ -22,7 +22,7 @@ export default function App() {
     user,
     handleSetUser,
     isConnected,
-    updateGameStats,
+    storeStatsToLocalStorage,
     error,
     handleSetError,
   } = useUser();
@@ -32,9 +32,9 @@ export default function App() {
     () => ({
       user,
       handleSetUser,
-      updateGameStats,
+      storeStatsToLocalStorage,
     }),
-    [user, handleSetUser, updateGameStats]
+    [user, handleSetUser, storeStatsToLocalStorage]
   );
 
   return (

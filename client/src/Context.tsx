@@ -4,7 +4,7 @@ import type { UserType } from "./types";
 export const UserContext = createContext<{
   user: UserType;
   handleSetUser: (user: UserType) => void;
-  updateGameStats: (outcome: "win" | "loss") => void;
+  storeStatsToLocalStorage: (outcome: "win" | "loss") => void;
 }>({
   user: {
     name: "unnamed",
@@ -20,5 +20,5 @@ export const UserContext = createContext<{
     },
   },
   handleSetUser: () => {},
-  updateGameStats: () => {},
+  storeStatsToLocalStorage: () => {},
 });
