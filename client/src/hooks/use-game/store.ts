@@ -7,34 +7,60 @@ import type {
 } from "../../types";
 import { gamesSocket } from "../../socketio/socket";
 
-export const winGame = (
-  gameState: GameStateType,
-  handleSetGameState: (gameState: GameStateType) => void,
+export const generateEndGameState = (
+  outcome: "win" | "loss",
+  game: GameType,
   user: UserType
 ) => {
-  const updatedGameState = { ...gameState };
-  updatedGameState.winner = user;
-  updatedGameState.status = "finished";
-  updatedGameState.combatLog.push(`${user.name} won the game!`);
-  handleSetGameState(updatedGameState);
-};
+  if (!game.players.player1 || !game.players.player2) {
+    return;
+  }
+  const isPlayer1 = user.id === game.players.player1.id;
+  const player1Won = outcome === "win" ? isPlayer1 : !isPlayer1;
 
-export const loseGame = (
-  gameState: GameStateType,
-  handleSetGameState: (gameState: GameStateType) => void,
-  user: UserType
-) => {
-  const updatedGameState = { ...gameState };
-  updatedGameState.winner = user;
-  updatedGameState.status = "finished";
-  handleSetGameState(updatedGameState);
+  const updatedPlayers = { ...game.players };
+
+  if (!updatedPlayers.player1 || !updatedPlayers.player2) {
+    return;
+  }
+
+  updatedPlayers.player1.stats.wins += player1Won ? 1 : 0;
+  updatedPlayers.player1.stats.losses += player1Won ? 0 : 1;
+  updatedPlayers.player1.stats.rating += player1Won ? 25 : -25;
+
+  updatedPlayers.player2.stats.wins += player1Won ? 0 : 1;
+  updatedPlayers.player2.stats.losses += player1Won ? 1 : 0;
+  updatedPlayers.player2.stats.rating += player1Won ? -25 : 25;
+
+  const updatedGameState: GameStateType = {
+    ...game.state,
+    status: "finished",
+    winner: player1Won ? game.players.player1 : game.players.player2,
+    combatLog: [
+      ...game.state.combatLog,
+      `Game over! ${
+        player1Won ? game.players.player1.name : game.players.player2.name
+      } wins!`,
+    ],
+  };
+
+  const updatedGame: GameType = {
+    ...game,
+    players: updatedPlayers,
+    state: updatedGameState,
+  };
+
+  // Todo Error handling
+  gamesSocket.emit("endGame", game, updatedGame);
+
+  return updatedGame;
 };
 
 export const concede = (
   gameName: string,
   user: UserType,
   game: GameType,
-  updateGameStats: (outcome: "win" | "loss") => void,
+  storeStatsToLocalStorage: (outcome: "win" | "loss") => void,
   handleSetGameState: (gameState: GameStateType) => void,
   handleSetError: ((error: ErrorType) => void) | null
 ) => {
@@ -61,7 +87,7 @@ export const concede = (
     ],
   };
 
-  updateGameStats("loss");
+  storeStatsToLocalStorage("loss");
 
   gamesSocket.emit(
     "concede",
