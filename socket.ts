@@ -7,6 +7,8 @@ import {
   UserType,
   GameStateType,
   SetSocketGameStateResponse,
+  GameType,
+  PlayersType,
 } from "./types";
 import { gameData, defaultGameState, startedGameState } from "./store";
 
@@ -201,42 +203,23 @@ export function registerGameNamespaceHandlers(
     // Game logic events
 
     socket.on("createOrJoinGame", async (gameName: string, callback) => {
-      const games = gamesNamespace.adapter.rooms;
       const playersResponse = await fetchPlayersInGame(gameName);
       if (playersResponse === "error fetching players") {
         callback({ status: playersResponse });
         return;
       }
-      const atCapacity = playersResponse.player1 && playersResponse.player2;
-      if (games.has(gameName)) {
-        // If game exists already
-        if (atCapacity) {
-          // If game is full
-          callback({ status: "Game full" });
-          return;
-        } else {
-          // If game has space and exists, join the game
-          try {
-            await leaveAllGames();
-            await socket.join(gameName);
-            callback({ status: "ok" });
-          } catch (error) {
-            callback({ status: "Error joining game" });
-            return;
-          }
-        }
+      const gameIsFull = playersResponse.player1 && playersResponse.player2;
+      if (!gameIsFull) {
+        // If game has space join the game (socket.join will create the room if it doesn't exist)
+        await leaveAllGames();
+        await socket.join(gameName);
+        callback({ status: "ok" });
       } else {
-        // If game does not exist, create and join the game
-        try {
-          await leaveAllGames();
-          await socket.join(gameName);
-          callback({ status: "ok" });
-        } catch (error) {
-          callback({ status: "Error creating game" });
-          return;
-        }
+        callback({ status: "Game full" });
       }
     });
+
+    // TODO add socket.data.user = user; on rename / setUser for games namespace as well.
 
     socket.on("startGameCountdown", async (gameName, callback) => {
       const playersResponse = await fetchPlayersInGame(gameName);
@@ -250,11 +233,8 @@ export function registerGameNamespaceHandlers(
       if (bothPlayersConnected) {
         socket.to(gameName).emit("startCountdown");
         callback({ status: "ok" });
-        // emits to the entire room not just the two gamers
-        return;
       } else {
         callback({ status: "Missing players" });
-        return;
       }
     });
 
@@ -326,7 +306,7 @@ export function registerGameNamespaceHandlers(
     socket.on(
       "submitChoice",
       async (gameName, selected, localRoundsState, user, callback) => {
-        if (!isGameRunning(gameName) || !socket.data.game) {
+        if (!GameIsRunning(gameName) || !socket.data.game) {
           // Game hasn't started
           callback({ status: "Game not running", updatedRounds: null });
           return;
@@ -366,11 +346,9 @@ export function registerGameNamespaceHandlers(
         updatedGameState
       );
       if (gameStateResponse.status === "ok" && gameStateResponse.gameState) {
-        const isPlayer1 = getIsPlayer1(socket.data.user);
         callback({
           status: "ok",
           gameState: gameStateResponse.gameState,
-          isPlayer1,
         });
         if (gameStateResponse.gameState.status === "playing") {
           // Annunce to the game room that this player is ready
@@ -387,8 +365,13 @@ export function registerGameNamespaceHandlers(
           );
         }
       } else {
-        callback({ status: "error", gameState: null, isPlayer1: null });
+        callback({ status: "error", gameState: null });
       }
+    });
+
+    socket.on("endGame", async (gameName, updatedGame, callback) => {
+      console.log("endGame received in socket");
+      setSocketGame(gameName, updatedGame);
     });
 
     socket.on("leaveAllGames", async (gameName) => {
@@ -433,9 +416,25 @@ export function registerGameNamespaceHandlers(
       }
     };
 
-    // make a quicker endround function and see if that helps.
+    const setSocketGame = async (gameName: string, game: GameType) => {
+      try {
+        if (!game) {
+          return { status: "error", game: null };
+        }
+        const socketGameData = gameData({
+          gameName: gameName,
+          players: game.players,
+          state: game.state,
+          totalRounds: 3,
+        });
+        socket.data.game = { ...socketGameData };
+        return { status: "ok", game: socketGameData };
+      } catch (error) {
+        return { status: "error", game: null };
+      }
+    };
 
-    const isGameRunning = (gameName: string) =>
+    const GameIsRunning = (gameName: string) =>
       socket.data.game &&
       socket.data.game.state.status === "playing" &&
       socket.data.game.name === gameName
