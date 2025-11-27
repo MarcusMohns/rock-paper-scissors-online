@@ -219,8 +219,6 @@ export function registerGameNamespaceHandlers(
       }
     });
 
-    // TODO add socket.data.user = user; on rename / setUser for games namespace as well.
-
     socket.on("startGameCountdown", async (gameName, callback) => {
       const playersResponse = await fetchPlayersInGame(gameName);
       if (playersResponse === "error fetching players") {
@@ -236,6 +234,11 @@ export function registerGameNamespaceHandlers(
       } else {
         callback({ status: "Missing players" });
       }
+    });
+
+    socket.on("setUser", (user, callback) => {
+      // Update user data
+      socket.data.user = user;
     });
 
     socket.on("cancelGameCountdown", async (gameName) => {
@@ -367,11 +370,6 @@ export function registerGameNamespaceHandlers(
       } else {
         callback({ status: "error", gameState: null });
       }
-    });
-
-    socket.on("endGame", async (gameName, updatedGame, callback) => {
-      console.log("endGame received in socket");
-      setSocketGame(gameName, updatedGame);
     });
 
     socket.on("leaveAllGames", async (gameName) => {

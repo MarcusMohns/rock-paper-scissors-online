@@ -20,6 +20,7 @@ type Props = {
   players: PlayersType;
   gameState: GameStateType;
   handleSetGameState: (gameState: GameStateType) => void;
+  handleEndGame: (outcome: "win" | "loss" | "draw") => void;
   previousRound: RoundHistoryType;
   rounds: RoundType[];
 };
@@ -30,6 +31,7 @@ const Gameplay = ({
   gameState,
   previousRound,
   handleSetGameState,
+  handleEndGame,
   rounds,
 }: Props) => {
   const {
@@ -49,6 +51,7 @@ const Gameplay = ({
     players,
     rounds,
     handleSetGameState,
+    handleEndGame,
   });
 
   return (

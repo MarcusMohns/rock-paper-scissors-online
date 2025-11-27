@@ -51,7 +51,6 @@ export const generateEndGameState = (
   };
 
   // Todo Error handling
-  gamesSocket.emit("endGame", game, updatedGame);
 
   return updatedGame;
 };

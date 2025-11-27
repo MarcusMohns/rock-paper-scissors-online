@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Players from "./components/Players";
-import { useEffect, memo } from "react";
+import { useEffect } from "react";
 import JoinOrLeaveButton from "./components/join-or-leave-button/JoinOrLeaveButton";
 import ActionButtons from "./components/ActionButtons";
 import Gameplay from "./components/gameplay/Gameplay";
@@ -22,6 +22,7 @@ const Game = ({ gameName, inGame, handleSetInGame }: Props) => {
     handleConcede,
     error,
     handleSetError,
+    handleEndGame,
     handleSetGameState,
     isConnected,
   } = useGame({
@@ -97,6 +98,7 @@ const Game = ({ gameName, inGame, handleSetInGame }: Props) => {
           inGame={inGame}
           players={game.players}
           gameState={game.state}
+          handleEndGame={handleEndGame}
           handleSetGameState={handleSetGameState}
           previousRound={game.state.history[game.state.history.length - 1]}
           rounds={game.state.rounds}
@@ -114,4 +116,4 @@ const Game = ({ gameName, inGame, handleSetInGame }: Props) => {
   );
 };
 
-export default memo(Game);
+export default Game;

@@ -97,17 +97,7 @@ export interface ClientToServerEvents {
       gameState: GameStateType | null;
     }) => void
   ) => void;
-  endGame: (
-    gameName: string,
-    updatedGame: GameType,
-    callback: ({
-      status,
-      game,
-    }: {
-      status: string;
-      game: GameType | null;
-    }) => void
-  ) => void;
+
   cancelGameCountdown: (roomName: string) => void;
   fetchPlayers: (
     gameName: string,
