@@ -18,6 +18,7 @@ export const useUser = () => {
       localStorage.setItem("user", JSON.stringify(response));
       setUser(response);
     });
+    gamesSocket.emit("setUser", user);
   }, []);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export const useUser = () => {
     };
   }, [user, handleSetError]);
 
-  const updateGameStats = useCallback(
+  const storeStatsToLocalStorage = useCallback(
     (outcome: "win" | "loss") => {
       const stats = {
         ...user.stats,
@@ -64,15 +65,15 @@ export const useUser = () => {
             : user.stats.rating,
       };
       handleSetUser({ ...user, stats });
-      localStorage.setItem("user", JSON.stringify({ ...user, stats }));
     },
+
     [user, handleSetUser]
   );
 
   return {
     user,
     handleSetUser,
-    updateGameStats,
+    storeStatsToLocalStorage,
     isConnected,
     error,
     handleSetError,
