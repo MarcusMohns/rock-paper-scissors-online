@@ -10,6 +10,8 @@ type Props = {
 
 const MoveDisplay = ({ round, players, isPlayer1 }: Props) => {
   if (players.player1 === null || players.player2 === null) return null;
+  const player1Won =
+    round.winner === "draw" ? false : round.winner.id === players.player1.id;
 
   return (
     <Stack
@@ -27,7 +29,9 @@ const MoveDisplay = ({ round, players, isPlayer1 }: Props) => {
         playerChoice={round.player1Choice}
         delay={isPlayer1 ? "0ms" : "500ms"}
       />
-      {round && round.winner && <RoundResult round={round} players={players} />}
+      {round && round.winner && (
+        <RoundResult round={round} players={players} player1Won={player1Won} />
+      )}
       <Move
         player={players.player2}
         playerChoice={round.player2Choice}

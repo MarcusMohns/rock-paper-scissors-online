@@ -147,6 +147,7 @@ export const endRound = (
       updatedGameState.currRound = gameState.currRound + 1;
     }
   }
+  console.log(updatedGameState, "NEW STATE AFTER END ROUND");
 
   gamesSocket.emit(
     "endRound",

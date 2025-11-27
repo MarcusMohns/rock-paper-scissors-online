@@ -92,27 +92,27 @@ export const useGame = ({ gameName, inGame }: Props) => {
         handleSetError({ status: true, message: "User not found" });
         return;
       }
-      if (outcome === "draw") return; // TODO outcome for Draw
+      if (outcome === "draw") {
+        handleSetError({
+          status: true,
+          message: "Error occur - draw is not a valid outcome",
+        });
+        return;
+      }
 
-      const endGameState =
-        outcome === "win"
-          ? generateEndGameState("win", game, user)
-          : generateEndGameState("loss", game, user);
-
-      if (!endGameState) return; // dunno what the fuck this is
-
-      console.log(
-        "handleEndGame called with outcome:",
-        outcome,
-        "endGameState:",
-        endGameState
-      );
-
-      handleSetGame(endGameState);
-      storeStatsToLocalStorage(outcome);
+      const endGameState = generateEndGameState(outcome, game, user);
+      if (endGameState) {
+        handleSetGame(endGameState);
+        storeStatsToLocalStorage(outcome);
+      } else {
+        handleSetError({
+          status: true,
+          message: "Could not generate end game state",
+        });
+      }
     },
 
-    [game.state, handleSetGame]
+    [handleSetGame, storeStatsToLocalStorage, user, game, handleSetError]
   );
 
   const handleRoundEndForSpectators = useCallback(

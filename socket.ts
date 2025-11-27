@@ -414,24 +414,6 @@ export function registerGameNamespaceHandlers(
       }
     };
 
-    const setSocketGame = async (gameName: string, game: GameType) => {
-      try {
-        if (!game) {
-          return { status: "error", game: null };
-        }
-        const socketGameData = gameData({
-          gameName: gameName,
-          players: game.players,
-          state: game.state,
-          totalRounds: 3,
-        });
-        socket.data.game = { ...socketGameData };
-        return { status: "ok", game: socketGameData };
-      } catch (error) {
-        return { status: "error", game: null };
-      }
-    };
-
     const GameIsRunning = (gameName: string) =>
       socket.data.game &&
       socket.data.game.state.status === "playing" &&
