@@ -1,9 +1,4 @@
-import type {
-  RoundType,
-  GameStateType,
-  PlayersType,
-  UserType,
-} from "../../types";
+import type { RoundType, GameStateType, PlayersType } from "../../types";
 import { useCallback, useEffect, useState, useContext } from "react";
 import { UserContext } from "../../Context";
 import { gamesSocket } from "../../socketio/socket";
@@ -27,7 +22,7 @@ export const useGameplay = ({
   handleSetGameState,
   handleEndGame,
 }: Props) => {
-  const { user, storeStatsToLocalStorage } = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const { error, handleSetError } = useError();
   const [showIngameCountdown, setShowIngameCountdown] =
     useState<boolean>(false);
@@ -41,16 +36,6 @@ export const useGameplay = ({
   const isPlayer1 =
     players.player1 && user.id === players.player1.id ? true : false;
   const { player1, player2 } = gameResults(rounds, players);
-
-  const handleGameOver = useCallback(
-    (winner: UserType | "draw") => {
-      // Determine outcome and call handleEndGame passed from useGame
-      const gameResult =
-        winner === "draw" ? "draw" : winner.id === user.id ? "win" : "loss";
-      handleEndGame(gameResult);
-    },
-    [gameState, user, storeStatsToLocalStorage, handleEndGame]
-  );
 
   const onOpponentChoice = useCallback(
     // Called when the opponent selects rock paper or scissors
@@ -97,8 +82,9 @@ export const useGameplay = ({
     endRound(
       gameName,
       players,
+      user,
       gameState,
-      handleGameOver,
+      handleEndGame,
       handleShowIngameCountdown,
       handleSetGameState,
       handleSetPlayerReady,
@@ -107,8 +93,9 @@ export const useGameplay = ({
   }, [
     gameName,
     players,
+    user,
     gameState,
-    handleGameOver,
+    handleEndGame,
     handleShowIngameCountdown,
     handleSetGameState,
     handleSetPlayerReady,

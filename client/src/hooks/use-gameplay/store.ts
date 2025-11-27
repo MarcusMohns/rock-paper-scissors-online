@@ -66,8 +66,8 @@ export const gameResults = (rounds: RoundType[], players: PlayersType) => {
   let player1Score = 0;
   let player2Score = 0;
 
-  const player1Moves: MoveType[] = [];
-  const player2Moves: MoveType[] = [];
+  let player1Moves: MoveType[] = [];
+  let player2Moves: MoveType[] = [];
 
   rounds.forEach((round) => {
     if (!round.winner || !players || !players.player1 || !players.player2) {
@@ -96,8 +96,9 @@ export const gameResults = (rounds: RoundType[], players: PlayersType) => {
 export const endRound = (
   gameName: string,
   players: PlayersType,
+  user: UserType,
   gameState: GameStateType,
-  handleGameOver: (user: UserType | "draw") => void,
+  handleEndGame: (outcome: "win" | "loss" | "draw") => void,
   handleShowIngameCountdown: (bool: boolean) => void,
   handleSetGameState: (gameState: GameStateType) => void,
   handleSetPlayerReady: () => void,
@@ -154,13 +155,15 @@ export const endRound = (
     (response: EndRoundStateResponseType) => {
       if (response.status === "ok" && response.gameState) {
         handleSetGameState(response.gameState);
-        if (response.gameState.status === "finished") {
-          handleGameOver(
-            response.gameState.winner ? response.gameState.winner : "draw"
-          );
-        } else {
-          handleSetPlayerReady();
-        }
+        response.gameState.status === "finished" && response.gameState.winner
+          ? handleEndGame(
+              response.gameState.winner === "draw"
+                ? "draw"
+                : response.gameState.winner.id === user.id
+                ? "win"
+                : "loss"
+            )
+          : handleSetPlayerReady();
       } else {
         handleSetError({ status: true, message: response.status });
       }
