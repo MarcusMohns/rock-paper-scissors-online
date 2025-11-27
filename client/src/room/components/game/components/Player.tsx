@@ -1,18 +1,17 @@
 import Typography from "@mui/material/Typography";
 import type { UserType } from "../../../../types";
-import ChairAltIcon from "@mui/icons-material/ChairAlt";
 import UserAvatar from "../../../../components/UserAvatar";
 import Zoom from "@mui/material/Zoom";
-import Fade from "@mui/material/Fade";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 
 type Props = {
-  player: UserType | null;
-  winner: boolean;
+  player: UserType;
+  winner: UserType | null | "draw";
 };
 
 const Player = ({ player, winner }: Props) => {
+  const playerWon = winner && winner !== "draw" && player.id === winner.id;
   const winnerCrown = (
     <Zoom in={true}>
       <Box sx={{ position: "absolute", width: { xs: "120px", sm: "200px" } }}>
@@ -56,10 +55,10 @@ const Player = ({ player, winner }: Props) => {
     borderColor: "success.light",
   };
 
-  return player ? (
+  return (
     <Box className="player">
-      {winner && winnerCrown}
-      <Box sx={winner ? winnerStyles : playerStyles}>
+      {playerWon && winnerCrown}
+      <Box sx={playerWon ? winnerStyles : playerStyles}>
         <Zoom in={true}>
           <Box
             sx={{
@@ -87,7 +86,7 @@ const Player = ({ player, winner }: Props) => {
               >
                 {player.name}
               </Typography>
-              <Zoom in={true} key={`${player.stats.rating}-${player.id}`}>
+              <Zoom in={true}>
                 <Typography
                   sx={{
                     overflow: "hidden",
@@ -103,22 +102,6 @@ const Player = ({ player, winner }: Props) => {
           </Box>
         </Zoom>
       </Box>
-    </Box>
-  ) : (
-    <Box sx={playerStyles}>
-      <Fade in={true}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            height: { xs: "100px", sm: "75px" },
-          }}
-        >
-          <ChairAltIcon fontSize="large" />
-          <Typography>Open</Typography>
-        </Box>
-      </Fade>
     </Box>
   );
 };
