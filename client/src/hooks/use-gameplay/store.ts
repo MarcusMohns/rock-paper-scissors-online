@@ -8,6 +8,7 @@ import type {
   RoundType,
   PlayersType,
   GameStateType,
+  GameType,
 } from "../../types";
 import { gamesSocket } from "../../socketio/socket";
 
@@ -26,25 +27,6 @@ export const startGame = (
       handleSetError({ status: true, message: response.status });
     }
   });
-};
-
-export const gameOver = (
-  gameState: GameStateType,
-  user: UserType,
-  updateGameStats: (outcome: "win" | "loss") => void
-) => {
-  if (!gameState.winner) return null;
-  const gameResult =
-    gameState.winner === "draw"
-      ? "draw"
-      : gameState.winner.id === user.id
-      ? "win"
-      : "loss";
-  if (gameResult !== "draw") {
-    updateGameStats(gameResult);
-  } else {
-    return null;
-  }
 };
 
 export const submitChoice = (
@@ -115,7 +97,7 @@ export const endRound = (
   gameName: string,
   players: PlayersType,
   gameState: GameStateType,
-  handleGameOver: () => void,
+  handleGameOver: (user: UserType | "draw") => void,
   handleShowIngameCountdown: (bool: boolean) => void,
   handleSetGameState: (gameState: GameStateType) => void,
   handleSetPlayerReady: () => void,
@@ -159,12 +141,12 @@ export const endRound = (
       // If last round, or game has a winner - end game
       updatedGameState.winner = gameWinner;
       updatedGameState.status = "finished";
-      handleGameOver();
     } else {
       // Otherwise progress to next round
       updatedGameState.currRound = gameState.currRound + 1;
     }
   }
+
   gamesSocket.emit(
     "endRound",
     gameName,
@@ -173,9 +155,10 @@ export const endRound = (
       if (response.status === "ok" && response.gameState) {
         handleSetGameState(response.gameState);
         if (response.gameState.status === "finished") {
-          handleGameOver();
+          handleGameOver(
+            response.gameState.winner ? response.gameState.winner : "draw"
+          );
         } else {
-          // Ready player up for next round
           handleSetPlayerReady();
         }
       } else {

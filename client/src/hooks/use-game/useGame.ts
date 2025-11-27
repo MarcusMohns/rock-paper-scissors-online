@@ -4,11 +4,10 @@ import type {
   GameStateType,
   PlayersResponseType,
   GameType,
-  UserType,
   SetSocketDataResponse,
 } from "../../types";
 import { socket, gamesSocket } from "../../socketio/socket";
-import { concede, winGame, loseGame, initialGame } from "./store";
+import { concede, generateEndGameState, initialGame } from "./store";
 import { UserContext } from "../../Context";
 
 type Props = {
@@ -17,7 +16,7 @@ type Props = {
 };
 
 export const useGame = ({ gameName, inGame }: Props) => {
-  const { user, updateGameStats } = useContext(UserContext);
+  const { user, storeStatsToLocalStorage } = useContext(UserContext);
   const { error, handleSetError } = useError();
   const [game, setGame] = useState({ ...initialGame(3) });
   const [isConnected, setIsConnected] = useState<boolean>(
@@ -74,7 +73,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
       gameName,
       user,
       game,
-      updateGameStats,
+      storeStatsToLocalStorage,
       handleSetGameState,
       handleSetError
     );
@@ -82,25 +81,38 @@ export const useGame = ({ gameName, inGame }: Props) => {
     gameName,
     game,
     user,
-    updateGameStats,
+    storeStatsToLocalStorage,
     handleSetGameState,
     handleSetError,
   ]);
 
-  const handleWinGame = useCallback(() => {
-    winGame(game.state, handleSetGameState, user);
-    updateGameStats("win");
-  }, [game.state, handleSetGameState, user]);
-
-  const handleLoseGame = useCallback(
-    (user: UserType | null) => {
+  const handleEndGame = useCallback(
+    (outcome: "win" | "loss" | "draw") => {
       if (!user) {
-        console.error("handleLoseGame: user is null");
+        handleSetError({ status: true, message: "User not found" });
         return;
       }
-      loseGame(game.state, handleSetGameState, user);
+      if (outcome === "draw") return; // TODO outcome for Draw
+
+      const endGameState =
+        outcome === "win"
+          ? generateEndGameState("win", game, user)
+          : generateEndGameState("loss", game, user);
+
+      if (!endGameState) return; // dunno what the fuck this is
+
+      console.log(
+        "handleEndGame called with outcome:",
+        outcome,
+        "endGameState:",
+        endGameState
+      );
+
+      handleSetGame(endGameState);
+      storeStatsToLocalStorage(outcome);
     },
-    [game.state, handleSetGameState]
+
+    [game.state, handleSetGame]
   );
 
   const handleRoundEndForSpectators = useCallback(
@@ -124,9 +136,9 @@ export const useGame = ({ gameName, inGame }: Props) => {
     (gameState: GameStateType) => {
       // Update user stats when opponent gives up
       handleSetGameState(gameState);
-      updateGameStats("win");
+      storeStatsToLocalStorage("win");
     },
-    [updateGameStats, handleSetGameState]
+    [storeStatsToLocalStorage, handleSetGameState]
   );
 
   const onGameLeft = useCallback(async () => {
@@ -147,14 +159,9 @@ export const useGame = ({ gameName, inGame }: Props) => {
     setIsConnected(false);
     // If we're in a game and disconnect we forfeit the game.
     if (inGame) {
-      const otherPlayer =
-        game.players.player1 && game.players.player1.id === user.id
-          ? game.players.player2
-          : game.players.player1;
-      handleLoseGame(otherPlayer);
-      updateGameStats("loss");
+      handleEndGame("loss");
     }
-  }, [inGame, updateGameStats, handleLoseGame, user, game]);
+  }, [inGame, storeStatsToLocalStorage, handleEndGame, user, game]);
 
   useEffect(() => {
     // fetch players when the component mounts
@@ -167,13 +174,13 @@ export const useGame = ({ gameName, inGame }: Props) => {
       if (game.players.player1 === null || game.players.player2 === null) {
         if (inGame) {
           // If we are the remaining player - win.
-          handleWinGame();
+          handleEndGame("win");
         } else {
           // Error handleing TODO
         }
       }
     }
-  }, [game, inGame, handleWinGame, handleLoseGame, updateGameStats]);
+  }, [game, inGame, handleEndGame, storeStatsToLocalStorage]);
 
   useEffect(() => {
     if (gamesSocket.connected) {
@@ -219,6 +226,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
     handleSetError,
     handleConcede,
     handleSetGameState,
+    handleEndGame,
     isConnected,
   };
 };

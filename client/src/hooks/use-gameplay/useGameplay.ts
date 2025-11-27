@@ -1,15 +1,14 @@
-import type { RoundType, GameStateType, PlayersType } from "../../types";
+import type {
+  RoundType,
+  GameStateType,
+  PlayersType,
+  UserType,
+} from "../../types";
 import { useCallback, useEffect, useState, useContext } from "react";
 import { UserContext } from "../../Context";
 import { gamesSocket } from "../../socketio/socket";
 import { useError } from "../useError";
-import {
-  endRound,
-  submitChoice,
-  gameResults,
-  startGame,
-  gameOver,
-} from "./store";
+import { endRound, submitChoice, gameResults, startGame } from "./store";
 
 type Props = {
   gameName: string;
@@ -17,6 +16,7 @@ type Props = {
   players: PlayersType;
   rounds: RoundType[];
   handleSetGameState: (gameState: GameStateType) => void;
+  handleEndGame: (outcome: "win" | "loss" | "draw") => void;
 };
 
 export const useGameplay = ({
@@ -25,8 +25,9 @@ export const useGameplay = ({
   players,
   rounds,
   handleSetGameState,
+  handleEndGame,
 }: Props) => {
-  const { user, updateGameStats } = useContext(UserContext);
+  const { user, storeStatsToLocalStorage } = useContext(UserContext);
   const { error, handleSetError } = useError();
   const [showIngameCountdown, setShowIngameCountdown] =
     useState<boolean>(false);
@@ -37,14 +38,19 @@ export const useGameplay = ({
     player1: false,
     player2: false,
   });
-  const isFirstRound = gameState.history.length === 0;
   const isPlayer1 =
     players.player1 && user.id === players.player1.id ? true : false;
   const { player1, player2 } = gameResults(rounds, players);
 
-  const handleGameOver = useCallback(() => {
-    gameOver(gameState, user, updateGameStats);
-  }, [gameState, user, updateGameStats]);
+  const handleGameOver = useCallback(
+    (winner: UserType | "draw") => {
+      // Determine outcome and call handleEndGame passed from useGame
+      const gameResult =
+        winner === "draw" ? "draw" : winner.id === user.id ? "win" : "loss";
+      handleEndGame(gameResult);
+    },
+    [gameState, user, storeStatsToLocalStorage, handleEndGame]
+  );
 
   const onOpponentChoice = useCallback(
     // Called when the opponent selects rock paper or scissors
@@ -125,6 +131,7 @@ export const useGameplay = ({
   );
 
   useEffect(() => {
+    const isFirstRound = gameState.history.length === 0;
     if (playersReady.player1 && playersReady.player2) {
       // If both players ready for the next stage - start the countdown & reset playersReady
       if (isFirstRound) {
@@ -134,7 +141,8 @@ export const useGameplay = ({
       }
       setPlayersReady({ player1: false, player2: false });
     }
-  }, [playersReady, isFirstRound, setShowIngameCountdown]);
+  }, [playersReady, setShowIngameCountdown]);
+
   useEffect(() => {
     // Make sure to reset the countdown when game is finished or reset
     if (gameState.status === "finished" || gameState.status === "waiting") {
