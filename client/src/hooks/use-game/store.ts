@@ -7,47 +7,43 @@ import type {
 } from "../../types";
 import { gamesSocket } from "../../socketio/socket";
 
-export const generateEndGameState = (
+export const calculateFinalState = (
   outcome: "win" | "loss",
   game: GameType,
   user: UserType
 ) => {
-  if (!game.players.player1 || !game.players.player2) {
-    return;
-  }
-  const isPlayer1 = user.id === game.players.player1.id;
+  const isPlayer1 =
+    game.players.player1 === null ? false : user.id === game.players.player1.id;
   const player1Won = outcome === "win" ? isPlayer1 : !isPlayer1;
 
   const updatedPlayers = { ...game.players };
 
-  if (!updatedPlayers.player1 || !updatedPlayers.player2) {
-    return;
+  if (updatedPlayers.player1) {
+    updatedPlayers.player1.stats.wins += player1Won ? 1 : 0;
+    updatedPlayers.player1.stats.losses += player1Won ? 0 : 1;
+    updatedPlayers.player1.stats.rating += player1Won ? 25 : -25;
+  }
+  if (updatedPlayers.player2) {
+    updatedPlayers.player2.stats.wins += player1Won ? 0 : 1;
+    updatedPlayers.player2.stats.losses += player1Won ? 1 : 0;
+    updatedPlayers.player2.stats.rating += player1Won ? -25 : 25;
   }
 
-  updatedPlayers.player1.stats.wins += player1Won ? 1 : 0;
-  updatedPlayers.player1.stats.losses += player1Won ? 0 : 1;
-  updatedPlayers.player1.stats.rating += player1Won ? 25 : -25;
-
-  updatedPlayers.player2.stats.wins += player1Won ? 0 : 1;
-  updatedPlayers.player2.stats.losses += player1Won ? 1 : 0;
-  updatedPlayers.player2.stats.rating += player1Won ? -25 : 25;
-
-  const updatedGameState: GameStateType = {
-    ...game.state,
-    status: "finished",
-    winner: player1Won ? game.players.player1 : game.players.player2,
-    combatLog: [
-      ...game.state.combatLog,
-      `Game over! ${
-        player1Won ? game.players.player1.name : game.players.player2.name
-      } wins!`,
-    ],
-  };
+  // const updatedGameState: GameStateType = {
+  //   ...game.state,
+  //   status: "finished",
+  //   winner: player1Won ? game.players.player1 : game.players.player2,
+  //   combatLog: [
+  //     ...game.state.combatLog,
+  //     `Game over! ${
+  //       player1Won ? game.players.player1.name : game.players.player2.name
+  //     } wins!`,
+  //   ],
+  // };
 
   const updatedGame: GameType = {
     ...game,
     players: updatedPlayers,
-    state: updatedGameState,
   };
 
   // Todo Error handling

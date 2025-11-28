@@ -5,6 +5,7 @@ import type {
   RoundType,
   PlayersType,
   RoundHistoryType,
+  GameType,
 } from "../../../../../types";
 import PlayerResult from "./components/player-result/PlayerResult";
 import Fade from "@mui/material/Fade";
@@ -20,7 +21,10 @@ type Props = {
   players: PlayersType;
   gameState: GameStateType;
   handleSetGameState: (gameState: GameStateType) => void;
-  handleEndGame: (outcome: "win" | "loss" | "draw") => void;
+  handleEndGame: (
+    outcome: "win" | "loss" | "draw",
+    game: GameStateType
+  ) => void;
   previousRound: RoundHistoryType;
   rounds: RoundType[];
 };

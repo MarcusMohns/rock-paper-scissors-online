@@ -1,4 +1,9 @@
-import type { RoundType, GameStateType, PlayersType } from "../../types";
+import type {
+  RoundType,
+  GameStateType,
+  PlayersType,
+  GameType,
+} from "../../types";
 import { useCallback, useEffect, useState, useContext } from "react";
 import { UserContext } from "../../Context";
 import { gamesSocket } from "../../socketio/socket";
@@ -11,7 +16,10 @@ type Props = {
   players: PlayersType;
   rounds: RoundType[];
   handleSetGameState: (gameState: GameStateType) => void;
-  handleEndGame: (outcome: "win" | "loss" | "draw") => void;
+  handleEndGame: (
+    outcome: "win" | "loss" | "draw",
+    game: GameStateType
+  ) => void;
 };
 
 export const useGameplay = ({
@@ -33,9 +41,18 @@ export const useGameplay = ({
     player1: false,
     player2: false,
   });
+  const [intermediateEndGameState, setIntermediateEndGameState] =
+    useState<GameStateType | null>(null);
   const isPlayer1 =
     players.player1 && user.id === players.player1.id ? true : false;
   const { player1, player2 } = gameResults(rounds, players);
+
+  const handleSetIntermediateEndGameState = useCallback(
+    (state: GameStateType) => {
+      setIntermediateEndGameState(state);
+    },
+    [setIntermediateEndGameState]
+  );
 
   const onOpponentChoice = useCallback(
     // Called when the opponent selects rock paper or scissors
@@ -84,7 +101,7 @@ export const useGameplay = ({
       players,
       user,
       gameState,
-      handleEndGame,
+      handleSetIntermediateEndGameState,
       handleShowIngameCountdown,
       handleSetGameState,
       handleSetPlayerReady,
@@ -95,7 +112,7 @@ export const useGameplay = ({
     players,
     user,
     gameState,
-    handleEndGame,
+    handleSetIntermediateEndGameState,
     handleShowIngameCountdown,
     handleSetGameState,
     handleSetPlayerReady,
@@ -118,8 +135,9 @@ export const useGameplay = ({
   );
 
   useEffect(() => {
-    const isFirstRound = gameState.history.length === 0;
     if (playersReady.player1 && playersReady.player2) {
+      // If both players are ready for the next round
+      const isFirstRound = gameState.history.length === 0;
       // If both players ready for the next stage - start the countdown & reset playersReady
       if (isFirstRound) {
         setShowIngameCountdown(true);
@@ -128,7 +146,26 @@ export const useGameplay = ({
       }
       setPlayersReady({ player1: false, player2: false });
     }
-  }, [playersReady, setShowIngameCountdown]);
+  }, [playersReady, setShowIngameCountdown, gameState]);
+
+  useEffect(() => {
+    if (
+      intermediateEndGameState &&
+      intermediateEndGameState.status === "finished"
+    ) {
+      // If the game has ended
+      handleEndGame(
+        intermediateEndGameState.winner === "draw" ||
+          intermediateEndGameState.winner === null
+          ? "draw"
+          : intermediateEndGameState.winner.id === user.id
+          ? "win"
+          : "loss",
+        intermediateEndGameState
+      );
+      setIntermediateEndGameState(null);
+    }
+  }, [intermediateEndGameState, handleEndGame, user.id]);
 
   useEffect(() => {
     // Make sure to reset the countdown when game is finished or reset

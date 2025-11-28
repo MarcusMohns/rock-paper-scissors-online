@@ -7,7 +7,7 @@ import type {
   SetSocketDataResponse,
 } from "../../types";
 import { socket, gamesSocket } from "../../socketio/socket";
-import { concede, generateEndGameState, initialGame } from "./store";
+import { concede, calculateFinalState, initialGame } from "./store";
 import { UserContext } from "../../Context";
 
 type Props = {
@@ -23,8 +23,9 @@ export const useGame = ({ gameName, inGame }: Props) => {
     gamesSocket.connected
   );
 
-  const handleSetGame = useCallback((game: GameType) => {
-    setGame(game);
+  const handleSetGame = useCallback((gameData: GameType) => {
+    console.log("Setting game in useGame hook", gameData);
+    setGame(gameData);
   }, []);
 
   const handleSetGameState = useCallback((gameState: GameStateType) => {
@@ -87,7 +88,8 @@ export const useGame = ({ gameName, inGame }: Props) => {
   ]);
 
   const handleEndGame = useCallback(
-    (outcome: "win" | "loss" | "draw") => {
+    (outcome: "win" | "loss" | "draw", gameState: GameStateType) => {
+      console.log("Ending game with outcome:", outcome, gameState);
       if (!user) {
         handleSetError({ status: true, message: "User not found" });
         return;
@@ -95,24 +97,25 @@ export const useGame = ({ gameName, inGame }: Props) => {
       if (outcome === "draw") {
         handleSetError({
           status: true,
-          message: "Error occur - draw is not a valid outcome",
+          message: "Error - draw is not a valid outcome",
         });
         return;
       }
-
-      const endGameState = generateEndGameState(outcome, game, user);
-      if (endGameState) {
-        handleSetGame(endGameState);
+      const oldGameState = { ...game, state: gameState };
+      // Todo rename maybe
+      const finalGameState = calculateFinalState(outcome, oldGameState, user);
+      if (finalGameState) {
+        handleSetGame(finalGameState);
         storeStatsToLocalStorage(outcome);
       } else {
         handleSetError({
           status: true,
-          message: "Could not generate end game state",
+          message: "Error - Something went wrong ending the game",
         });
       }
     },
 
-    [handleSetGame, storeStatsToLocalStorage, user, game, handleSetError]
+    [handleSetGame, storeStatsToLocalStorage, user, handleSetError, game]
   );
 
   const handleRoundEndForSpectators = useCallback(
@@ -147,6 +150,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
   }, [updatePlayers]);
 
   const onGameJoined = useCallback(() => {
+    console.log("Game joined - updating players");
     // Remove and replace with connect?
     handleResetGame(gameName);
   }, [gameName, handleResetGame]);
@@ -159,7 +163,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
     setIsConnected(false);
     // If we're in a game and disconnect we forfeit the game.
     if (inGame) {
-      handleEndGame("loss");
+      handleEndGame("loss", game.state);
     }
   }, [inGame, storeStatsToLocalStorage, handleEndGame, user, game]);
 
@@ -174,7 +178,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
       if (game.players.player1 === null || game.players.player2 === null) {
         if (inGame) {
           // If we are the remaining player - win.
-          handleEndGame("win");
+          handleEndGame("win", game.state);
         } else {
           // Error handleing TODO
         }

@@ -98,7 +98,7 @@ export const endRound = (
   players: PlayersType,
   user: UserType,
   gameState: GameStateType,
-  handleEndGame: (outcome: "win" | "loss" | "draw") => void,
+  handleSetIntermediateEndGameState: (state: GameStateType) => void,
   handleShowIngameCountdown: (bool: boolean) => void,
   handleSetGameState: (gameState: GameStateType) => void,
   handleSetPlayerReady: () => void,
@@ -142,12 +142,17 @@ export const endRound = (
       // If last round, or game has a winner - end game
       updatedGameState.winner = gameWinner;
       updatedGameState.status = "finished";
+      updatedGameState.combatLog = [
+        ...updatedGameState.combatLog,
+        `Game over! ${
+          gameWinner ? `${gameWinner.name} won the game!` : "It's a draw!"
+        }`,
+      ];
     } else {
       // Otherwise progress to next round
       updatedGameState.currRound = gameState.currRound + 1;
     }
   }
-  console.log(updatedGameState, "NEW STATE AFTER END ROUND");
 
   gamesSocket.emit(
     "endRound",
@@ -155,16 +160,10 @@ export const endRound = (
     updatedGameState,
     (response: EndRoundStateResponseType) => {
       if (response.status === "ok" && response.gameState) {
-        handleSetGameState(response.gameState);
-        response.gameState.status === "finished" && response.gameState.winner
-          ? handleEndGame(
-              response.gameState.winner === "draw"
-                ? "draw"
-                : response.gameState.winner.id === user.id
-                ? "win"
-                : "loss"
-            )
-          : handleSetPlayerReady();
+        handleSetPlayerReady();
+        response.gameState.status === "finished"
+          ? handleSetIntermediateEndGameState(response.gameState)
+          : handleSetGameState(response.gameState);
       } else {
         handleSetError({ status: true, message: response.status });
       }
