@@ -1,9 +1,4 @@
-import type {
-  RoundType,
-  GameStateType,
-  PlayersType,
-  GameType,
-} from "../../types";
+import type { RoundType, GameStateType, PlayersType } from "../../types";
 import { useCallback, useEffect, useState, useContext } from "react";
 import { UserContext } from "../../Context";
 import { gamesSocket } from "../../socketio/socket";
@@ -41,18 +36,9 @@ export const useGameplay = ({
     player1: false,
     player2: false,
   });
-  const [intermediateEndGameState, setIntermediateEndGameState] =
-    useState<GameStateType | null>(null);
   const isPlayer1 =
     players.player1 && user.id === players.player1.id ? true : false;
   const { player1, player2 } = gameResults(rounds, players);
-
-  const handleSetIntermediateEndGameState = useCallback(
-    (state: GameStateType) => {
-      setIntermediateEndGameState(state);
-    },
-    [setIntermediateEndGameState]
-  );
 
   const onOpponentChoice = useCallback(
     // Called when the opponent selects rock paper or scissors
@@ -99,9 +85,9 @@ export const useGameplay = ({
     endRound(
       gameName,
       players,
-      user,
+      user.id,
       gameState,
-      handleSetIntermediateEndGameState,
+      handleEndGame,
       handleShowIngameCountdown,
       handleSetGameState,
       handleSetPlayerReady,
@@ -110,9 +96,9 @@ export const useGameplay = ({
   }, [
     gameName,
     players,
-    user,
+    user.id,
     gameState,
-    handleSetIntermediateEndGameState,
+    handleEndGame,
     handleShowIngameCountdown,
     handleSetGameState,
     handleSetPlayerReady,
@@ -147,25 +133,6 @@ export const useGameplay = ({
       setPlayersReady({ player1: false, player2: false });
     }
   }, [playersReady, setShowIngameCountdown, gameState]);
-
-  useEffect(() => {
-    if (
-      intermediateEndGameState &&
-      intermediateEndGameState.status === "finished"
-    ) {
-      // If the game has ended
-      handleEndGame(
-        intermediateEndGameState.winner === "draw" ||
-          intermediateEndGameState.winner === null
-          ? "draw"
-          : intermediateEndGameState.winner.id === user.id
-          ? "win"
-          : "loss",
-        intermediateEndGameState
-      );
-      setIntermediateEndGameState(null);
-    }
-  }, [intermediateEndGameState, handleEndGame, user.id]);
 
   useEffect(() => {
     // Make sure to reset the countdown when game is finished or reset

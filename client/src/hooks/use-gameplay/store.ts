@@ -96,9 +96,12 @@ export const gameResults = (rounds: RoundType[], players: PlayersType) => {
 export const endRound = (
   gameName: string,
   players: PlayersType,
-  user: UserType,
+  userId: string,
   gameState: GameStateType,
-  handleSetIntermediateEndGameState: (state: GameStateType) => void,
+  handleEndGame: (
+    outcome: "win" | "loss" | "draw",
+    game: GameStateType
+  ) => void,
   handleShowIngameCountdown: (bool: boolean) => void,
   handleSetGameState: (gameState: GameStateType) => void,
   handleSetPlayerReady: () => void,
@@ -161,9 +164,20 @@ export const endRound = (
     (response: EndRoundStateResponseType) => {
       if (response.status === "ok" && response.gameState) {
         handleSetPlayerReady();
-        response.gameState.status === "finished"
-          ? handleSetIntermediateEndGameState(response.gameState)
-          : handleSetGameState(response.gameState);
+        if (response.gameState.status === "finished") {
+          // If game finishes here - call end game handler
+          const outcome =
+            response.gameState.winner === "draw" ||
+            response.gameState.winner === null
+              ? "draw"
+              : response.gameState.winner.id === userId
+              ? "win"
+              : "loss";
+          handleEndGame(outcome, response.gameState);
+        } else {
+          // Otherwise update game state
+          handleSetGameState(response.gameState);
+        }
       } else {
         handleSetError({ status: true, message: response.status });
       }
