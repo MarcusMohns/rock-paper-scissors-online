@@ -33,14 +33,16 @@ export function registerSocketHandlers(
   });
 
   io.on("connection", (socket) => {
-    console.log("a user connected");
     socket.on("connected", async (user, callback) => {
-      console.log("connected");
       const sockets = await io.fetchSockets();
       const isAlreadyConnected = sockets.find((s) => {
         // If a socket with the same user ID exists and it's not this socket
         return s.data.user && s.data.user.id === user.id && s.id !== socket.id;
       });
+
+      // Save user data in socket.data
+      socket.data.user = { ...user, socketId: socket.id };
+
       if (isAlreadyConnected) {
         // Disconnect the older socket
         isAlreadyConnected.disconnect();
@@ -53,8 +55,6 @@ export function registerSocketHandlers(
           },
         });
       } else {
-        // Else proceed as normal
-        socket.data.user = { ...user, socketId: socket.id };
         callback({
           type: "ok",
           data: { ...user, socketId: socket.id },
@@ -145,6 +145,7 @@ export function registerSocketHandlers(
     const fetchUsersInRoom = async (roomName: string) => {
       const sockets = await io.in(roomName).fetchSockets();
       const users = sockets.map((socket) => socket.data.user);
+      console.log(users, "users in room", roomName);
       return users;
     };
     const leaveAllRooms = async () => {
