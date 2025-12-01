@@ -3,6 +3,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Zoom from "@mui/material/Zoom";
+// import bla from "../../../../../../workers/timerWorker.ts";
 
 type Props = {
   handleEndRound: () => void;
@@ -42,20 +43,40 @@ const Countdown = ({ handleEndRound }: Props) => {
     handleSetWord(progress);
   }, [progress]);
 
+  // useEffect(() => {
+  //   const progressTimerId = setInterval(
+  //     () =>
+  //       setProgress((prevProgress) => {
+  //         if (prevProgress === 0) handleEndRound();
+  //         return prevProgress > 0 ? prevProgress - 100 / TIMEOUT_SECONDS : 0;
+  //       }),
+  //     1000
+  //   );
+
+  //   return () => {
+  //     clearInterval(progressTimerId);
+  //   };
+  // }, [handleEndRound]);
+
   useEffect(() => {
-    const progressTimerId = setInterval(
-      () =>
-        setProgress((prevProgress) => {
-          if (prevProgress === 0) handleEndRound();
-          return prevProgress > 0 ? prevProgress - 100 / TIMEOUT_SECONDS : 0;
-        }),
-      1000
+    console.log("Starting timer worker");
+    const worker = new Worker(
+      new URL("../../../../../../workers/timerWorker.ts", import.meta.url)
     );
 
-    return () => {
-      clearInterval(progressTimerId);
+    console.log(worker);
+    worker.postMessage({ message: "Shoot!", delay: TIMEOUT_SECONDS });
+
+    worker.onmessage = function (event) {
+      const { message, progress } = event.data;
+      setWord(message);
+      setProgress(progress);
     };
-  }, [handleEndRound]);
+
+    return () => {
+      worker.terminate();
+    };
+  }, []);
 
   return (
     <Zoom in>
