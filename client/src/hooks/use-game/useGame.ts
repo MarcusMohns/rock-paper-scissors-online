@@ -24,7 +24,6 @@ export const useGame = ({ gameName, inGame }: Props) => {
   );
 
   const handleSetGame = useCallback((gameData: GameType) => {
-    console.log("Setting game in useGame hook", gameData);
     setGame(gameData);
   }, []);
 
@@ -89,7 +88,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
 
   const handleEndGame = useCallback(
     (outcome: "win" | "loss" | "draw", gameState: GameStateType) => {
-      console.log("Ending game with outcome:", outcome, gameState);
+      // Take the new game state and update game state and user stats
       if (!user) {
         handleSetError({ status: true, message: "User not found" });
         return;
@@ -101,11 +100,10 @@ export const useGame = ({ gameName, inGame }: Props) => {
         });
         return;
       }
-      const oldGameState = { ...game, state: gameState };
-      // Todo rename maybe
-      const finalGameState = calculateFinalState(outcome, oldGameState, user);
-      if (finalGameState) {
-        handleSetGame(finalGameState);
+      const oldGame = { ...game, state: gameState };
+      const finalGame = calculateFinalState(outcome, oldGame, user);
+      if (finalGame) {
+        handleSetGame(finalGame);
         storeStatsToLocalStorage(outcome);
       } else {
         handleSetError({
@@ -138,20 +136,25 @@ export const useGame = ({ gameName, inGame }: Props) => {
   const onOpponentConcede = useCallback(
     (gameState: GameStateType) => {
       // Update user stats when opponent gives up
-      handleSetGameState(gameState);
-      storeStatsToLocalStorage("win");
+      handleEndGame("win", gameState);
     },
-    [storeStatsToLocalStorage, handleSetGameState]
+    [storeStatsToLocalStorage, handleEndGame]
   );
 
   const onGameLeft = useCallback(async () => {
-    // Update players component when a player leaves
     updatePlayers();
-  }, [updatePlayers]);
+    // Update players component when a player leaves
+    if (game.state.status === "playing") {
+      // If we're playing and one of the players has left
+      if (inGame) {
+        // If we are the remaining player - win.
+        handleEndGame("win", game.state);
+        // Error handleing TODO
+      }
+    }
+  }, [updatePlayers, game, inGame, handleEndGame]);
 
   const onGameJoined = useCallback(() => {
-    console.log("Game joined - updating players");
-    // Remove and replace with connect?
     handleResetGame(gameName);
   }, [gameName, handleResetGame]);
 
@@ -165,26 +168,13 @@ export const useGame = ({ gameName, inGame }: Props) => {
     if (inGame) {
       handleEndGame("loss", game.state);
     }
-  }, [inGame, storeStatsToLocalStorage, handleEndGame, user, game]);
+  }, [inGame, handleEndGame, game.state]);
 
   useEffect(() => {
+    console.log("useGame hook mounted");
     // fetch players when the component mounts
     updatePlayers();
   }, [user, updatePlayers]);
-
-  useEffect(() => {
-    if (game.state.status === "playing") {
-      // If we're playing and one of the players has left
-      if (game.players.player1 === null || game.players.player2 === null) {
-        if (inGame) {
-          // If we are the remaining player - win.
-          handleEndGame("win", game.state);
-        } else {
-          // Error handleing TODO
-        }
-      }
-    }
-  }, [game, inGame, handleEndGame, storeStatsToLocalStorage]);
 
   useEffect(() => {
     if (gamesSocket.connected) {

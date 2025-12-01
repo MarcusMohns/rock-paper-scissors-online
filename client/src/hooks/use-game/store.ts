@@ -12,43 +12,47 @@ export const calculateFinalState = (
   game: GameType,
   user: UserType
 ) => {
-  const isPlayer1 =
-    game.players.player1 === null ? false : user.id === game.players.player1.id;
+  const isPlayer1 = game.players.player1 && user.id === game.players.player1.id;
   const player1Won = outcome === "win" ? isPlayer1 : !isPlayer1;
 
-  const updatedPlayers = { ...game.players };
+  // Make copies of nested player objects and stats so we don't mutate original state
+  const player1 = game.players.player1
+    ? { ...game.players.player1, stats: { ...game.players.player1.stats } }
+    : null;
+  const player2 = game.players.player2
+    ? { ...game.players.player2, stats: { ...game.players.player2.stats } }
+    : null;
 
-  if (updatedPlayers.player1) {
-    updatedPlayers.player1.stats.wins += player1Won ? 1 : 0;
-    updatedPlayers.player1.stats.losses += player1Won ? 0 : 1;
-    updatedPlayers.player1.stats.rating += player1Won ? 25 : -25;
+  // Update stats on the copies only
+  if (player1) {
+    player1.stats.wins += player1Won ? 1 : 0;
+    player1.stats.losses += player1Won ? 0 : 1;
+    player1.stats.rating += player1Won ? 25 : -25;
   }
-  if (updatedPlayers.player2) {
-    updatedPlayers.player2.stats.wins += player1Won ? 0 : 1;
-    updatedPlayers.player2.stats.losses += player1Won ? 1 : 0;
-    updatedPlayers.player2.stats.rating += player1Won ? -25 : 25;
+  if (player2) {
+    player2.stats.wins += player1Won ? 0 : 1;
+    player2.stats.losses += player1Won ? 1 : 0;
+    player2.stats.rating += player1Won ? -25 : 25;
   }
 
-  // const updatedGameState: GameStateType = {
-  //   ...game.state,
-  //   status: "finished",
-  //   winner: player1Won ? game.players.player1 : game.players.player2,
-  //   combatLog: [
-  //     ...game.state.combatLog,
-  //     `Game over! ${
-  //       player1Won ? game.players.player1.name : game.players.player2.name
-  //     } wins!`,
-  //   ],
-  // };
-
-  const updatedGame: GameType = {
-    ...game,
-    players: updatedPlayers,
-  };
-
-  // Todo Error handling
-
-  return updatedGame;
+  const earlyExit = game.state.status !== "finished";
+  if (earlyExit) {
+    // Game ended before the game concluded in game loop use-gameplay (i.e someone disconnected or left)
+    // Update and return game state as well as players
+    const oldState = { ...game.state };
+    const newState: GameStateType = {
+      ...oldState,
+      winner: player1Won ? player1 : player2 ? player2 : null,
+      status: "finished",
+      combatLog: [...oldState.combatLog, `${player1Won ? "Win" : "Loss"}`],
+    };
+    return { ...game, state: newState, players: { player1, player2 } };
+  } else {
+    return {
+      ...game,
+      players: { player1, player2 },
+    };
+  }
 };
 
 export const concede = (
