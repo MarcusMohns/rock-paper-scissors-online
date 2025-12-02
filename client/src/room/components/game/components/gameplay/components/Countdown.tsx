@@ -3,7 +3,6 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Zoom from "@mui/material/Zoom";
-// import bla from "../../../../../../workers/timerWorker.ts";
 
 type Props = {
   handleEndRound: () => void;
@@ -19,9 +18,6 @@ const Countdown = ({ handleEndRound }: Props) => {
 
   const handleSetWord = (progress: number) => {
     switch (progress) {
-      case 100:
-        setWord("Ready?");
-        break;
       case 60:
         setWord("Rock");
         break;
@@ -40,32 +36,25 @@ const Countdown = ({ handleEndRound }: Props) => {
   };
 
   useEffect(() => {
+    // Update word every time progress changes
     handleSetWord(progress);
+
+    if (progress < 0) {
+      handleEndRound();
+    }
   }, [progress]);
 
-  // useEffect(() => {
-  //   const progressTimerId = setInterval(
-  //     () =>
-  //       setProgress((prevProgress) => {
-  //         if (prevProgress === 0) handleEndRound();
-  //         return prevProgress > 0 ? prevProgress - 100 / TIMEOUT_SECONDS : 0;
-  //       }),
-  //     1000
-  //   );
-
-  //   return () => {
-  //     clearInterval(progressTimerId);
-  //   };
-  // }, [handleEndRound]);
-
   useEffect(() => {
-    console.log("Starting timer worker");
+    // Utilize a worker to handle the countdown logic
+    // This is necessary because some browsers suspend the main thread when the tab is inactive
     const worker = new Worker(
       new URL("../../../../../../workers/timerWorker.ts", import.meta.url)
     );
 
-    console.log(worker);
-    worker.postMessage({ message: "Shoot!", delay: TIMEOUT_SECONDS });
+    worker.postMessage({
+      message: word,
+      delay: TIMEOUT_SECONDS,
+    });
 
     worker.onmessage = function (event) {
       const { message, progress } = event.data;

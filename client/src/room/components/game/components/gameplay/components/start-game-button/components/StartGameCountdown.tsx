@@ -5,7 +5,6 @@ import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import { socket, gamesSocket } from "../../../../../../../../socketio/socket";
 import Zoom from "@mui/material/Zoom";
-
 type Props = {
   handleStartGame: (gameName: string) => void;
   handleSetCountdownActive: (active: boolean) => void;
@@ -32,22 +31,27 @@ const StartGameCountdown = ({
   }, [handleSetCountdownActive, gameName]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (progress > 0) {
-        setProgress((prevTime) => prevTime - PROGRESS_STEP);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval); // Clean up the interval when the component unmounts
-  }, [progress]);
-
-  useEffect(() => {
-    socket.on("cancelCountdown", cancelCountdown);
-
-    return () => {
-      socket.off("cancelCountdown", cancelCountdown);
+    // Utilize a worker to handle the timer logic
+    // This is necessary because some browsers suspend the main thread when the tab is inactive
+    const worker = new Worker(
+      new URL(
+        "../../../../../../../../workers/countdownWorker.ts",
+        import.meta.url
+      )
+    );
+    worker.postMessage({
+      progress: TOTAL_PROGRESS,
+      step: PROGRESS_STEP,
+    });
+    worker.onmessage = function (event) {
+      const { total } = event.data;
+      console.log(total);
+      setProgress(total);
     };
-  }, [cancelCountdown]);
+    return () => {
+      worker.terminate();
+    };
+  }, []);
 
   useEffect(() => {
     if (progress === 0) {
@@ -55,6 +59,13 @@ const StartGameCountdown = ({
       handleSetCountdownActive(false);
     }
   }, [progress, handleSetCountdownActive, startGame]);
+
+  useEffect(() => {
+    socket.on("cancelCountdown", cancelCountdown);
+    return () => {
+      socket.off("cancelCountdown", cancelCountdown);
+    };
+  }, [cancelCountdown]);
 
   return (
     <Zoom in={true}>

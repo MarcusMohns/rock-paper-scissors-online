@@ -1,15 +1,10 @@
 self.onmessage = function (event) {
-  console.log("Timer worker started with data:", event.data);
+  // Start at 100 let it go to a minus value so we can display 0.
   const { message, delay } = event.data;
   let progress = 100;
   const intervalId = setInterval(() => {
-    console.log("Timer worker tick:", progress);
     progress -= 100 / delay;
-    if (progress <= 0) {
-      clearInterval(intervalId);
-      self.postMessage({ message, progress: 0 });
-    } else {
-      self.postMessage({ message, progress });
-    }
+    self.postMessage({ message, progress });
+    if (progress < 0) clearInterval(intervalId);
   }, 1000);
 };

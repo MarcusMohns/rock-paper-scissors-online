@@ -5,7 +5,6 @@ import type {
   RoundType,
   PlayersType,
   RoundHistoryType,
-  GameType,
 } from "../../../../../types";
 import PlayerResult from "./components/player-result/PlayerResult";
 import Fade from "@mui/material/Fade";
