@@ -38,7 +38,7 @@ const Countdown = ({ handleEndRound }: Props) => {
   useEffect(() => {
     // Update word every time progress changes
     handleSetWord(progress);
-
+    // SOmetimes user doesnt reach 0 for some reason.
     if (progress < 0) {
       handleEndRound();
     }

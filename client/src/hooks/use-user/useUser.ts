@@ -6,7 +6,7 @@ import type {
   ErrorResponseType,
 } from "../../types";
 import { defaultUser } from "../../store";
-import { useError } from "../useError";
+import { useError } from "../useError.ts";
 
 export const useUser = () => {
   const [user, setUser] = useState<UserType>({ ...defaultUser });

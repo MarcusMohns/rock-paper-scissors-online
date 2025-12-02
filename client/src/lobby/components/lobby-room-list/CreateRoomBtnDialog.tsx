@@ -9,9 +9,9 @@ import DialogContentText from "@mui/material/DialogContentText";
 import { useCallback, useState } from "react";
 import type { RoomResponseType } from "../../../types";
 import AddCircleRoundedIcon from "@mui/icons-material/AddCircleRounded";
-import { socket } from "../../../socketio/socket";
-import { useError } from "../../../hooks/useError";
-import ToastAlert from "../../../components/ToastAlert";
+import { socket } from "../../../socketio/socket.ts";
+import { useError } from "../../../hooks/useError.ts";
+import ToastAlert from "../../../components/ToastAlert.tsx";
 
 type Props = {
   handleSetInRoom: (roomName: string) => void;

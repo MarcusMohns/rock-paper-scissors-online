@@ -7,8 +7,6 @@ import {
   UserType,
   GameStateType,
   SetSocketGameStateResponse,
-  GameType,
-  PlayersType,
 } from "./types";
 import { gameData, defaultGameState, startedGameState } from "./store";
 
@@ -274,7 +272,7 @@ export function registerGameNamespaceHandlers(
         defaultGameState(3)
       );
       if (gameStateResponse.status === "ok") {
-        callback({ status: "ok", game: gameStateResponse.game });
+        // callback({ status: "ok", game: gameStateResponse.game });
         io.to(gameName).emit("gameReset", gameStateResponse.game);
       } else {
         console.log("Error resetting game");

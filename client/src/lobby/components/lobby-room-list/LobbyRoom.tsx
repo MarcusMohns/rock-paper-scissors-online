@@ -7,11 +7,11 @@ import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import { TransitionGroup } from "react-transition-group";
 import Zoom from "@mui/material/Zoom";
 import { useCallback } from "react";
-import { socket } from "../../../socketio/socket";
+import { socket } from "../../../socketio/socket.ts";
 import type { RoomResponseType } from "../../../types";
-import UserAvatar from "../../../components/UserAvatar";
-import { useError } from "../../../hooks/useError";
-import ToastAlert from "../../../components/ToastAlert";
+import UserAvatar from "../../../components/UserAvatar.tsx";
+import { useError } from "../../../hooks/useError.ts";
+import ToastAlert from "../../../components/ToastAlert.tsx";
 
 type Props = {
   room: RoomType;

@@ -1,4 +1,4 @@
-import { UserType, GameStateType, RoundType } from "./types";
+import { UserType, GameStateType } from "./types";
 
 type initialGameStateProp = {
   gameName: string;

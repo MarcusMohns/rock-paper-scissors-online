@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import { socket } from "./socketio/socket";
+import { socket } from "./socketio/socket.ts";
 import Fade from "@mui/material/Fade";
 
 const InfoBar = () => {

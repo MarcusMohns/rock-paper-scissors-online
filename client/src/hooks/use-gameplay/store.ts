@@ -8,7 +8,6 @@ import type {
   RoundType,
   PlayersType,
   GameStateType,
-  GameType,
 } from "../../types";
 import { gamesSocket } from "../../socketio/socket";
 

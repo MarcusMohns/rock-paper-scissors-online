@@ -1,8 +1,8 @@
 import type { RoundType, GameStateType, PlayersType } from "../../types";
 import { useCallback, useEffect, useState, useContext } from "react";
-import { UserContext } from "../../Context";
-import { gamesSocket } from "../../socketio/socket";
-import { useError } from "../useError";
+import { UserContext } from "../../Context.tsx";
+import { gamesSocket } from "../../socketio/socket.ts";
+import { useError } from "../useError.ts";
 import { endRound, submitChoice, gameResults, startGame } from "./store";
 
 type Props = {

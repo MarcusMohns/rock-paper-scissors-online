@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { socket, gamesSocket } from "../socketio/socket";
+import { socket, gamesSocket } from "../socketio/socket.ts";
 import type { RoomResponseType } from "../types";
 
 export const useInRoom = () => {
