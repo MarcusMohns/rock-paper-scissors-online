@@ -1,7 +1,12 @@
 import Avatar from "@mui/material/Avatar";
 import type { UserType } from "../types";
 import { Typography } from "@mui/material";
-const UserAvatar = ({ user, size = 40 }: { user: UserType; size: number }) => {
+
+type Props = {
+  user: UserType;
+  size?: number;
+};
+const UserAvatar = ({ user, size = 40 }: Props) => {
   const userInitial = user.name[0] ? user.name[0] : "?";
   return (
     <Avatar

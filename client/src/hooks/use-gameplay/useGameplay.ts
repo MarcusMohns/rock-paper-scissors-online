@@ -3,7 +3,12 @@ import { useCallback, useEffect, useState, useContext } from "react";
 import { UserContext } from "../../Context.tsx";
 import { gamesSocket } from "../../socketio/socket.ts";
 import { useError } from "../useError.ts";
-import { endRound, submitChoice, gameResults, startGame } from "./store";
+import {
+  endRound,
+  submitChoice,
+  calculateGameResults,
+  startGame,
+} from "./store";
 
 type Props = {
   gameName: string;
@@ -38,7 +43,7 @@ export const useGameplay = ({
   });
   const isPlayer1 =
     players.player1 && user.id === players.player1.id ? true : false;
-  const { player1, player2 } = gameResults(rounds, players);
+  const { player1, player2 } = calculateGameResults(rounds, players);
 
   const onOpponentChoice = useCallback(
     // Called when the opponent selects rock paper or scissors
@@ -124,7 +129,7 @@ export const useGameplay = ({
     if (playersReady.player1 && playersReady.player2) {
       // If both players are ready for the next round
       const isFirstRound = gameState.history.length === 0;
-      // If both players ready for the next stage - start the countdown & reset playersReady
+      //  start the countdown & reset playersReady
       if (isFirstRound) {
         setShowIngameCountdown(true);
       } else {

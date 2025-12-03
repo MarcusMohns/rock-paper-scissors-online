@@ -12,10 +12,14 @@ export const calculateFinalState = (
   game: GameType,
   user: UserType
 ) => {
+  // UPDATE AND RETURN A GAME STATE WITH UPDATED PLAYER STATS
+  // IF GAME EXITED EARLY ALSO UPDATE THE GAME STATE
+
+  // Determine who won
   const isPlayer1 = game.players.player1 && user.id === game.players.player1.id;
   const player1Won = outcome === "win" ? isPlayer1 : !isPlayer1;
 
-  // Make copies of nested player objects and stats so we don't mutate original state
+  // Make copies of the players
   const player1 = game.players.player1
     ? { ...game.players.player1, stats: { ...game.players.player1.stats } }
     : null;
@@ -23,7 +27,7 @@ export const calculateFinalState = (
     ? { ...game.players.player2, stats: { ...game.players.player2.stats } }
     : null;
 
-  // Update stats on the copies only
+  // Update stats for the players (if they exist, i.e. they're still in the game)
   if (player1) {
     player1.stats.wins += player1Won ? 1 : 0;
     player1.stats.losses += player1Won ? 0 : 1;
@@ -38,7 +42,7 @@ export const calculateFinalState = (
   const earlyExit = game.state.status !== "finished";
   if (earlyExit) {
     // Game ended before the game concluded in game loop use-gameplay (i.e someone disconnected or left)
-    // Update and return game state as well as players
+    // Update and return game.state as well as players
     const oldState = { ...game.state };
     const newState: GameStateType = {
       ...oldState,
@@ -63,13 +67,17 @@ export const concede = (
   handleSetGameState: (gameState: GameStateType) => void,
   handleSetError: ((error: ErrorType) => void) | null
 ) => {
-  // Give up - update stats update the gameState and emit it to other the player
+  // CALLED BY A PLAYER WHO CONCEDES - UPDATE STATS IN LOCAL STORAGE & GAMESTATE AND EMIT IT TO THE OTHER PLAYER
+
   if (!game || !game.players.player1 || !game.players.player2) {
     if (handleSetError)
       // If called with an error handler
       handleSetError({ status: true, message: "Game not found" });
     return;
   }
+
+  storeStatsToLocalStorage("loss");
+
   const winner =
     game.players.player1.id === user.id
       ? // Determine the winner as the one who didn't concede
@@ -85,8 +93,6 @@ export const concede = (
       `${user.name} gave up. ${winner.name} won!`,
     ],
   };
-
-  storeStatsToLocalStorage("loss");
 
   gamesSocket.emit(
     "concede",

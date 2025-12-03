@@ -7,7 +7,11 @@ import Button from "@mui/material/Button";
 import { useError } from "../../../hooks/useError";
 import ToastAlert from "../../ToastAlert";
 
-const ChatInput = ({ roomName }: { roomName: string }) => {
+type Props = {
+  roomName: string;
+};
+
+const ChatInput = ({ roomName }: Props) => {
   const { user } = useContext(UserContext);
   const { error, handleSetError } = useError();
   const MAX_LEN = 255;
@@ -17,6 +21,7 @@ const ChatInput = ({ roomName }: { roomName: string }) => {
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    event.stopPropagation();
     setIsLoading(true);
 
     const trimmed = value.trim();
@@ -77,6 +82,7 @@ const ChatInput = ({ roomName }: { roomName: string }) => {
       <ToastAlert
         open={error.status}
         handleClose={() => handleSetError({ ...error, status: false })}
+        //  We skip clearing the error message intentionally because the text disappears before the Toast alert.
         message={error.message}
         severity="warning"
       />

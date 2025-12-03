@@ -35,6 +35,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
   }, []);
 
   const updatePlayers = useCallback(() => {
+    // Fetch players from socket.io and update gamestate
     gamesSocket.emit(
       "fetchPlayers",
       gameName,
@@ -53,6 +54,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
 
   const handleResetGame = useCallback(
     (gameName: string) => {
+      // Prompt socket.io to reset socketio state and emit 'gameReset' when successful
       gamesSocket.emit(
         "resetGame",
         gameName,
@@ -88,7 +90,7 @@ export const useGame = ({ gameName, inGame }: Props) => {
 
   const handleEndGame = useCallback(
     (outcome: "win" | "loss" | "draw", gameState: GameStateType) => {
-      // Take the new game state and update game state and user stats
+      // Accept Game.state and use this to update game state and user stats
       if (!user) {
         handleSetError({ status: true, message: "User not found" });
         return;
@@ -118,12 +120,12 @@ export const useGame = ({ gameName, inGame }: Props) => {
 
   const handleRoundEndForSpectators = useCallback(
     (gameState: GameStateType) => {
-      // Spectators aren't in socketIOs game 'room' so they will be served the latest game state manually on roundEnd.
+      // Spectators are not in socket.io's game 'room' so they will be served the latest game state manually on roundEnd
       if (inGame) {
-        // Player
+        // Is a player
         return;
       } else {
-        // Spectator
+        // Is a spectator
         setGame((prevGame) => ({
           ...prevGame,
           state: gameState,
@@ -135,15 +137,15 @@ export const useGame = ({ gameName, inGame }: Props) => {
 
   const onOpponentConcede = useCallback(
     (gameState: GameStateType) => {
-      // Update user stats when opponent gives up
+      // When opponent concede - end game
       handleEndGame("win", gameState);
     },
     [storeStatsToLocalStorage, handleEndGame]
   );
 
   const onGameLeft = useCallback(async () => {
+    // Update players - if we're in a game and one of the players has left then win
     updatePlayers();
-    // Update players component when a player leaves
     if (game.state.status === "playing") {
       // If we're playing and one of the players has left
       if (inGame) {
@@ -155,8 +157,14 @@ export const useGame = ({ gameName, inGame }: Props) => {
   }, [updatePlayers, game, inGame, handleEndGame]);
 
   const onGameJoined = useCallback(() => {
+    // Reset the game when someone joins it
     handleResetGame(gameName);
   }, [gameName, handleResetGame]);
+
+  useEffect(() => {
+    // Fetch players when the component mounts
+    updatePlayers();
+  }, [user, updatePlayers]);
 
   const onConnect = useCallback(() => {
     setIsConnected(true);
@@ -164,17 +172,11 @@ export const useGame = ({ gameName, inGame }: Props) => {
 
   const onDisconnect = useCallback(() => {
     setIsConnected(false);
-    // If we're in a game and disconnect we forfeit the game.
+    // If we're not in a game and disconnect - forfeit
     if (inGame) {
       handleEndGame("loss", game.state);
     }
   }, [inGame, handleEndGame, game.state]);
-
-  useEffect(() => {
-    console.log("useGame hook mounted");
-    // fetch players when the component mounts
-    updatePlayers();
-  }, [user, updatePlayers]);
 
   useEffect(() => {
     if (gamesSocket.connected) {
@@ -206,11 +208,11 @@ export const useGame = ({ gameName, inGame }: Props) => {
   }, [
     onConnect,
     onDisconnect,
+    onOpponentConcede,
     onGameJoined,
     onGameLeft,
     handleSetGame,
     handleRoundEndForSpectators,
-    onOpponentConcede,
   ]);
 
   return {

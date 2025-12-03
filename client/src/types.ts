@@ -126,8 +126,10 @@ export type SetSocketDataResponse = {
   game: GameType | null;
 };
 
+export type WinnerType = UserType | "draw" | null;
+
 export type GameStateType = {
-  winner: UserType | "draw" | null;
+  winner: WinnerType;
   status: StatusType;
   currRound: number;
   history: RoundHistoryType[];
@@ -138,13 +140,13 @@ export type GameStateType = {
 export type RoundType = {
   player1Choice: RockPaperScissor;
   player2Choice: RockPaperScissor;
-  winner: UserType | null;
+  winner: WinnerType;
 };
 
 export type RoundHistoryType = {
   player1Choice: RockPaperScissor;
   player2Choice: RockPaperScissor;
-  winner: UserType | "draw";
+  winner: WinnerType;
 };
 
 export type RockPaperScissor = "rock" | "paper" | "scissors" | "none";

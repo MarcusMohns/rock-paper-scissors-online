@@ -11,6 +11,19 @@ type Props = {
 };
 
 const Message = ({ chatMessage }: Props) => {
+  const dateAndTime = new Date(chatMessage.date).toLocaleTimeString(
+    navigator.language,
+    {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }
+  );
+
   return (
     <ListItem
       sx={{
@@ -24,7 +37,7 @@ const Message = ({ chatMessage }: Props) => {
       </ListItemIcon>
       <ListItemText
         primary={
-          <Box>
+          <Box sx={{ display: "flex" }}>
             <Typography
               variant="body2"
               sx={{
@@ -32,21 +45,10 @@ const Message = ({ chatMessage }: Props) => {
                 textOverflow: "ellipsis",
               }}
             >
-              {chatMessage.user.name}
+              {chatMessage.user.name} -
             </Typography>
             <Typography fontSize={12} variant="subtitle1">
-              {new Date(chatMessage.date).toLocaleTimeString(
-                navigator.language,
-                {
-                  weekday: "short",
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                }
-              )}
+              {dateAndTime}
             </Typography>
           </Box>
         }
