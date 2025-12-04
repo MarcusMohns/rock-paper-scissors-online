@@ -16,25 +16,6 @@ import {
   deepOrange,
   lime,
 } from "@mui/material/colors";
-import { v4 as uuidv4 } from "uuid";
-
-const storedUser = localStorage.getItem("user");
-export const defaultUser =
-  storedUser === null
-    ? {
-        name: "unnamed",
-        id: uuidv4(),
-        socketId: "0",
-        color: "red",
-        themePreference: "light",
-        stats: {
-          wins: 0,
-          losses: 0,
-          draws: 0,
-          rating: 1000,
-        },
-      }
-    : JSON.parse(storedUser);
 
 export const colors = [
   green[500],
