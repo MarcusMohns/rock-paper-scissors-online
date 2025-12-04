@@ -151,7 +151,6 @@ export const useGame = ({ gameName, inGame }: Props) => {
       if (inGame) {
         // If we are the remaining player - win.
         handleEndGame("win", game.state);
-        // Error handleing TODO
       }
     }
   }, [updatePlayers, game, inGame, handleEndGame]);

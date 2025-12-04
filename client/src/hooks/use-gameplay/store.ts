@@ -134,6 +134,8 @@ export const endRound = (
   handleSetPlayerReady: () => void,
   handleSetError: (error: ErrorType) => void
 ) => {
+  // Calculate results and update game state and determine if game is over
+  // Called by both players at the end of a round
   handleShowIngameCountdown(false);
   const round = gameState.rounds[gameState.currRound - 1];
   const roundWinner = getWinnerOfRound(round, players);
@@ -276,8 +278,10 @@ const getWinnerOfGame = (
 
   // Determine if there's a winner
   if (player1Score > rounds.length / 2) {
+    // If player 1 has won the majority of rounds
     return players.player1;
   } else if (player2Score > rounds.length / 2) {
+    // If player 2 has won the majority of rounds
     return players.player2;
   } else {
     return null;

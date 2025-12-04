@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { socket } from "../socketio/socket";
+import { socket } from "../socketio/socket.ts";
 import type { MessageType } from "../types";
 
 export const useChat = () => {

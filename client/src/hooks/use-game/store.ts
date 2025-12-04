@@ -12,14 +12,14 @@ export const calculateFinalState = (
   game: GameType,
   user: UserType
 ) => {
-  // UPDATE AND RETURN A GAME STATE WITH UPDATED PLAYER STATS
-  // IF GAME EXITED EARLY ALSO UPDATE THE GAME STATE
+  // Update and return a game state with updated player stats
+  // If game exited early also update the game state
 
-  // Determine who won
+  // Determine if player 1 won
   const isPlayer1 = game.players.player1 && user.id === game.players.player1.id;
   const player1Won = outcome === "win" ? isPlayer1 : !isPlayer1;
 
-  // Make copies of the players
+  // Make copies of the players if they exist
   const player1 = game.players.player1
     ? { ...game.players.player1, stats: { ...game.players.player1.stats } }
     : null;
@@ -67,7 +67,7 @@ export const concede = (
   handleSetGameState: (gameState: GameStateType) => void,
   handleSetError: ((error: ErrorType) => void) | null
 ) => {
-  // CALLED BY A PLAYER WHO CONCEDES - UPDATE STATS IN LOCAL STORAGE & GAMESTATE AND EMIT IT TO THE OTHER PLAYER
+  // Called by a player who concede - update stats in local storage and game state and emit it to the other player
 
   if (!game || !game.players.player1 || !game.players.player2) {
     if (handleSetError)
