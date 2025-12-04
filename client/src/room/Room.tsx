@@ -1,13 +1,16 @@
+import { useCallback, useState } from "react";
+
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
+import Fade from "@mui/material/Fade";
+import ArrowCircleLeftRoundedIcon from "@mui/icons-material/ArrowCircleLeftRounded";
+
 import UserListPopover from "./components/UserListPopover";
 import RoomChat from "./components/RoomChat";
-import Stack from "@mui/material/Stack";
 import Game from "./components/game/Game";
-import ArrowCircleLeftRoundedIcon from "@mui/icons-material/ArrowCircleLeftRounded";
-import Fade from "@mui/material/Fade";
 import RoomInfo from "./components/RoomInfo";
-import { useCallback, useState } from "react";
 
 type Props = {
   roomName: string;
@@ -39,20 +42,37 @@ const Room = ({ roomName, joinRoom }: Props) => {
           mx: { xs: 1, xl: 0 },
         }}
       >
-        <Button
-          onClick={backToLobby}
-          color="secondary"
-          variant="contained"
-          disabled={inGame}
-          size="large"
+        <Box
           sx={{
-            width: "max-content",
-            ml: { xs: 2, xl: 0 },
+            display: "flex",
+            flexDirection: "column",
           }}
-          startIcon={<ArrowCircleLeftRoundedIcon />}
         >
-          Leave Room
-        </Button>
+          <Button
+            onClick={backToLobby}
+            color="secondary"
+            variant="contained"
+            disabled={inGame}
+            size="large"
+            sx={{
+              width: "max-content",
+              ml: { xs: 2, xl: 0 },
+            }}
+            startIcon={<ArrowCircleLeftRoundedIcon />}
+          >
+            Leave Room
+          </Button>
+          <Typography
+            variant="overline"
+            color="error"
+            sx={{
+              minHeight: "35px",
+              ml: { xs: 9, xl: 7 },
+            }}
+          >
+            {inGame && "In game"}
+          </Typography>
+        </Box>
         <Box
           className="info-game-container"
           sx={{
@@ -61,7 +81,7 @@ const Room = ({ roomName, joinRoom }: Props) => {
             flexDirection: "column",
             height: "100%",
             width: "100%",
-            py: { xs: 0, xl: 5 },
+            py: { xs: 0, xl: 1 },
           }}
         >
           <RoomInfo roomName={roomName} />
