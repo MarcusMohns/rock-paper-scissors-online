@@ -4,12 +4,15 @@ import LobbyRoomList from "./components/lobby-room-list/LobbyRoomList";
 import Button from "@mui/material/Button";
 import ArrowCircleLeftRoundedIcon from "@mui/icons-material/ArrowCircleLeftRounded";
 import Fade from "@mui/material/Fade";
+import type { ErrorType } from "../types";
 
 type Props = {
-  handleSetInRoom: (roomName: string) => void;
+  joinMainMenu: () => void;
+  createRoom: (roomName: string) => Promise<ErrorType | null>;
+  joinRoom: (roomName: string) => Promise<ErrorType | null>;
 };
 
-const Lobby = ({ handleSetInRoom }: Props) => {
+const Lobby = ({ joinMainMenu, joinRoom, createRoom }: Props) => {
   return (
     <Fade in timeout={600}>
       <Box
@@ -25,7 +28,7 @@ const Lobby = ({ handleSetInRoom }: Props) => {
         component="section"
       >
         <Button
-          onClick={() => handleSetInRoom("mainMenu")}
+          onClick={joinMainMenu}
           color="secondary"
           variant="contained"
           size="large"
@@ -47,7 +50,7 @@ const Lobby = ({ handleSetInRoom }: Props) => {
             gap: { xs: 2, lg: 20 },
           }}
         >
-          <LobbyRoomList handleSetInRoom={handleSetInRoom} />
+          <LobbyRoomList joinRoom={joinRoom} createRoom={createRoom} />
           <LobbyChat />
         </Box>
       </Box>

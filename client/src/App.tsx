@@ -26,7 +26,7 @@ export default function App() {
     error,
     handleSetError,
   } = useUser();
-  const { inRoom, joinLobby, joinRoom, handleSetInRoom } = useInRoom();
+  const { inRoom, joinRoom, createRoom, joinMainMenu, joinLobby } = useInRoom();
 
   const contextValue = useMemo(
     () => ({
@@ -67,7 +67,11 @@ export default function App() {
           {inRoom === "mainMenu" ? (
             <MainMenu joinLobby={joinLobby} isConnected={isConnected} />
           ) : inRoom === "lobby" ? (
-            <Lobby handleSetInRoom={handleSetInRoom} />
+            <Lobby
+              joinMainMenu={joinMainMenu}
+              joinRoom={joinRoom}
+              createRoom={createRoom}
+            />
           ) : (
             <Room roomName={inRoom} joinRoom={joinRoom} />
           )}

@@ -6,12 +6,14 @@ import Zoom from "@mui/material/Zoom";
 import { TransitionGroup } from "react-transition-group";
 import CreateRoomBtnDialog from "./CreateRoomBtnDialog";
 import useRoomList from "../../../hooks/useRoomList";
+import type { ErrorType } from "../../../types";
 
 type Props = {
-  handleSetInRoom: (room: string) => void;
+  joinRoom: (roomName: string) => Promise<ErrorType | null>;
+  createRoom: (roomName: string) => Promise<ErrorType | null>;
 };
 
-const LobbyRoomList = ({ handleSetInRoom }: Props) => {
+const LobbyRoomList = ({ joinRoom, createRoom }: Props) => {
   const { roomList } = useRoomList("lobby");
   return (
     <Box
@@ -33,7 +35,7 @@ const LobbyRoomList = ({ handleSetInRoom }: Props) => {
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
           Rooms
         </Typography>
-        <CreateRoomBtnDialog handleSetInRoom={handleSetInRoom} />
+        <CreateRoomBtnDialog createRoom={createRoom} />
       </Stack>
       <Box
         sx={{
@@ -45,7 +47,7 @@ const LobbyRoomList = ({ handleSetInRoom }: Props) => {
           {roomList.map((room) => (
             <Zoom in key={room.name}>
               <Box sx={{ height: "100%", mb: 1 }}>
-                <LobbyRoom handleSetInRoom={handleSetInRoom} room={room} />
+                <LobbyRoom joinRoom={joinRoom} room={room} />
               </Box>
             </Zoom>
           ))}

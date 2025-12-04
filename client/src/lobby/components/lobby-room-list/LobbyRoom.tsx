@@ -1,4 +1,4 @@
-import type { RoomType } from "../../../types";
+import type { RoomType, ErrorType } from "../../../types";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -6,32 +6,25 @@ import Chip from "@mui/material/Chip";
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import { TransitionGroup } from "react-transition-group";
 import Zoom from "@mui/material/Zoom";
-import { useCallback } from "react";
-import { socket } from "../../../socketio/socket.ts";
-import type { RoomResponseType } from "../../../types";
 import UserAvatar from "../../../components/UserAvatar.tsx";
-import { useError } from "../../../hooks/useError.ts";
+import { useError } from "../../../hooks/useError";
 import ToastAlert from "../../../components/ToastAlert.tsx";
 
 type Props = {
   room: RoomType;
-  handleSetInRoom: (roomName: string) => void;
+  joinRoom: (roomName: string) => Promise<ErrorType | null>;
 };
-const LobbyRoom = ({ room, handleSetInRoom }: Props) => {
+
+const LobbyRoom = ({ room, joinRoom }: Props) => {
   const { error, handleSetError } = useError();
 
-  const joinRoom = useCallback(
-    (roomName: string) => {
-      socket.emit("joinRoom", roomName, (response: RoomResponseType) => {
-        if (response.status === "ok") {
-          handleSetInRoom(roomName);
-        } else {
-          handleSetError({ status: true, message: response.status });
-        }
-      });
-    },
-    [handleSetInRoom, handleSetError]
-  );
+  const handleJoinRoom = async (roomName: string) => {
+    const response = await joinRoom(roomName);
+    // If theres a response it's an error
+    if (response && response.status) {
+      handleSetError({ status: true, message: response.message });
+    }
+  };
 
   return (
     <Box
@@ -71,7 +64,7 @@ const LobbyRoom = ({ room, handleSetInRoom }: Props) => {
         </TransitionGroup>
       </Box>
       <Button
-        onClick={() => joinRoom(room.name)}
+        onClick={() => handleJoinRoom(room.name)}
         color="success"
         variant="contained"
         disabled={room.users.length >= 10 || error.status}
@@ -81,7 +74,7 @@ const LobbyRoom = ({ room, handleSetInRoom }: Props) => {
       </Button>
       <ToastAlert
         open={error.status}
-        handleClose={() => handleSetError({ status: false, message: "" })}
+        handleClose={() => handleSetError({ ...error, status: false })}
         message={error.message}
         severity="warning"
       />

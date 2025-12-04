@@ -93,9 +93,11 @@ export function registerSocketHandlers(
     socket.on("joinRoom", async (roomName, callback) => {
       const users = await fetchUsersInRoom(roomName);
       if (users.length >= ROOM_CAPACITY && roomName !== "lobby") {
+        // Check if room is at capacity (excluding lobby)
         callback({ roomName: roomName, status: "Room is full" });
         return;
       }
+
       await leaveAllRooms();
       await socket.join(roomName);
       callback({ roomName: roomName, status: "ok" });

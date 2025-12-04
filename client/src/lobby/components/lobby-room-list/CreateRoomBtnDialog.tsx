@@ -6,37 +6,21 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import DialogContentText from "@mui/material/DialogContentText";
-import { useCallback, useState } from "react";
-import type { RoomResponseType } from "../../../types";
+import { useState } from "react";
 import AddCircleRoundedIcon from "@mui/icons-material/AddCircleRounded";
-import { socket } from "../../../socketio/socket.ts";
-import { useError } from "../../../hooks/useError.ts";
-import ToastAlert from "../../../components/ToastAlert.tsx";
-
+import ToastAlert from "../../../components/ToastAlert";
+import { useError } from "../../../hooks/useError";
+import type { ErrorType } from "../../../types";
 type Props = {
-  handleSetInRoom: (roomName: string) => void;
+  createRoom: (roomName: string) => Promise<ErrorType | null>;
 };
 
-const CreateRoomBtnDialog = ({ handleSetInRoom }: Props) => {
+const CreateRoomBtnDialog = ({ createRoom }: Props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogInput, setDialogInput] = useState({
     roomName: "",
   });
   const { error, handleSetError } = useError();
-
-  const createRoom = useCallback(
-    (roomName: string) => {
-      if (!roomName) return;
-      socket.emit("createRoom", roomName, (response: RoomResponseType) => {
-        if (response.status === "ok") {
-          handleSetInRoom(response.roomName);
-        } else {
-          handleSetError({ status: true, message: response.status });
-        }
-      });
-    },
-    [handleSetInRoom, handleSetError]
-  );
 
   const handleClickOpen = () => {
     setDialogOpen(true);
@@ -46,9 +30,17 @@ const CreateRoomBtnDialog = ({ handleSetInRoom }: Props) => {
   };
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDialogInput({ ...dialogInput, roomName: event.target.value });
-    if (error.message === "Room already exists") {
-      handleSetError({ ...error, status: false });
+    const name = event.target.value.trim();
+    setDialogInput({ ...dialogInput, roomName: name });
+  };
+
+  const handleCreateRoom = async () => {
+    const response = await createRoom(dialogInput.roomName);
+    // If theres a response it's an error
+    if (response && response.status) {
+      // Show error & clear input
+      handleSetError({ status: true, message: response.message });
+      setDialogInput({ ...dialogInput, roomName: "" });
     }
   };
 
@@ -106,22 +98,22 @@ const CreateRoomBtnDialog = ({ handleSetInRoom }: Props) => {
             Close
           </Button>
           <Button
-            onClick={() => createRoom(dialogInput.roomName)}
+            onClick={handleCreateRoom}
             autoFocus
             variant="contained"
             color="warning"
-            disabled={!dialogInput.roomName || error.status}
+            disabled={!dialogInput.roomName}
           >
             Create
           </Button>
         </DialogActions>
-        <ToastAlert
-          message={error.message}
-          open={error.status}
-          handleClose={() => handleSetError({ ...error, status: false })}
-          severity="warning"
-        />
       </Dialog>
+      <ToastAlert
+        open={error.status}
+        handleClose={() => handleSetError({ ...error, status: false })}
+        message={error.message}
+        severity="warning"
+      />
     </>
   );
 };
