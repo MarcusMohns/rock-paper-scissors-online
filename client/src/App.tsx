@@ -26,7 +26,7 @@ export default function App() {
     error,
     handleSetError,
   } = useUser();
-  const { inRoom, joinRoom, createRoom, joinMainMenu, joinLobby } = useInRoom();
+  const { inRoom, joinRoom, joinMainMenu, createRoom } = useInRoom();
 
   const contextValue = useMemo(
     () => ({
@@ -65,7 +65,7 @@ export default function App() {
         >
           <Navbar />
           {inRoom === "mainMenu" ? (
-            <MainMenu joinLobby={joinLobby} isConnected={isConnected} />
+            <MainMenu joinRoom={joinRoom} isConnected={isConnected} />
           ) : inRoom === "lobby" ? (
             <Lobby
               joinMainMenu={joinMainMenu}

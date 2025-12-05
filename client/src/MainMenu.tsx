@@ -4,12 +4,17 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import Slide from "@mui/material/Slide";
+import type { ErrorType } from "./types";
 
 type Props = {
-  joinLobby: () => void;
+  joinRoom: (roomName: string) => Promise<ErrorType | null>;
   isConnected: boolean;
 };
-const MainMenu = ({ joinLobby, isConnected }: Props) => {
+const MainMenu = ({ joinRoom, isConnected }: Props) => {
+  const joinLobby = () => {
+    joinRoom("lobby");
+  };
+
   return (
     <Box
       component={"section"}

@@ -33,6 +33,7 @@ export interface ClientToServerEvents {
     roomName: string,
     callback: (result: { roomName: string; status: string }) => void
   ) => void;
+  leaveAllRooms: () => void;
   createOrJoinGame: (
     gameName: string,
     callback: (result: { status: string }) => void

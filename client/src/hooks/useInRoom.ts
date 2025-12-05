@@ -25,7 +25,7 @@ export const useInRoom = () => {
       );
       // If all went well update the state and return null (component will check for error)
       setInRoom(response.roomName);
-      // If we're in a game and join a new room, leave the game
+      // If we're in a game and join a new room, leave the game (the emit will take care of leaving the rooms)
       gamesSocket.emit("leaveAllGames", roomName);
       return null;
     } catch (error) {
@@ -73,18 +73,14 @@ export const useInRoom = () => {
 
   const joinMainMenu = useCallback(() => {
     setInRoom("mainMenu");
-  }, []);
-
-  const joinLobby = useCallback(() => {
-    setInRoom("lobby");
+    socket.emit("leaveAllRooms");
   }, []);
 
   return {
     inRoom,
     joinRoom,
-    createRoom,
     joinMainMenu,
-    joinLobby,
+    createRoom,
   };
 };
 
