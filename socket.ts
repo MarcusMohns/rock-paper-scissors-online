@@ -32,9 +32,10 @@ export function registerSocketHandlers(
 
   io.on("connection", (socket) => {
     socket.on("connected", async (user, callback) => {
+      // socket emits "connected" event with user data when 'App' renders
       const sockets = await io.fetchSockets();
       const isAlreadyConnected = sockets.find((s) => {
-        // If a socket with the same user ID exists and it's not this socket
+        // If a socket is connected with the user id (i.e. the user is already connected)
         return s.data.user && s.data.user.id === user.id && s.id !== socket.id;
       });
 
@@ -53,6 +54,7 @@ export function registerSocketHandlers(
           },
         });
       } else {
+        // If we're not already connected proceed as normal
         callback({
           type: "ok",
           data: { ...user, socketId: socket.id },
@@ -61,8 +63,7 @@ export function registerSocketHandlers(
     });
 
     socket.on("setUser", (user, callback) => {
-      console.log("setUser called");
-      // Update user data
+      // Called when user data is updated
       socket.data.user = user;
       io.emit("updateUser", user);
       callback(user);
@@ -73,7 +74,6 @@ export function registerSocketHandlers(
     });
 
     socket.on("fetchRoomsInLobby", async (callback) => {
-      console.log("fetchRoomsInLobby called");
       const lobby = await fetchRoomsInLobby();
       callback(lobby);
     });
@@ -87,20 +87,22 @@ export function registerSocketHandlers(
       await leaveAllRooms();
       await socket.join(roomName);
       callback({ roomName: roomName, status: "ok" });
-      console.log("Room created and joined:", roomName);
     });
 
     socket.on("joinRoom", async (roomName, callback) => {
       const users = await fetchUsersInRoom(roomName);
       if (users.length >= ROOM_CAPACITY && roomName !== "lobby") {
-        // Check if room is at capacity (excluding lobby)
+        // Check if room is at capacity (excluding lobby which has no set capacity)
         callback({ roomName: roomName, status: "Room is full" });
         return;
       }
-
       await leaveAllRooms();
       await socket.join(roomName);
       callback({ roomName: roomName, status: "ok" });
+    });
+
+    socket.on("leaveAllRooms", () => {
+      leaveAllRooms();
     });
 
     socket.on("chatMessage", (msg, callback) => {
@@ -145,10 +147,10 @@ export function registerSocketHandlers(
     const fetchUsersInRoom = async (roomName: string) => {
       const sockets = await io.in(roomName).fetchSockets();
       const users = sockets.map((socket) => socket.data.user);
-      console.log(users, "users in room", roomName);
       return users;
     };
     const leaveAllRooms = async () => {
+      // Leave all rooms minus the personal message room assigned to the user automatically with the same name as socketid
       socket.rooms.forEach((room) => {
         if (room !== socket.id) {
           socket.leave(room);
@@ -173,7 +175,6 @@ export function registerGameNamespaceHandlers(
   gamesNamespace.adapter.on("join-room", async (room, id) => {
     // When a player joins a game room
     io.to(room).emit("gameJoined", room);
-    console.log(`Player joined game room: ${room}`);
     // Emit to the room on the main namespace (not the games namespace) that a player has joined
     // This is used to update everyone in the room (players and spectators)
   });
@@ -187,7 +188,6 @@ export function registerGameNamespaceHandlers(
   });
 
   gamesNamespace.on("connection", (socket) => {
-    console.log("a user connected to games namespace");
     socket.on("connected", async (user) => {
       // User sends their user data & we save it in socket.data
       socket.data.user = user;
@@ -209,7 +209,9 @@ export function registerGameNamespaceHandlers(
         callback({ status: playersResponse });
         return;
       }
+      // Check if player1 & player2 are in the game - if both are present the game is full
       const gameIsFull = playersResponse.player1 && playersResponse.player2;
+
       if (!gameIsFull) {
         // If game has space join the game (socket.join will create the room if it doesn't exist)
         await leaveAllGames();
@@ -221,6 +223,7 @@ export function registerGameNamespaceHandlers(
     });
 
     socket.on("startGameCountdown", async (gameName, callback) => {
+      // Start the game countdown for both players
       const playersResponse = await fetchPlayersInGame(gameName);
       if (playersResponse === "error fetching players") {
         callback({ status: playersResponse });
@@ -237,8 +240,8 @@ export function registerGameNamespaceHandlers(
       }
     });
 
-    socket.on("setUser", (user, callback) => {
-      // Update user data
+    socket.on("setUser", (user) => {
+      // Called when user data is updated
       socket.data.user = user;
     });
 
@@ -248,7 +251,6 @@ export function registerGameNamespaceHandlers(
 
     socket.on("startGame", async (gameName, callback) => {
       // called at the end of the starting game countdown for both players
-      // set Game State
       const gameStateResponse = await setSocketGameState(
         gameName,
         startedGameState(3)
@@ -277,7 +279,6 @@ export function registerGameNamespaceHandlers(
         // callback({ status: "ok", game: gameStateResponse.game });
         io.to(gameName).emit("gameReset", gameStateResponse.game);
       } else {
-        console.log("Error resetting game");
         callback({ status: "error", game: null });
       }
     });
@@ -310,18 +311,18 @@ export function registerGameNamespaceHandlers(
     socket.on(
       "submitChoice",
       async (gameName, selected, localRoundsState, user, callback) => {
+        // Called when a player makes a move and updates both players individual states.
         if (!GameIsRunning(gameName) || !socket.data.game) {
           // Game hasn't started
           callback({ status: "Game not running", updatedRounds: null });
           return;
         }
-        if (selected === null) {
-          // Remove this and add it to one error handler prolly after development
-          // If theres no data for selected somethings gone wrong.
-          // selected type = rock | paper | scissors | 'none'
+        if (!selected) {
           callback({ status: "No move registered", updatedRounds: null });
           return;
         }
+
+        // let {rounds, currRound} = socket.data.game.state;
 
         let gameData = { ...socket.data.game };
         gameData.state.rounds = localRoundsState
