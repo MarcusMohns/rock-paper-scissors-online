@@ -310,36 +310,36 @@ export function registerGameNamespaceHandlers(
 
     socket.on(
       "submitChoice",
-      async (gameName, selected, localRoundsState, user, callback) => {
+      async (gameName, selected, userRoundsState, user, callback) => {
         // Called when a player makes a move and updates both players individual states.
         if (!GameIsRunning(gameName) || !socket.data.game) {
           // Game hasn't started
           callback({ status: "Game not running", updatedRounds: null });
           return;
         }
-        if (!selected) {
+        if (!selected || !userRoundsState) {
           callback({ status: "No move registered", updatedRounds: null });
           return;
         }
 
-        // let {rounds, currRound} = socket.data.game.state;
+        // Get current round from socket data which will be updated by either startGame or endRound call.
+        let { currRound } = socket.data.game.state;
 
-        let gameData = { ...socket.data.game };
-        gameData.state.rounds = localRoundsState
-          ? localRoundsState
-          : gameData.state.rounds;
+        // Get current round and rounds[] from the users game state
+        const rounds = [...userRoundsState];
+        const round = rounds[currRound - 1];
 
-        const currRound = gameData.state.currRound;
-        const round = gameData.state.rounds[currRound - 1];
-        // check if socket is player1 or player2
         const isPlayer1 = getIsPlayer1(user);
 
-        const updatedRounds = [...gameData.state.rounds];
+        // Update rounds with the players choice in the current round
+        const updatedRounds = [...rounds];
         updatedRounds[currRound - 1] = {
           ...round,
+          // Update correct player choice
           [isPlayer1 ? "player1Choice" : "player2Choice"]: selected,
         };
 
+        // Respond with updated rounds to self and opponent
         callback({ status: "ok", updatedRounds: updatedRounds });
         socket.to(gameName).emit("opponentChoice", updatedRounds);
       }
