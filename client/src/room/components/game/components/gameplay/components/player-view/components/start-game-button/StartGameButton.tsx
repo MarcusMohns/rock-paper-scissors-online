@@ -1,13 +1,13 @@
 import Button from "@mui/material/Button";
 import { useCallback, useState, useEffect } from "react";
-import type { ResponseType } from "../../../../../../../types";
-import { gamesSocket } from "../../../../../../../socketio/socket";
+import type { ResponseType } from "../../../../../../../../../types";
+import { gamesSocket } from "../../../../../../../../../socketio/socket";
 import Box from "@mui/material/Box";
 import StartGameCountdown from "./components/StartGameCountdown";
 import Zoom from "@mui/material/Zoom";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { useError } from "../../../../../../../hooks/useError";
-import ToastAlert from "../../../../../../../components/ToastAlert";
+import { useError } from "../../../../../../../../../hooks/useError";
+import ToastAlert from "../../../../../../../../../components/ToastAlert";
 
 type Props = {
   handleStartGame: (gameName: string) => void;

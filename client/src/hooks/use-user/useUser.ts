@@ -39,29 +39,28 @@ export const useUser = () => {
       };
       handleSetUser({ ...user, stats });
     },
-
     [user, handleSetUser]
   );
 
-  const onGamesConnect = () => gamesSocket.emit("connected", user);
   const onDisconnect = () => {
     setIsConnected(false);
   };
 
+  const onGamesConnect = () => gamesSocket.emit("connected", user);
+  const onConnect = () => {
+    setIsConnected(true);
+    socket.emit(
+      "connected",
+      user,
+      (response: UserResponseType | ErrorResponseType) =>
+        response.type === "ok"
+          ? setUser(response.data)
+          : handleSetError(response.data)
+    );
+  };
+
   useEffect(() => {
     // Register onConnect for both sockets (provide both namespaces on the server with user data)
-    const onConnect = () => {
-      setIsConnected(true);
-      socket.emit(
-        "connected",
-        user,
-        (response: UserResponseType | ErrorResponseType) =>
-          response.type === "ok"
-            ? setUser(response.data)
-            : handleSetError(response.data)
-      );
-    };
-
     gamesSocket.on("connect", onGamesConnect);
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
@@ -71,7 +70,7 @@ export const useUser = () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
     };
-  }, [user, handleSetError]);
+  }, []);
 
   return {
     user,

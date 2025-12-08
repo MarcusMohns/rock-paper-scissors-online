@@ -14,6 +14,7 @@ const ErrorBar = () => {
       setReconnectAttempts(attempt);
     };
 
+    // Listen for reconnect attempts
     gamesSocket.io.on("reconnect_attempt", handleReconnectAttempt);
 
     return () => {

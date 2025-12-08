@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import RockPaperScissorsToggle from "./components/RockPaperScissorsToggles";
+import RockPaperScissorsToggle from "./components/rock-paper-scissors-toggles/RockPaperScissorsToggles";
 import type {
   GameStateType,
   RoundType,
@@ -11,7 +11,7 @@ import Fade from "@mui/material/Fade";
 import { useGameplay } from "../../../../../hooks/use-gameplay/useGameplay";
 import ToastAlert from "../../../../../components/ToastAlert";
 import SpectatorView from "./components/SpectatorView";
-import PlayerView from "./components/PlayerView";
+import PlayerView from "./components/player-view/PlayerView";
 import GameFinishedDisplay from "./components/GameFinishedDisplay";
 
 type Props = {

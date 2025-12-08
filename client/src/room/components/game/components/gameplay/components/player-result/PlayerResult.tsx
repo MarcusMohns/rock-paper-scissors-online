@@ -4,9 +4,8 @@ import Typography from "@mui/material/Typography";
 import type { MoveType } from "../../../../../../../types";
 import WinCounter from "./components/WinCounter";
 import PreviousMove from "./components/PreviousMove";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Zoom from "@mui/material/Zoom";
-import { memo } from "react";
 
 type Props = {
   elementIndex: number;
@@ -25,14 +24,30 @@ const PlayerResult = ({
   playerScore,
   roundQty,
 }: Props) => {
-  const previousMoves = Array.from({ length: roundQty }, (_, idx) =>
-    playerMoves[idx] ? playerMoves[idx] : { move: "tbd", won: false }
-  );
-
   const [transitionPlaying, setTransitionPlaying] = useState(false);
 
+  const previousMoves = useMemo(
+    // Return an array of moves corresponding to each round
+    () =>
+      Array.from({ length: roundQty }, (_, idx) =>
+        playerMoves[idx] ? playerMoves[idx] : { move: "tbd", won: false }
+      ),
+    [playerMoves, roundQty]
+  );
+
+  const winCounter = useMemo(
+    // Return an array of booleans corresponding to whether each round was won
+    () =>
+      Array.from({ length: roundQty }, (_, idx) =>
+        playerMoves[idx] ? playerMoves[idx].won : null
+      ),
+    [playerMoves, roundQty]
+  );
+
   useEffect(() => {
+    // Play a transition when the player score increases
     if (playerScore === 0) return;
+
     setTransitionPlaying(true);
     const timeout = setTimeout(() => {
       setTransitionPlaying(false);
@@ -115,9 +130,9 @@ const PlayerResult = ({
           ))}
         </Stack>
       </Box>
-      <WinCounter roundQty={roundQty} playerMoves={playerMoves} />
+      <WinCounter winCounter={winCounter} />
     </Box>
   );
 };
 
-export default memo(PlayerResult);
+export default PlayerResult;

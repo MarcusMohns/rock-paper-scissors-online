@@ -3,7 +3,10 @@ import { useState, useEffect, useCallback } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
-import { socket, gamesSocket } from "../../../../../../../../socketio/socket";
+import {
+  socket,
+  gamesSocket,
+} from "../../../../../../../../../../socketio/socket";
 import Zoom from "@mui/material/Zoom";
 type Props = {
   handleStartGame: (gameName: string) => void;
@@ -21,11 +24,13 @@ const StartGameCountdown = ({
   const [progress, setProgress] = useState<number>(TOTAL_PROGRESS);
 
   const startGame = useCallback(() => {
+    // Start game at the end of countdown
     handleStartGame(gameName);
     handleSetCountdownActive(false);
   }, [handleSetCountdownActive, gameName, handleStartGame]);
 
   const cancelCountdown = useCallback(() => {
+    // Cancel countdown for us and emit to the other player to do the same
     gamesSocket.emit("cancelGameCountdown", gameName);
     handleSetCountdownActive(false);
   }, [handleSetCountdownActive, gameName]);
@@ -35,7 +40,7 @@ const StartGameCountdown = ({
     // This is necessary because some browsers suspend the main thread when the tab is inactive
     const worker = new Worker(
       new URL(
-        "../../../../../../../../workers/countdownWorker.ts",
+        "../../../../../../../../../../workers/countdownWorker.ts",
         import.meta.url
       )
     );
@@ -45,7 +50,6 @@ const StartGameCountdown = ({
     });
     worker.onmessage = function (event) {
       const { total } = event.data;
-      console.log(total);
       setProgress(total);
     };
     return () => {
@@ -61,6 +65,7 @@ const StartGameCountdown = ({
   }, [progress, handleSetCountdownActive, startGame]);
 
   useEffect(() => {
+    // Listen for the other player to cancel the countdown
     socket.on("cancelCountdown", cancelCountdown);
     return () => {
       socket.off("cancelCountdown", cancelCountdown);

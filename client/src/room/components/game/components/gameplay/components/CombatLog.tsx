@@ -1,4 +1,3 @@
-import * as React from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -7,14 +6,14 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { List, ListItem, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import SubjectIcon from "@mui/icons-material/Subject";
-import { memo } from "react";
+import { memo, useState } from "react";
 
 type Props = {
   log: string[];
 };
 
 const CombatLog = ({ log }: Props) => {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);

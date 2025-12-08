@@ -60,9 +60,6 @@ export const lightTheme = createTheme({
       contrastText: "#000",
     },
     secondary: {
-      // main: "#DDE5FF",
-      // light: "#ffffff",
-      // dark: "#e0e0e0",
       main: amber[300],
       light: amber[200],
       dark: amber[500],

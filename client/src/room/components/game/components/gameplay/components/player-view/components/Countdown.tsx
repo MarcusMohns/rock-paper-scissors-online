@@ -48,7 +48,7 @@ const Countdown = ({ handleEndRound }: Props) => {
     // Utilize a worker to handle the countdown logic
     // This is necessary because some browsers suspend the main thread when the tab is inactive
     const worker = new Worker(
-      new URL("../../../../../../workers/timerWorker.ts", import.meta.url)
+      new URL("../../../../../../../../workers/timerWorker.ts", import.meta.url)
     );
 
     worker.postMessage({

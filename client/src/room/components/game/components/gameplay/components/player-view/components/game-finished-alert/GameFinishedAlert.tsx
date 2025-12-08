@@ -5,7 +5,7 @@ import { useState } from "react";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import CloseIcon from "@mui/icons-material/Close";
-import type { GameStateType } from "../../../../../../../types";
+import type { GameStateType } from "../../../../../../../../../types";
 import Zoom from "@mui/material/Zoom";
 import RatingProgressBar from "./components/RatingProgressBar";
 import RoundResults from "./components/RoundResults";

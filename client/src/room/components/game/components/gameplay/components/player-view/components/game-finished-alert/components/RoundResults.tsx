@@ -2,7 +2,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Zoom from "@mui/material/Zoom";
 import Stack from "@mui/material/Stack";
-import type { RoundHistoryType } from "../../../../../../../../types";
+import type { RoundHistoryType } from "../../../../../../../../../../types";
 
 type Props = {
   history: RoundHistoryType[];

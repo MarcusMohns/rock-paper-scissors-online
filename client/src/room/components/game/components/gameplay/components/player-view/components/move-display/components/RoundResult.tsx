@@ -4,9 +4,9 @@ import Zoom from "@mui/material/Zoom";
 import type {
   RoundHistoryType,
   PlayersType,
-} from "../../../../../../../../types";
+} from "../../../../../../../../../../types";
 import { useContext } from "react";
-import { UserContext } from "../../../../../../../../Context";
+import { UserContext } from "../../../../../../../../../../Context";
 
 type Props = {
   round: RoundHistoryType;
@@ -15,7 +15,7 @@ type Props = {
 };
 const RoundResult = ({ round, players, player1Won }: Props) => {
   const { user } = useContext(UserContext);
-  if (!players.player1 || !players.player2) return null;
+  if (!players.player1 || !players.player2 || !round.winner) return null;
 
   return (
     <Zoom

@@ -1,5 +1,8 @@
 import Stack from "@mui/material/Stack";
-import type { RoundHistoryType, PlayersType } from "../../../../../../../types";
+import type {
+  RoundHistoryType,
+  PlayersType,
+} from "../../../../../../../../../types";
 import Move from "./components/Move";
 import RoundResult from "./components/RoundResult";
 type Props = {
@@ -9,7 +12,9 @@ type Props = {
 };
 
 const MoveDisplay = ({ round, players, isPlayer1 }: Props) => {
-  if (players.player1 === null || players.player2 === null) return null;
+  if (players.player1 === null || players.player2 === null || !round.winner)
+    return null;
+
   const player1Won =
     round.winner === "draw" ? false : round.winner.id === players.player1.id;
 

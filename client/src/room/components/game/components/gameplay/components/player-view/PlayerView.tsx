@@ -1,13 +1,13 @@
-import GameFinishedAlert from "./game-finished-alert/GameFinishedAlert";
-import StartGameButton from "./start-game-button/StartGameButton";
-import MoveDisplay from "./move-display/MoveDisplay";
-import Countdown from "./Countdown";
+import GameFinishedAlert from "./components/game-finished-alert/GameFinishedAlert";
+import StartGameButton from "./components/start-game-button/StartGameButton";
+import MoveDisplay from "./components/move-display/MoveDisplay";
+import Countdown from "./components/Countdown";
 import type {
   GameStateType,
   UserType,
   RoundHistoryType,
   PlayersType,
-} from "../../../../../../types";
+} from "../../../../../../../types";
 
 type Props = {
   gameState: GameStateType;

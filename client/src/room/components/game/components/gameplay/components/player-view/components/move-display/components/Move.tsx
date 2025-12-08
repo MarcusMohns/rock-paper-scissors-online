@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import type { UserType } from "../../../../../../../../types";
+import type { UserType } from "../../../../../../../../../../types";
 import Zoom from "@mui/material/Zoom";
 import { memo } from "react";
 

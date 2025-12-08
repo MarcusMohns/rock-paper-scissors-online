@@ -4,6 +4,7 @@ import UserAvatar from "../../../../components/UserAvatar";
 import Zoom from "@mui/material/Zoom";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
+import { useMemo } from "react";
 
 type Props = {
   player: UserType;
@@ -11,7 +12,10 @@ type Props = {
 };
 
 const Player = ({ player, winner }: Props) => {
-  const playerWon = winner && winner !== "draw" && player.id === winner.id;
+  const playerWon = useMemo(
+    () => winner && winner !== "draw" && player.id === winner.id,
+    [player, winner]
+  );
   const winnerCrown = (
     <Zoom in={true}>
       <Box sx={{ position: "absolute", width: { xs: "120px", sm: "200px" } }}>

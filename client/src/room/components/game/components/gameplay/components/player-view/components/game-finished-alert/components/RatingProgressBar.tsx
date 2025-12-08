@@ -12,7 +12,9 @@ type Props = {
 
 const RatingProgressBar = ({ winner, oldRating, newRating }: Props) => {
   const [rating, setRating] = useState(oldRating);
+
   useEffect(() => {
+    // Update rating slowly
     const timeout = setTimeout(() => {
       setRating(newRating);
     }, 2000);
