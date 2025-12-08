@@ -5,7 +5,6 @@ import type {
 } from "../../../../../../../types";
 import { useEffect, useState, memo, useCallback } from "react";
 import Typography from "@mui/material/Typography";
-import Zoom from "@mui/material/Zoom";
 import Toggle from "./components/Toggle";
 
 type Props = {
