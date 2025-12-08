@@ -64,11 +64,19 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
         aria-labelledby="create-room-alert"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="create-room-alert">Create a room</DialogTitle>
+        <DialogTitle
+          id="create-room-alert"
+          sx={{
+            backgroundColor: "background.paper",
+          }}
+        >
+          Create a room
+        </DialogTitle>
         <DialogContent
           sx={{
             display: "flex",
             justifyContent: "center",
+            backgroundColor: "background.paper",
             height: "200px",
             width: "350px",
           }}
@@ -94,7 +102,7 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
             />
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ backgroundColor: "background.paper" }}>
           <Button onClick={handleClose} variant="outlined" color="info">
             Close
           </Button>
