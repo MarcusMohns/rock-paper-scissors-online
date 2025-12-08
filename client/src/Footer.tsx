@@ -16,7 +16,6 @@ const Footer = () => {
         height: "100px",
         width: "100%",
         textAlign: { xs: "center", md: "start" },
-        backgroundColor: "transparent",
         p: 10,
         gap: 1,
       }}
@@ -24,11 +23,11 @@ const Footer = () => {
       <Typography
         variant="subtitle2"
         sx={{
-          boxShadow: { xs: 0, sm: 2 },
+          boxShadow: { xs: 0, sm: 1 },
           width: "max-content",
           p: { xs: 0, sm: 1 },
           px: { xs: 0, sm: 2 },
-          borderRadius: 2,
+          borderRadius: 1,
           backgroundColor: { xs: "none", sm: "background.paper" },
         }}
       >
@@ -38,11 +37,11 @@ const Footer = () => {
       <Typography
         variant="subtitle2"
         sx={{
-          boxShadow: { xs: 0, sm: 2 },
+          boxShadow: { xs: 0, sm: 1 },
           width: "max-content",
           p: { xs: 0, sm: 1 },
           px: { xs: 0, sm: 2 },
-          borderRadius: 2,
+          borderRadius: 1,
           backgroundColor: { xs: "none", sm: "background.paper" },
         }}
       >
