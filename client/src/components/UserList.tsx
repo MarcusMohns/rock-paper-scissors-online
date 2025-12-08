@@ -39,7 +39,7 @@ const UserList = ({ userList }: Props) => {
                   }
                   secondary={
                     <Typography variant="body2" fontSize={12}>
-                      Rating: {user.stats.rating} ⭐
+                      Rating: {user.stats.rating}⭐
                     </Typography>
                   }
                 />
