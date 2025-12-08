@@ -30,12 +30,13 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
   };
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const name = event.target.value.trim();
+    const name = event.target.value;
     setDialogInput({ ...dialogInput, roomName: name });
   };
 
   const handleCreateRoom = async () => {
-    const response = await createRoom(dialogInput.roomName);
+    const roomName = dialogInput.roomName.trim();
+    const response = await createRoom(roomName);
     // If theres a response it's an error
     if (response && response.status) {
       // Show error & clear input
