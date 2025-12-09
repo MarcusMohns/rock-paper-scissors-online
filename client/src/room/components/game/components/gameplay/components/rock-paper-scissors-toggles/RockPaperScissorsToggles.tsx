@@ -18,7 +18,6 @@ const RockPaperScissorsToggle = ({
   handleSubmitChoice,
   history,
 }: Props) => {
-  console.log("hey");
   const [selectedChoice, setSelectedChoice] =
     useState<RockPaperScissor>("none");
 
