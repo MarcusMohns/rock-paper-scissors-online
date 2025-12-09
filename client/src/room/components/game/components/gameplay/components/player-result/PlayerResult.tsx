@@ -109,6 +109,7 @@ const PlayerResult = ({
       >
         <Typography
           variant="h5"
+          component="p"
           sx={{
             textAlign: "center",
             overflow: "hidden",
