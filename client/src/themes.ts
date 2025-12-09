@@ -30,9 +30,9 @@ export const darkTheme = createTheme({
       dark: grey[400],
     },
     success: {
-      main: green[700],
-      light: green[500],
-      dark: green[800],
+      main: green[800],
+      light: green[600],
+      dark: green[900],
       contrastText: "#fff",
     },
   },
