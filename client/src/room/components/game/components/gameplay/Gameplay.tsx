@@ -121,10 +121,12 @@ const Gameplay = ({
                 winner={gameState.winner}
               />
             )}
-            {gameState.status === "finished" && previousRound === undefined && (
-              // If game has ended and there's no previous round (i.e conceded round 1)
-              <GameFinishedDisplay gameState={gameState} />
-            )}
+            {inGame &&
+              gameState.status === "finished" &&
+              previousRound === undefined && (
+                // If game has ended and there's no previous round (i.e conceded round 1)
+                <GameFinishedDisplay gameState={gameState} />
+              )}
           </Box>
           <PlayerResult
             elementIndex={2}
