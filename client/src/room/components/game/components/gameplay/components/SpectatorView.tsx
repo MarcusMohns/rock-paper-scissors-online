@@ -9,7 +9,7 @@ type Props = {
 };
 const SpectatorView = ({ status, winner }: Props) => {
   return (
-    <div>
+    <Box>
       {status === "waiting" && (
         <Zoom in>
           <Typography>Waiting for game to start...</Typography>
@@ -41,7 +41,7 @@ const SpectatorView = ({ status, winner }: Props) => {
           </Box>
         </Zoom>
       )}
-    </div>
+    </Box>
   );
 };
 
