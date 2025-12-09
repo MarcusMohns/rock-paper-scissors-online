@@ -112,7 +112,10 @@ const UserSettingsDrawer = () => {
             color="info"
             value={userMenuState.name}
             onChange={(e) =>
-              handleSetUserMenuState({ ...userMenuState, name: e.target.value })
+              handleSetUserMenuState({
+                ...userMenuState,
+                name: e.target.value.trim(),
+              })
             }
             spellCheck={false}
           />
