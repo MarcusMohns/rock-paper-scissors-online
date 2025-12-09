@@ -13,8 +13,8 @@ type Props = {
 };
 const UserList = ({ userList }: Props) => {
   return (
-    <List className="user-list">
-      {userList.length === 0 && <Typography>No users</Typography>}
+    <List className="user-list" component="div">
+      {userList.length === 0 && <ListItem>No users</ListItem>}
       <TransitionGroup>
         {userList.map((user) => {
           return (
