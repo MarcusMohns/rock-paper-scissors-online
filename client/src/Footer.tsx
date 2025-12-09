@@ -22,6 +22,7 @@ const Footer = () => {
     >
       <Typography
         variant="subtitle2"
+        component="p"
         sx={{
           boxShadow: { xs: 0, sm: 1 },
           width: "max-content",
@@ -36,6 +37,7 @@ const Footer = () => {
 
       <Typography
         variant="subtitle2"
+        component="p"
         sx={{
           boxShadow: { xs: 0, sm: 1 },
           width: "max-content",
