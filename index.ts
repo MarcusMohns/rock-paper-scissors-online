@@ -15,8 +15,6 @@ import {
 
 const app = express();
 
-// When you add your React app to this repository, place it in `client/`.
-// Production build output should go to `client/dist` (Vite default).
 const clientDist = path.join(__dirname, "../client/dist");
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(clientDist));
