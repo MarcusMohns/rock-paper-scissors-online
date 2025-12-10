@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === "production") {
 
   app.get("/robots.txt", function (req, res) {
     res.type("text/plain");
-    res.send("User-agent: *\nDisallow: /");
+    res.send("User-agent: *\nDisallow:");
   });
 
   app.get(/.*/, (req, res) => {
