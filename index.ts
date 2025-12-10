@@ -23,10 +23,6 @@ if (process.env.NODE_ENV === "production") {
   app.get(/.*/, (req, res) => {
     res.sendFile(path.join(clientDist, "index.html"));
   });
-  app.use("/robots.txt", function (req, res, next) {
-    res.type("text/plain");
-    res.send("User-agent: *\nDisallow: /");
-  });
 }
 
 const httpServer = createServer(app);
