@@ -15,18 +15,19 @@ import {
 
 const app = express();
 
-const clientDist = path.join(__dirname, "../client/dist");
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(clientDist));
-  // Use a regex route to avoid issues with path-to-regexp parsing of '*' in
-  // some environments. The regex matches any path and serves the SPA entry.
-  app.get(/.*/, (req, res) => {
-    if (req.url === "robots.txt") {
-      res.sendFile(path.join(clientDist, "../", "robots.txt"));
-    }
-    res.sendFile(path.join(clientDist, "index.html"));
-  });
-}
+// const clientDist = path.join(__dirname, "../client/dist");
+// if (process.env.NODE_ENV === "production") {
+//   app.use(express.static(clientDist));
+//   // Use a regex route to avoid issues with path-to-regexp parsing of '*' in
+//   // some environments. The regex matches any path and serves the SPA entry.
+//   app.get(/.*/, (req, res) => {
+//     if (req.url === "robots.txt") {
+//       console.log("idunno what");
+//       res.sendFile(path.join(clientDist, "../", "robots.txt"));
+//     }
+//     res.sendFile(path.join(clientDist, "index.html"));
+//   });
+// }
 
 const httpServer = createServer(app);
 
