@@ -50,7 +50,7 @@ export const lightTheme = createTheme({
     mode: "light",
 
     background: {
-      default: "#fff",
+      default: "#fffbf3ff",
       paper: amber[50],
     },
     primary: {

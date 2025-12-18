@@ -3,8 +3,8 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import Slide from "@mui/material/Slide";
 import type { ErrorType } from "./types";
+import Fade from "@mui/material/Fade";
 
 type Props = {
   joinRoom: (roomName: string) => Promise<ErrorType | null>;
@@ -29,35 +29,38 @@ const MainMenu = ({ joinRoom, isConnected }: Props) => {
         grow: 1,
       }}
     >
-      <Slide direction="down" in={true} timeout={400}>
-        <Typography variant="h2" sx={{ fontWeight: 400 }}>
-          Main Menu
-        </Typography>
-      </Slide>
+      <Fade in timeout={500}>
+        <Box
+          sx={{
+            transform: "translateY(-20px)",
+            transition: "transform 0.5s ease-in-out",
+          }}
+        >
+          <Typography variant="h2" sx={{ fontWeight: 400 }}>
+            Main Menu
+          </Typography>
 
-      <Stack
-        direction="column"
-        spacing={2}
-        sx={{ display: "flex", alignItems: "center", mt: 5 }}
-      >
-        <Slide direction="left" in={true} timeout={400}>
-          <Button
-            onClick={joinLobby}
-            color="info"
-            variant="outlined"
-            size="large"
-            disabled={!isConnected}
-            endIcon={<PeopleAltIcon />}
+          <Stack
+            direction="column"
+            spacing={2}
+            sx={{ display: "flex", alignItems: "center", mt: 5 }}
           >
-            Enter Lobby
-          </Button>
-        </Slide>
-        <Slide direction="right" in={true} timeout={400}>
-          <Button color="info" variant="outlined" size="large" disabled>
-            Matchmaking
-          </Button>
-        </Slide>
-      </Stack>
+            <Button
+              onClick={joinLobby}
+              color="info"
+              variant="outlined"
+              size="large"
+              disabled={!isConnected}
+              endIcon={<PeopleAltIcon />}
+            >
+              Enter Lobby
+            </Button>
+            <Button color="info" variant="outlined" size="large" disabled>
+              Matchmaking
+            </Button>
+          </Stack>
+        </Box>
+      </Fade>
     </Box>
   );
 };

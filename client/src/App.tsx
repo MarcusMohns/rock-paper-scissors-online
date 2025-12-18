@@ -13,8 +13,6 @@ import Footer from "./Footer.tsx";
 import Room from "./room/Room.tsx";
 import { useUser } from "./hooks/use-user/useUser.ts";
 import { useInRoom } from "./hooks/useInRoom.ts";
-import darkBg from "./assets/images/bg-dark.svg";
-import lightBg from "./assets/images/bg-light.svg";
 import ToastAlert from "./components/ToastAlert.tsx";
 
 export default function App() {
@@ -53,14 +51,6 @@ export default function App() {
             alignItems: "center",
             width: "100%",
             overflow: "hidden",
-            backgroundPosition: "bottom",
-            backgroundRepeat: "no-repeat",
-            backgroundAttachment: "fixed",
-            backgroundSize: "cover",
-            backgroundImage:
-              user.themePreference === "light"
-                ? `url(${lightBg})`
-                : `url(${darkBg})`,
           }}
         >
           <Navbar />
