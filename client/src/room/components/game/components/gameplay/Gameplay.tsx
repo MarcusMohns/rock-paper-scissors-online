@@ -22,7 +22,7 @@ type Props = {
   handleSetGameState: (gameState: GameStateType) => void;
   handleEndGame: (
     outcome: "win" | "loss" | "draw",
-    game: GameStateType
+    game: GameStateType,
   ) => void;
   previousRound: RoundHistoryType;
   rounds: RoundType[];
@@ -66,7 +66,8 @@ const Gameplay = ({
         alignItems: "center",
         justifyContent: "center",
         width: "100%",
-        mt: 3,
+        flexGrow: 1,
+        position: "relative",
       }}
     >
       <Fade in timeout={1500}>
@@ -76,10 +77,11 @@ const Gameplay = ({
             display: "flex",
             flexDirection: isPlayer1 ? "column-reverse" : "column",
             alignItems: "center",
-            justifyContent: "center",
-            minHeight: "200px",
+            justifyContent: "space-between",
             width: "100%",
-            borderRadius: 2,
+            flexGrow: 1,
+            gap: 2,
+            pb: { xs: 14, sm: 0 },
           }}
         >
           <PlayerResult
@@ -97,7 +99,8 @@ const Gameplay = ({
               alignItems: "center",
               justifyContent: "center",
               flexDirection: "column",
-              minHeight: "400px",
+              flexGrow: 1,
+              minHeight: "320px",
               width: "100%",
             }}
           >

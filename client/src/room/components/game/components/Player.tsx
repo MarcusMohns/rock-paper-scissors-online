@@ -14,7 +14,7 @@ type Props = {
 const Player = ({ player, winner }: Props) => {
   const playerWon = useMemo(
     () => winner && winner !== "draw" && player.id === winner.id,
-    [player, winner]
+    [player, winner],
   );
   const winnerCrown = (
     <Zoom in={true}>
@@ -45,18 +45,20 @@ const Player = ({ player, winner }: Props) => {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "primary.main",
+    justifyContent: "flex-start",
+    backgroundColor: "background.paper",
     p: 2,
-    border: "2px solid",
-    borderColor: "primary.dark",
-    borderRadius: 2,
+    boxShadow: 3,
+    borderRadius: 8,
     width: { xs: "150px", sm: "250px" },
-    height: { xs: "100px", sm: "75px" },
+    height: "auto",
+    minHeight: { xs: "80px", sm: "90px" },
+    border: "2px solid transparent",
   };
   const winnerStyles = {
     ...playerStyles,
-    borderColor: "success.light",
+    borderColor: "#4caf50",
+    boxShadow: 6,
   };
 
   return (
@@ -67,36 +69,39 @@ const Player = ({ player, winner }: Props) => {
           <Box
             sx={{
               display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
+              flexDirection: "row",
               alignItems: "center",
+              width: "100%",
+              gap: 2,
             }}
           >
-            <UserAvatar user={player} size={40} />
+            <UserAvatar user={player} size={48} />
             <Stack
               direction="column"
               sx={{
                 display: "flex",
-                alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "center",
               }}
             >
               <Typography
+                variant="subtitle1"
+                fontWeight="bold"
                 sx={{
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-                  maxWidth: "100px",
-                  ml: 1,
+                  maxWidth: { xs: "80px", sm: "140px" },
                 }}
               >
                 {player.name}
               </Typography>
               <Zoom in={true}>
                 <Typography
+                  variant="caption"
+                  color="text.secondary"
                   sx={{
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    maxWidth: "100px",
-                    ml: 1,
                   }}
                 >
                   {player.stats.rating} ⭐

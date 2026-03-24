@@ -4,7 +4,6 @@ import type {
   RoundHistoryType,
 } from "../../../../../../../types";
 import { useEffect, useState, memo, useCallback } from "react";
-import Typography from "@mui/material/Typography";
 import Toggle from "./components/Toggle";
 
 type Props = {
@@ -44,28 +43,30 @@ const RockPaperScissorsToggle = ({
         borderTop: "none",
         zIndex: 1,
         bottom: 0,
-        justifyContent: "space-around",
+        justifyContent: "center",
+        gap: { xs: 2, md: 6 },
         alignItems: "center",
         width: "100%",
-        height: "140px",
+        height: "auto",
+        minHeight: "140px",
         pt: 2,
+        pb: 2,
       }}
     >
-      {!display && (
-        <Typography
-          sx={{
-            position: "absolute",
-            letterSpacing: 3,
-            lineHeight: 1.5,
-            opacity: 0.1,
-            fontWeight: "bold",
-            userSelect: "none",
-          }}
-          fontSize={30}
-        >
-          CONTROLS
-        </Typography>
-      )}
+      {!display &&
+        Array.from({ length: 3 }).map((_, i) => (
+          <Box
+            key={i}
+            sx={{
+              width: { xs: "80px", sm: "120px" },
+              height: { xs: "80px", sm: "120px" },
+              borderRadius: "50%",
+              border: "4px dashed",
+              borderColor: "text.disabled",
+              opacity: 0.2,
+            }}
+          />
+        ))}
       <Toggle
         selectedChoice={selectedChoice}
         handleSelectChoice={handleSelectChoice}

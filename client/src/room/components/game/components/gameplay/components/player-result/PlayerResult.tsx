@@ -6,6 +6,7 @@ import WinCounter from "./components/WinCounter";
 import PreviousMove from "./components/PreviousMove";
 import { useEffect, useMemo, useState } from "react";
 import Zoom from "@mui/material/Zoom";
+import Paper from "@mui/material/Paper";
 
 type Props = {
   elementIndex: number;
@@ -30,18 +31,18 @@ const PlayerResult = ({
     // Return an array of moves corresponding to each round
     () =>
       Array.from({ length: roundQty }, (_, idx) =>
-        playerMoves[idx] ? playerMoves[idx] : { move: "tbd", won: false }
+        playerMoves[idx] ? playerMoves[idx] : { move: "tbd", won: false },
       ),
-    [playerMoves, roundQty]
+    [playerMoves, roundQty],
   );
 
   const winCounter = useMemo(
     // Return an array of booleans corresponding to whether each round was won
     () =>
       Array.from({ length: roundQty }, (_, idx) =>
-        playerMoves[idx] ? playerMoves[idx].won : null
+        playerMoves[idx] ? playerMoves[idx].won : null,
       ),
-    [playerMoves, roundQty]
+    [playerMoves, roundQty],
   );
 
   useEffect(() => {
@@ -56,29 +57,34 @@ const PlayerResult = ({
   }, [playerScore]);
 
   return (
-    <Box
+    <Paper
       className="player-result"
+      elevation={0}
       sx={{
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        backgroundColor: "primary.main",
+        backgroundColor: "transparent",
         height: "100%",
-        width: "100%",
-        p: 2,
+        width: "95%",
+        p: 1,
+        px: 3,
+        borderRadius: 4,
+        border: "1px solid",
+        borderColor: "divider",
       }}
     >
       <Stack direction="row">
         <Typography
           key={playerScore}
-          variant="h3"
+          variant="h2"
           sx={{
             fontWeight: 900,
             textAlign: "center",
             lineHeight: 1,
             userSelect: "none",
-            textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
+            color: "text.primary",
           }}
         >
           {playerScore}
@@ -108,16 +114,18 @@ const PlayerResult = ({
         }}
       >
         <Typography
-          variant="h5"
+          variant="subtitle1"
           component="p"
           sx={{
             textAlign: "center",
             overflow: "hidden",
             textOverflow: "ellipsis",
-            fontWeight: 700,
+            fontWeight: 600,
             width: { xs: "50%" },
             userSelect: "none",
             opacity: playerName ? 1 : 0.4,
+            color: "text.secondary",
+            mb: 1,
           }}
         >
           {playerName ? playerName : "Empty"}
@@ -132,7 +140,7 @@ const PlayerResult = ({
         </Stack>
       </Box>
       <WinCounter winCounter={winCounter} />
-    </Box>
+    </Paper>
   );
 };
 

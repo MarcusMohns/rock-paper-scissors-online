@@ -11,26 +11,30 @@ const EmptyChair = () => {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "primary.main",
+        backgroundColor: "transparent",
         p: 2,
-        border: "2px solid",
-        borderColor: "primary.dark",
-        borderRadius: 2,
+        border: "2px dashed",
+        borderColor: "text.disabled",
+        borderRadius: 8,
         width: { xs: "150px", sm: "250px" },
-        height: { xs: "100px", sm: "75px" },
+        minHeight: { xs: "80px", sm: "90px" },
+        color: "text.disabled",
       }}
     >
       <Fade in={true}>
         <Box
           sx={{
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
             alignItems: "center",
-            height: { xs: "100px", sm: "75px" },
+            justifyContent: "center",
+            gap: 1,
           }}
         >
           <ChairAltIcon fontSize="large" />
-          <Typography>Open</Typography>
+          <Typography variant="caption" fontWeight="bold">
+            OPEN
+          </Typography>
         </Box>
       </Fade>
     </Box>
