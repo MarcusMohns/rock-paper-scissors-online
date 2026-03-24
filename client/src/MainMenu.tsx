@@ -5,6 +5,7 @@ import Stack from "@mui/material/Stack";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import type { ErrorType } from "./types";
 import Fade from "@mui/material/Fade";
+import Paper from "@mui/material/Paper";
 
 type Props = {
   joinRoom: (roomName: string) => Promise<ErrorType | null>;
@@ -23,43 +24,64 @@ const MainMenu = ({ joinRoom, isConnected }: Props) => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
         width: "100%",
-        pt: 25,
-        minHeight: "90vh",
+        minHeight: "calc(100vh - 100px)",
         grow: 1,
+        p: 2,
       }}
     >
       <Fade in timeout={500}>
-        <Box
+        <Paper
+          elevation={3}
           sx={{
-            transform: "translateY(-20px)",
-            transition: "transform 0.5s ease-in-out",
+            p: { xs: 4, md: 8 },
+            borderRadius: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            maxWidth: "600px",
+            width: "100%",
           }}
         >
-          <Typography variant="h2" sx={{ fontWeight: 400 }}>
-            Main Menu
+          <Typography
+            variant="h3"
+            sx={{ fontWeight: 800, mb: 1, letterSpacing: -1 }}
+          >
+            RPS Arena
           </Typography>
-
+          <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 6 }}>
+            Your Rock Paper Scissors battleground
+          </Typography>
           <Stack
             direction="column"
-            spacing={2}
-            sx={{ display: "flex", alignItems: "center", mt: 5 }}
+            spacing={3}
+            sx={{ width: "100%", maxWidth: "300px" }}
           >
             <Button
               onClick={joinLobby}
-              color="info"
-              variant="outlined"
+              color="primary"
+              variant="contained"
               size="large"
               disabled={!isConnected}
               endIcon={<PeopleAltIcon />}
+              fullWidth
+              sx={{ py: 1.5, borderRadius: 2 }}
             >
               Enter Lobby
             </Button>
-            <Button color="info" variant="outlined" size="large" disabled>
-              Matchmaking
+            <Button
+              color="inherit"
+              variant="outlined"
+              size="large"
+              disabled
+              fullWidth
+              sx={{ py: 1.5, borderRadius: 2 }}
+            >
+              Matchmaking (Coming Soon)
             </Button>
           </Stack>
-        </Box>
+        </Paper>
       </Fade>
     </Box>
   );

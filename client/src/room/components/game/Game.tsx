@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
+import Paper from "@mui/material/Paper";
 import Players from "./components/Players";
 import { useEffect } from "react";
 import JoinOrLeaveButton from "./components/join-or-leave-button/JoinOrLeaveButton";
@@ -37,7 +38,8 @@ const Game = ({ gameName, inGame, handleSetInGame }: Props) => {
   }, [game.players, user.id, handleSetInGame]);
 
   return (
-    <Box
+    <Paper
+      elevation={3}
       className="game"
       sx={{
         display: "flex",
@@ -45,27 +47,25 @@ const Game = ({ gameName, inGame, handleSetInGame }: Props) => {
         alignItems: "center",
         width: "100%",
         height: "100%",
-        minHeight: { xs: "100vh", lg: "80vh" },
-        backgroundColor: "background.paper",
-        boxShadow: 3,
-        borderRadius: 1,
+        minHeight: "600px",
+        borderRadius: 4,
+        overflow: "hidden",
       }}
     >
       <Stack
-        className="buttons"
+        className="game-header"
         direction="row"
         sx={{
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           width: "100%",
           flexWrap: "wrap",
-          p: 1,
-          borderBottom: "1px solid",
-          borderColor: "divider",
+          p: 2,
+          backgroundColor: "action.hover",
+          gap: 2,
         }}
-        gap={1}
       >
         <ActionButtons
           gameName={gameName}
@@ -90,6 +90,8 @@ const Game = ({ gameName, inGame, handleSetInGame }: Props) => {
           alignItems: "center",
           width: "100%",
           flexGrow: 1,
+          justifyContent: "center",
+          py: 4,
         }}
       >
         <Players players={game.players} winner={game.state.winner} />
@@ -112,7 +114,7 @@ const Game = ({ gameName, inGame, handleSetInGame }: Props) => {
           severity="warning"
         />
       )}
-    </Box>
+    </Paper>
   );
 };
 

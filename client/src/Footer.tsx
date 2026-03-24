@@ -13,38 +13,32 @@ const Footer = () => {
         flexDirection: { xs: "column", md: "row" },
         alignItems: "center",
         justifyContent: "space-between",
-        height: "100px",
+        minHeight: "80px",
         width: "100%",
         textAlign: { xs: "center", md: "start" },
-        p: 10,
+        px: { xs: 4, md: 10 },
+        py: 4,
         gap: 1,
+        mt: "auto",
       }}
     >
       <Typography
-        variant="subtitle2"
+        variant="caption"
+        color="text.secondary"
         component="p"
         sx={{
-          boxShadow: { xs: 0, sm: 1 },
           width: "max-content",
-          p: { xs: 0, sm: 1 },
-          px: { xs: 0, sm: 2 },
-          borderRadius: 1,
-          backgroundColor: { xs: "none", sm: "background.paper" },
         }}
       >
         Made by @Marcusmohns using SocketIo and React
       </Typography>
 
       <Typography
-        variant="subtitle2"
+        variant="caption"
+        color="text.secondary"
         component="p"
         sx={{
-          boxShadow: { xs: 0, sm: 1 },
           width: "max-content",
-          p: { xs: 0, sm: 1 },
-          px: { xs: 0, sm: 2 },
-          borderRadius: 1,
-          backgroundColor: { xs: "none", sm: "background.paper" },
         }}
       >
         Backgrounds by

@@ -32,35 +32,45 @@ const Toggle = ({
         size="large"
         sx={{
           display: display ? "flex" : "none",
-          width: { xs: "120px", sm: "150px" },
-          px: { xs: 0, sm: 2 },
+          width: { xs: "80px", sm: "120px" },
+          height: { xs: "80px", sm: "120px" },
+          borderRadius: "50%",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           border:
             selectedChoice === value
-              ? "2px solid #666"
+              ? "4px solid #fff"
               : "2px solid transparent",
-          boxShadow: 2,
+          boxShadow: selectedChoice === value ? 6 : 3,
+          transition: "transform 0.1s",
+          "&:active": { transform: "scale(0.95)" },
         }}
       >
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            width: "100%",
+            width: "auto",
             borderRadius: 1,
             justifyContent: "center",
+            mb: 0.5,
           }}
         >
           <img
             src={`/images/icon-${value}.svg`}
             alt={value}
-            width={30}
-            height={30}
+            width={40}
+            height={40}
           />
         </Box>
-        <Typography variant="subtitle2">{value}</Typography>
+        <Typography
+          variant="caption"
+          fontWeight="bold"
+          sx={{ textTransform: "uppercase" }}
+        >
+          {value}
+        </Typography>
       </Button>
     </Zoom>
   );

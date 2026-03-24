@@ -26,7 +26,7 @@ const RockPaperScissorsToggle = ({
       setSelectedChoice(rockPaperOrScissor);
       handleSubmitChoice(rockPaperOrScissor);
     },
-    [handleSubmitChoice]
+    [handleSubmitChoice],
   );
 
   useEffect(() => {
@@ -40,15 +40,15 @@ const RockPaperScissorsToggle = ({
       sx={{
         display: { xs: display ? "flex" : "none", sm: "flex" },
         position: { xs: "fixed", sm: "static" },
-        backgroundColor: { sm: "primary.main", xs: "primary.light" },
-        borderTop: "8px solid",
-        borderColor: "divider",
+        backgroundColor: "transparent",
+        borderTop: "none",
         zIndex: 1,
         bottom: 0,
         justifyContent: "space-around",
         alignItems: "center",
         width: "100%",
-        height: "100px",
+        height: "140px",
+        pt: 2,
       }}
     >
       {!display && (

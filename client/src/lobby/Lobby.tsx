@@ -20,9 +20,9 @@ const Lobby = ({ joinMainMenu, joinRoom, createRoom }: Props) => {
           display: "flex",
           flexDirection: "column",
           height: "100%",
-          width: { xs: "100%", lg: "80%" },
-          pt: 5,
-          mx: { xs: 1, lg: 0 },
+          width: "100%",
+          maxWidth: "1400px",
+          p: { xs: 2, md: 4 },
         }}
         className="lobby"
         component="section"
@@ -34,6 +34,8 @@ const Lobby = ({ joinMainMenu, joinRoom, createRoom }: Props) => {
           size="large"
           sx={{
             width: "max-content",
+            mb: 4,
+            borderRadius: 2,
           }}
           startIcon={<ArrowCircleLeftRoundedIcon />}
         >
@@ -46,8 +48,8 @@ const Lobby = ({ joinMainMenu, joinRoom, createRoom }: Props) => {
             flexDirection: { xs: "column", lg: "row" },
             width: "100%",
             justifyContent: "center",
-            mt: 8,
-            gap: { xs: 2, lg: 20 },
+            gap: { xs: 3, lg: 4 },
+            height: "100%",
           }}
         >
           <LobbyRoomList joinRoom={joinRoom} createRoom={createRoom} />

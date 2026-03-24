@@ -1,6 +1,7 @@
 import type { RoomType, ErrorType } from "../../../types";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
@@ -28,19 +29,22 @@ const LobbyRoom = ({ room, joinRoom }: Props) => {
 
   return (
     <>
-      <Box
+      <Paper
         className="lobby-room"
+        elevation={2}
         sx={{
           p: 2,
-          borderRadius: 2,
-          backgroundColor: "primary.main",
+          borderRadius: 3,
           alignItems: "flex-start",
           display: "flex",
           flexDirection: "column",
-          boxShadow: 1,
+          transition: "transform 0.2s, box-shadow 0.2s",
+          "&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
         }}
       >
-        <Typography variant="h6">{room.name}</Typography>
+        <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+          {room.name}
+        </Typography>
         <Box
           sx={{
             display: "flex",
@@ -73,9 +77,9 @@ const LobbyRoom = ({ room, joinRoom }: Props) => {
           </Box>
           <Button
             onClick={() => handleJoinRoom(room.name)}
-            color="success"
+            color="primary"
             variant="contained"
-            size="large"
+            size="medium"
             disabled={room.users.length >= 10 || error.status}
             endIcon={<PlayCircleFilledIcon />}
             sx={{
@@ -85,7 +89,7 @@ const LobbyRoom = ({ room, joinRoom }: Props) => {
             Join
           </Button>
         </Box>
-      </Box>
+      </Paper>
       <ToastAlert
         open={error.status}
         handleClose={() => handleSetError({ ...error, status: false })}
