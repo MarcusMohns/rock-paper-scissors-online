@@ -182,7 +182,7 @@ export const endRound = (
       `Round ${currRound}: ${round.player1Choice} vs ${round.player2Choice} - ${roundWinner.name} won!`,
     );
 
-    const gameWinner = getWinnerOfGame(rounds, currRound, players);
+    const gameWinner = getWinnerOfGame(rounds, players);
     if (currRound === rounds.length || gameWinner) {
       // If last round, or game has a winner - update combatLog, status and winner
       winner = gameWinner;
@@ -267,11 +267,7 @@ const getWinnerOfRound = (round: RoundType, players: PlayersType) => {
   }
 };
 
-const getWinnerOfGame = (
-  rounds: RoundType[],
-  currRound: number,
-  players: PlayersType,
-) => {
+const getWinnerOfGame = (rounds: RoundType[], players: PlayersType) => {
   // Calculate who won the game
   let player1Score = 0;
   let player2Score = 0;
