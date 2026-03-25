@@ -40,12 +40,12 @@ export const submitChoice = (
   // Prompt socketio with a choice - update local state with response
   const localRoundsState =
     // Check if at least 1 choice has been registered
-    gameState.rounds[gameState.currRound - 1].player1Choice ||
-    gameState.rounds[gameState.currRound - 1].player2Choice
+    gameState.currRound > 0 && gameState.rounds[gameState.currRound - 1]
       ? gameState.rounds
       : null;
 
-  if (!localRoundsState) {
+  if (!localRoundsState || gameState.currRound === 0) {
+    // Added explicit check for currRound
     handleSetError({ status: true, message: "Error - no choice submitted" });
     return;
   }
@@ -112,12 +112,14 @@ export const calculateGameResults = (
       },
       2,
     );
-    // Update scores
-    round.winner !== "draw"
-      ? round.winner.id === players.player1.id
-        ? player1Score++
-        : player2Score++
-      : null;
+    // Update scores only if there's a clear winner for the round
+    if (round.winner !== "draw") {
+      if (round.winner.id === players.player1.id) {
+        player1Score++;
+      } else {
+        player2Score++;
+      }
+    }
   });
 
   return {
@@ -147,7 +149,12 @@ export const endRound = (
   const roundWinner = getWinnerOfRound(round, players);
   if (!round || !roundWinner || roundWinner === "error") return "error";
 
-  let { history, rounds, combatLog, status, winner, currRound } = gameState;
+  // Avoid direct mutation by spreading arrays
+  let history = [...gameState.history];
+  let rounds = [...gameState.rounds];
+  let combatLog = [...gameState.combatLog];
+  let { status, winner, currRound } = gameState;
+
   const match: RoundType = {
     player1Choice: round.player1Choice,
     player2Choice: round.player2Choice,
@@ -157,38 +164,40 @@ export const endRound = (
   // Update history
   history = [...history, match];
 
+  // Create a new object for the current round to avoid mutation
+  const updatedRound = { ...rounds[currRound - 1] };
+
   if (roundWinner === "draw") {
-    // Reset selection and uppdate combatlog only, do not progress to next round.
-    rounds[gameState.currRound - 1].player1Choice = "none";
-    rounds[gameState.currRound - 1].player2Choice = "none";
-    combatLog = [
-      ...gameState.combatLog,
-      `Round ${gameState.currRound}: ${round.player1Choice} vs ${round.player2Choice} - Draw`,
-    ];
+    updatedRound.player1Choice = "none";
+    updatedRound.player2Choice = "none";
+    combatLog.push(
+      `Round ${currRound}: ${round.player1Choice} vs ${round.player2Choice} - Draw`,
+    );
   } else {
-    // Set a winner for the round, determine if theres a winner for the game and the game ends, otherwise progress to next round
-    rounds[gameState.currRound - 1].winner = roundWinner;
-    combatLog = [
-      ...gameState.combatLog,
-      `Round ${gameState.currRound}: ${round.player1Choice} vs ${
-        round.player2Choice
-      } - ${`${roundWinner.name} won!`}`,
-    ];
-    const gameWinner = getWinnerOfGame(rounds, gameState.currRound, players);
-    if (gameState.currRound === gameState.rounds.length || gameWinner) {
+    updatedRound.winner = roundWinner;
+    // Update the rounds array before checking for a game winner
+    rounds[currRound - 1] = updatedRound;
+
+    combatLog.push(
+      `Round ${currRound}: ${round.player1Choice} vs ${round.player2Choice} - ${roundWinner.name} won!`,
+    );
+
+    const gameWinner = getWinnerOfGame(rounds, currRound, players);
+    if (currRound === rounds.length || gameWinner) {
       // If last round, or game has a winner - update combatLog, status and winner
       winner = gameWinner;
       status = "finished";
-      combatLog = [
-        ...combatLog,
-        `Game over! ${
-          gameWinner ? `${gameWinner.name} won the game!` : "It's a draw!"
-        }`,
-      ];
+      combatLog.push(
+        `Game over! ${gameWinner ? `${gameWinner.name} won the game!` : "It's a draw!"}`,
+      );
     } else {
       // Otherwise progress to next round
       currRound++;
     }
+  }
+
+  if (roundWinner === "draw") {
+    rounds[currRound - 1] = updatedRound;
   }
 
   const updatedGameState = {
@@ -264,23 +273,19 @@ const getWinnerOfGame = (
   players: PlayersType,
 ) => {
   // Calculate who won the game
-  if (currRound / rounds.length < 0.5) {
-    // If not enough rounds have been played yet,  no winner
-    return null;
-  }
   let player1Score = 0;
   let player2Score = 0;
-  rounds.forEach((round) => {
-    if (!round.winner || !players || !players.player1 || !players.player2) {
-      return null;
-    }
-    if (round.winner === "draw") return null;
+
+  for (const round of rounds) {
+    if (!round.winner || !players.player1 || !players.player2) continue;
+    if (round.winner === "draw") continue;
+
     if (round.winner.id === players.player1.id) {
       player1Score += 1;
     } else if (round.winner.id === players.player2.id) {
       player2Score += 1;
     }
-  });
+  }
 
   // Determine if there's a winner
   if (player1Score > rounds.length / 2) {
