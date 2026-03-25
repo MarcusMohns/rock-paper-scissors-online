@@ -21,7 +21,7 @@ const Message = ({ chatMessage }: Props) => {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
-    }
+    },
   );
 
   return (
@@ -30,6 +30,7 @@ const Message = ({ chatMessage }: Props) => {
         bgcolor: "primary.main",
         borderRadius: 3,
         my: 1,
+        boxShadow: 1,
       }}
     >
       <ListItemIcon>

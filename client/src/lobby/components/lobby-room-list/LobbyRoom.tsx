@@ -33,6 +33,7 @@ const LobbyRoom = ({ room, joinRoom }: Props) => {
         className="lobby-room"
         elevation={2}
         sx={{
+          bgcolor: "primary.main",
           p: 2,
           borderRadius: 3,
           alignItems: "flex-start",

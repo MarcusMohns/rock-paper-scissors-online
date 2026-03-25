@@ -46,7 +46,7 @@ const Player = ({ player, winner }: Props) => {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
-    backgroundColor: "background.paper",
+    backgroundColor: "primary.main",
     p: 2,
     boxShadow: 3,
     borderRadius: 8,
@@ -71,11 +71,12 @@ const Player = ({ player, winner }: Props) => {
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
+              justifyContent: "center",
               width: "100%",
-              gap: 2,
+              gap: 1,
             }}
           >
-            <UserAvatar user={player} size={48} />
+            <UserAvatar user={player} size={36} />
             <Stack
               direction="column"
               sx={{

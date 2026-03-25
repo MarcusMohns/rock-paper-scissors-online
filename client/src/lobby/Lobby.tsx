@@ -21,17 +21,16 @@ const Lobby = ({ joinMainMenu, joinRoom, createRoom }: Props) => {
           flexDirection: "column",
           height: "100%",
           width: "100%",
-          maxWidth: "1400px",
-          p: { xs: 2, md: 4 },
+          maxWidth: "80%",
+          p: { xs: 2 },
         }}
         className="lobby"
         component="section"
       >
         <Button
           onClick={joinMainMenu}
-          color="secondary"
-          variant="contained"
-          size="large"
+          color="info"
+          variant="outlined"
           sx={{
             width: "max-content",
             mb: 4,
@@ -39,7 +38,7 @@ const Lobby = ({ joinMainMenu, joinRoom, createRoom }: Props) => {
           }}
           startIcon={<ArrowCircleLeftRoundedIcon />}
         >
-          Back to Menu
+          Back to Main Menu
         </Button>
         <Box
           className="lobby-content"

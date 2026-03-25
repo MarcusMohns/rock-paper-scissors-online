@@ -45,12 +45,27 @@ const UserSettingsDrawer = () => {
         onClick={() => setOpen(true)}
         sx={{
           textTransform: "none",
+          borderRadius: 20,
+          padding: "4px 6px 4px 16px",
+          bgcolor: "primary.dark",
+          width: "max-content",
+          m: 2,
+          ml: "auto",
+          color: "text.primary",
+          border: "1px solid transparent",
+          transition: "all 0.2s",
+          "&:hover": {
+            border: "1px solid",
+            borderColor: "divider",
+            backgroundColor: "action.hover",
+          },
         }}
       >
         <Typography
-          variant="h5"
+          variant="subtitle1"
+          fontWeight="bold"
           sx={{
-            mr: 0.5,
+            mr: 0.3,
             overflow: "hidden",
             textOverflow: "ellipsis",
             maxWidth: { xs: "100px", sm: "300px" },
@@ -58,8 +73,15 @@ const UserSettingsDrawer = () => {
         >
           {user.name}
         </Typography>
-
-        <Avatar sx={{ bgcolor: user.color, color: "primary.contrastText" }}>
+        <Avatar
+          sx={{
+            bgcolor: user.color,
+            color: "primary.contrastText",
+            width: 32,
+            height: 32,
+            fontSize: "1rem",
+          }}
+        >
           {user.name[0]}
         </Avatar>
       </Button>

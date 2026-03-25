@@ -52,7 +52,6 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
         color="success"
         variant="contained"
         sx={{ mt: "auto", ml: "auto", width: "max-content" }}
-        size="large"
         endIcon={<AddCircleRoundedIcon />}
       >
         Create Room

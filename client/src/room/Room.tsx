@@ -46,14 +46,16 @@ const Room = ({ roomName, joinRoom }: Props) => {
           sx={{
             display: "flex",
             flexDirection: "column",
+            mb: 2,
+            width: "max-content",
+            alignItems: "center",
           }}
         >
           <Button
             onClick={backToLobby}
-            color="secondary"
-            variant="contained"
+            color="info"
+            variant="outlined"
             disabled={inGame}
-            size="large"
             sx={{
               width: "max-content",
               ml: { xs: 2, xl: 0 },
@@ -67,7 +69,6 @@ const Room = ({ roomName, joinRoom }: Props) => {
             color="error"
             sx={{
               minHeight: "35px",
-              ml: { xs: 9, xl: 7 },
             }}
           >
             {inGame && "In game"}

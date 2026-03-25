@@ -65,7 +65,7 @@ const PlayerResult = ({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        backgroundColor: "transparent",
+        backgroundColor: "primary.main",
         height: "100%",
         width: "95%",
         p: 1,
@@ -78,7 +78,7 @@ const PlayerResult = ({
       <Stack direction="row">
         <Typography
           key={playerScore}
-          variant="h2"
+          variant="h3"
           sx={{
             fontWeight: 900,
             textAlign: "center",
@@ -125,7 +125,6 @@ const PlayerResult = ({
             userSelect: "none",
             opacity: playerName ? 1 : 0.4,
             color: "text.secondary",
-            mb: 1,
           }}
         >
           {playerName ? playerName : "Empty"}

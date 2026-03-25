@@ -31,7 +31,7 @@ const EmptyChair = () => {
             gap: 1,
           }}
         >
-          <ChairAltIcon fontSize="large" />
+          <ChairAltIcon fontSize="medium" />
           <Typography variant="caption" fontWeight="bold">
             OPEN
           </Typography>

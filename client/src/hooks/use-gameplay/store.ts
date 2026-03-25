@@ -15,7 +15,7 @@ export const startGame = (
   gameName: string,
   handleSetGameState: (gameState: GameStateType) => void,
   handleSetPlayerReady: () => void,
-  handleSetError: (error: ErrorType) => void
+  handleSetError: (error: ErrorType) => void,
 ) => {
   // Prompt socketio to start the game and fetch the gamestate - update local state with response and ready up
   gamesSocket.emit("startGame", gameName, (response: GameStateResponseType) => {
@@ -35,7 +35,7 @@ export const submitChoice = (
   selected: string | null,
   user: UserType,
   handleSetGameState: (gameState: GameStateType) => void,
-  handleSetError: (error: ErrorType) => void
+  handleSetError: (error: ErrorType) => void,
 ) => {
   // Prompt socketio with a choice - update local state with response
   const localRoundsState =
@@ -66,13 +66,13 @@ export const submitChoice = (
       } else {
         handleSetError({ status: true, message: response.status });
       }
-    }
+    },
   );
 };
 
 export const calculateGameResults = (
   rounds: RoundType[],
-  players: PlayersType
+  players: PlayersType,
 ) => {
   // Calculate results of a game and return object with scores and moves
   let player1Score = 0;
@@ -81,7 +81,11 @@ export const calculateGameResults = (
   let player2Moves: MoveType[] = [];
 
   const updatePlayerMoves = (move: MoveType, playerNum: number) => {
-    playerNum === 1 ? [...player1Moves, move] : [...player2Moves, move];
+    if (playerNum === 1) {
+      player1Moves.push(move);
+    } else {
+      player2Moves.push(move);
+    }
   };
 
   rounds.forEach((round) => {
@@ -89,6 +93,7 @@ export const calculateGameResults = (
     if (!round.winner || !players.player1 || !players.player2) {
       return;
     }
+
     // Update player1 Moves
     updatePlayerMoves(
       {
@@ -96,7 +101,7 @@ export const calculateGameResults = (
         // Check if the player won - if draw return false
         won: round.winner !== "draw" && round.winner.id === players.player1.id,
       },
-      1
+      1,
     );
     // Update player2 Moves
     updatePlayerMoves(
@@ -105,13 +110,14 @@ export const calculateGameResults = (
         // Check if the player won - if draw return false
         won: round.winner !== "draw" && round.winner.id === players.player2.id,
       },
-      2
+      2,
     );
     // Update scores
-    round.winner !== "draw" && round.winner.id === players.player1.id
-      ? // Skip updating if its a draw
-        player1Score++
-      : player2Score++;
+    round.winner !== "draw"
+      ? round.winner.id === players.player1.id
+        ? player1Score++
+        : player2Score++
+      : null;
   });
 
   return {
@@ -127,12 +133,12 @@ export const endRound = (
   gameState: GameStateType,
   handleEndGame: (
     outcome: "win" | "loss" | "draw",
-    game: GameStateType
+    game: GameStateType,
   ) => void,
   handleShowIngameCountdown: (bool: boolean) => void,
   handleSetGameState: (gameState: GameStateType) => void,
   handleSetPlayerReady: () => void,
-  handleSetError: (error: ErrorType) => void
+  handleSetError: (error: ErrorType) => void,
 ) => {
   // Calculate results and update game state and determine if game is over
   // Called by both players at the end of a round
@@ -211,8 +217,8 @@ export const endRound = (
             response.gameState.winner === null
               ? "draw"
               : response.gameState.winner.id === userId
-              ? "win"
-              : "loss";
+                ? "win"
+                : "loss";
           handleEndGame(outcome, response.gameState);
         } else {
           // If game is not finished - ready up for the next round and update gamestate
@@ -222,7 +228,7 @@ export const endRound = (
       } else {
         handleSetError({ status: true, message: response.status });
       }
-    }
+    },
   );
 };
 
@@ -255,7 +261,7 @@ const getWinnerOfRound = (round: RoundType, players: PlayersType) => {
 const getWinnerOfGame = (
   rounds: RoundType[],
   currRound: number,
-  players: PlayersType
+  players: PlayersType,
 ) => {
   // Calculate who won the game
   if (currRound / rounds.length < 0.5) {

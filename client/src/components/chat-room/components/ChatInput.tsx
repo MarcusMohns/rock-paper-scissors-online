@@ -51,13 +51,24 @@ const ChatInput = ({ roomName }: Props) => {
           setIsLoading(false);
           handleSetError({ status: true, message: response.status });
         }
-      }
+      },
     );
     setValue("");
   }
 
   return (
-    <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: "auto" }}>
+    <Box
+      component="form"
+      onSubmit={onSubmit}
+      noValidate
+      sx={{
+        mt: "auto",
+        border: "1px solid",
+        borderColor: "#8d8d8d46",
+        borderRadius: 5,
+        p: 1,
+      }}
+    >
       <Input
         spellCheck="false"
         type="text"

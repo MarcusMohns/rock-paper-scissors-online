@@ -32,8 +32,8 @@ const Toggle = ({
         size="large"
         sx={{
           display: display ? "flex" : "none",
-          width: { xs: "80px", sm: "120px" },
-          height: { xs: "80px", sm: "120px" },
+          width: { xs: "80px", sm: "100px" },
+          height: { xs: "80px", sm: "100px" },
           borderRadius: "50%",
           flexDirection: "column",
           alignItems: "center",

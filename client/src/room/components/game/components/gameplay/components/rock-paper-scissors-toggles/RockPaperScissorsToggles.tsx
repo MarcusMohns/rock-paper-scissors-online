@@ -58,8 +58,8 @@ const RockPaperScissorsToggle = ({
           <Box
             key={i}
             sx={{
-              width: { xs: "80px", sm: "120px" },
-              height: { xs: "80px", sm: "120px" },
+              width: { xs: "80px", sm: "100px" },
+              height: { xs: "80px", sm: "100px" },
               borderRadius: "50%",
               border: "4px dashed",
               borderColor: "text.disabled",

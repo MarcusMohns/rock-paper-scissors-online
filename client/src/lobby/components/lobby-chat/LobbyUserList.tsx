@@ -1,12 +1,13 @@
 import UserList from "../../../components/UserList";
-import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import useUserList from "../../../hooks/useUserList";
 
 const LobbyUserList = () => {
   const { userList } = useUserList({ roomName: "lobby" });
   return (
-    <Box
+    <Paper
+      elevation={0}
       className="lobby-user-list"
       sx={{
         display: "flex",
@@ -19,14 +20,14 @@ const LobbyUserList = () => {
         ml: { xs: 0, lg: 2 },
         mt: { xs: 2, lg: 0 },
         borderTop: { xs: "1px solid", lg: "none" },
-        backgroundColor: { xs: "background.paper", lg: "primary.main" },
+        bgcolor: "primary.main",
       }}
     >
       <Typography variant="h6" sx={{ fontWeight: 700, mt: { xs: 2, lg: 1 } }}>
         Users
       </Typography>
       <UserList userList={userList} />
-    </Box>
+    </Paper>
   );
 };
 
