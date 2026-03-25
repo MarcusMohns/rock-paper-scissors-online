@@ -37,10 +37,10 @@ const StartGameButton = ({ gameName, handleStartGame }: Props) => {
           } else {
             handleSetError({ status: true, message: response.status });
           }
-        }
+        },
       );
     },
-    [handleSetError, startCountdownHandler]
+    [handleSetError, startCountdownHandler],
   );
 
   useEffect(() => {
@@ -71,8 +71,22 @@ const StartGameButton = ({ gameName, handleStartGame }: Props) => {
               color="success"
               onClick={() => startGameCountdown(gameName)}
               endIcon={<PlayArrowIcon />}
-              size="large"
               disabled={error.status}
+              sx={{
+                px: 6,
+                py: 2,
+                fontSize: "1.2rem",
+                fontWeight: 900,
+                borderRadius: 4,
+                boxShadow: 6,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                  boxShadow: 10,
+                },
+              }}
             >
               Start Game
             </Button>

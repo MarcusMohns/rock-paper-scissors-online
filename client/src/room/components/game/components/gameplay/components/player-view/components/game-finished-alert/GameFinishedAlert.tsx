@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import { alpha } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useState } from "react";
@@ -19,10 +20,13 @@ const GameFinishedAlert = ({ gameState, userId, userRating }: Props) => {
   const winnerId =
     gameState.winner && gameState.winner !== "draw" ? gameState.winner.id : 0;
   const [open, setOpen] = useState(true);
-  const oldRating =
-    gameState.winner === "draw"
-      ? userRating
-      : userId === winnerId
+
+  const isWinner = gameState.winner !== "draw" && userId === winnerId;
+  const isDraw = gameState.winner === "draw";
+
+  const oldRating = isDraw
+    ? userRating
+    : isWinner
       ? userRating - 25
       : userRating + 25;
   const handleClose = () => setOpen(false);
@@ -36,6 +40,10 @@ const GameFinishedAlert = ({ gameState, userId, userRating }: Props) => {
       aria-describedby="Game-finished-alert-description"
       slotProps={{
         backdrop: {
+          sx: {
+            backdropFilter: "blur(8px)",
+            backgroundColor: "rgba(0,0,0,0.7)",
+          },
           timeout: 1000,
         },
       }}
@@ -57,11 +65,19 @@ const GameFinishedAlert = ({ gameState, userId, userRating }: Props) => {
         >
           <Box
             sx={{
-              p: 2,
+              p: 5,
               bgcolor: "background.paper",
-              boxShadow: 2,
-              borderRadius: 2,
+              boxShadow: 24,
+              borderRadius: 4,
               maxHeight: "80vh",
+              border: "1px solid",
+              borderColor: "divider",
+              borderTop: "8px solid",
+              borderTopColor: isDraw
+                ? "info.main"
+                : isWinner
+                  ? "success.main"
+                  : "error.main",
               overflowY: "auto",
             }}
           >
@@ -79,23 +95,31 @@ const GameFinishedAlert = ({ gameState, userId, userRating }: Props) => {
                 variant="h4"
                 component="h2"
                 sx={{
+                  fontWeight: 900,
                   textTransform: "uppercase",
+                  fontSize: "2.5rem",
+                  letterSpacing: 2,
+                  color: isDraw
+                    ? "info.main"
+                    : isWinner
+                      ? "success.main"
+                      : "error.main",
                 }}
               >
-                {gameState.winner === "draw"
-                  ? "Draw!"
-                  : gameState.winner.id === userId
-                  ? "Victory"
-                  : "Defeat"}
+                {isDraw ? "Draw!" : isWinner ? "Victory" : "Defeat"}
               </Typography>
-              <Button onClick={handleClose} color="info">
+              <Button
+                onClick={handleClose}
+                color="inherit"
+                sx={{ minWidth: "auto" }}
+              >
                 <CloseIcon />
               </Button>
             </Stack>
             {gameState.winner === "draw" ? (
               <Typography
                 id="modal-modal-description"
-                sx={{ mt: 2 }}
+                sx={{ mt: 2, textAlign: "center", color: "text.secondary" }}
                 variant="h6"
               >
                 The game has ended in a draw
@@ -107,13 +131,12 @@ const GameFinishedAlert = ({ gameState, userId, userRating }: Props) => {
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontFamily: "monospace",
                 }}
               >
                 <Typography
                   id="modal-modal-description"
                   sx={{ mt: 2 }}
-                  variant="h6"
+                  variant="subtitle1"
                 >
                   The game has ended.
                   <Zoom
@@ -122,10 +145,18 @@ const GameFinishedAlert = ({ gameState, userId, userRating }: Props) => {
                       transitionDelay: "1000ms",
                     }}
                   >
-                    <Box component="span" sx={{ fontWeight: "bold" }}>
+                    <Box
+                      component="span"
+                      sx={{
+                        fontWeight: 900,
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1,
+                        color: isWinner ? "success.main" : "error.main",
+                      }}
+                    >
                       {" "}
-                      You{" "}
-                      {gameState.winner.id === userId ? "won ✨" : "lost 💀"}
+                      You {isWinner ? "won ✨" : "lost 💀"}
                     </Box>
                   </Zoom>
                 </Typography>
@@ -133,13 +164,15 @@ const GameFinishedAlert = ({ gameState, userId, userRating }: Props) => {
                   sx={{
                     display: "flex",
                     flexDirection: "column",
-                    alignItems: "flex-start",
-                    width: "80%",
-                    py: 4,
+                    alignItems: "center",
+                    width: "100%",
+                    pt: 2,
+                    pb: 4,
+                    gap: 3,
                   }}
                 >
                   <RatingProgressBar
-                    winner={gameState.winner.id === userId}
+                    winner={isDraw ? "draw" : isWinner}
                     oldRating={oldRating}
                     newRating={userRating}
                   />

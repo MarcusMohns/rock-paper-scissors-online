@@ -1,4 +1,5 @@
 import Typography from "@mui/material/Typography";
+import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Zoom from "@mui/material/Zoom";
 import Stack from "@mui/material/Stack";
@@ -18,18 +19,15 @@ const RoundResults = ({ history, userId }: Props) => {
     );
 
   return (
-    <Box>
-      <Typography fontSize={16} fontWeight={700}>
-        Round Results
-      </Typography>
+    <Box sx={{ width: "100%" }}>
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
-          px: 2,
           flexWrap: "wrap",
-          alignSelf: "center",
-          justifyContent: "flex-start",
+          justifyContent: "center",
+          gap: 1.5,
+          width: "100%",
         }}
       >
         {history.map((round, index) => {
@@ -41,25 +39,45 @@ const RoundResults = ({ history, userId }: Props) => {
                 transitionDelay: `${1500 + 400 * index}ms`,
               }}
             >
-              <Box key={index}>
-                <Typography variant="overline">Round {index + 1}</Typography>
+              <Box
+                key={index}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 800,
+                    color: "text.disabled",
+                    mb: 0.5,
+                  }}
+                >
+                  ROUND {index + 1}
+                </Typography>
                 <Box
                   sx={{
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
-                    border: "2px solid",
-                    borderColor:
+                    bgcolor: (theme) =>
                       round.winner === "draw"
-                        ? "info.light"
+                        ? alpha(theme.palette.info.main, 0.1)
                         : round.winner && round.winner.id === userId
-                        ? "success.dark"
-                        : "error.dark",
-                    borderRadius: "5px",
-                    boxShadow: 2,
+                          ? alpha(theme.palette.success.main, 0.15)
+                          : alpha(theme.palette.error.main, 0.15),
+                    border: "1px solid",
+                    borderColor: (theme) =>
+                      round.winner === "draw"
+                        ? theme.palette.info.main
+                        : round.winner && round.winner.id === userId
+                          ? theme.palette.success.main
+                          : theme.palette.error.main,
+                    borderRadius: 2,
                     p: 1,
-                    mx: 1,
                   }}
                 >
                   <Stack
@@ -70,17 +88,27 @@ const RoundResults = ({ history, userId }: Props) => {
                     }}
                   >
                     <img
-                      src={`images/icon-${round.player1Choice}.svg`}
+                      src={`/images/icon-${round.player1Choice}.svg`}
                       alt={round.player1Choice}
-                      height={"40px"}
-                      width={"40px"}
+                      height={"32px"}
+                      width={"32px"}
                     />
-                    vs
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        mx: 1,
+                        fontWeight: 900,
+                        color: "text.disabled",
+                        fontSize: "0.65rem",
+                      }}
+                    >
+                      VS
+                    </Typography>
                     <img
-                      src={`images/icon-${round.player2Choice}.svg`}
+                      src={`/images/icon-${round.player2Choice}.svg`}
                       alt={round.player2Choice}
-                      height={"40px"}
-                      width={"40px"}
+                      height={"32px"}
+                      width={"32px"}
                     />
                   </Stack>
                 </Box>

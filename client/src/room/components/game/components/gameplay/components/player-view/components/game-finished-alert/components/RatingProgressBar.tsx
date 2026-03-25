@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import LinearProgress from "@mui/material/LinearProgress";
@@ -12,6 +13,7 @@ type Props = {
 
 const RatingProgressBar = ({ winner, oldRating, newRating }: Props) => {
   const [rating, setRating] = useState(oldRating);
+  const diff = newRating - oldRating;
 
   useEffect(() => {
     // Update rating slowly
@@ -52,21 +54,40 @@ const RatingProgressBar = ({ winner, oldRating, newRating }: Props) => {
       >
         {`Rating: ${rating}`}
       </Typography>
-      <Typography fontSize={16} fontWeight={700}>
-        Rating Change:
-      </Typography>
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           flexDirection: "column",
-          width: "75%",
+          width: "80%",
           mx: "auto",
         }}
       >
         <Zoom in={true} style={{ transitionDelay: "1000ms" }}>
-          <Typography fontSize={14}>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 900, mb: 2, textAlign: "center" }}
+          >
             {oldRating} → {newRating}
+            <Box
+              component="span"
+              sx={{
+                ml: 2,
+                fontSize: "1.2rem",
+                verticalAlign: "middle",
+                p: 0.5,
+                borderRadius: 1,
+                bgcolor: alpha(diff >= 0 ? "#4caf50" : "#f44336", 0.1),
+                color:
+                  diff > 0
+                    ? "success.main"
+                    : diff < 0
+                      ? "error.main"
+                      : "info.main",
+              }}
+            >
+              ({diff >= 0 ? `+${diff}` : diff})
+            </Box>
           </Typography>
         </Zoom>
         <Box
@@ -77,15 +98,35 @@ const RatingProgressBar = ({ winner, oldRating, newRating }: Props) => {
             width: "100%",
           }}
         >
-          <Typography variant="overline">0</Typography>
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: "bold", color: "text.disabled" }}
+          >
+            0
+          </Typography>
           <LinearProgress
             variant="determinate"
             value={pct}
-            sx={{ width: "100%", p: 1, mx: 1, boxShadow: 1, borderRadius: 1 }}
+            sx={{
+              width: "100%",
+              height: 14,
+              mx: 2,
+              borderRadius: 7,
+              "& .MuiLinearProgress-bar": {
+                borderRadius: 7,
+                boxShadow: (theme) =>
+                  `0 0 10px ${winner === "draw" ? theme.palette.info.main : winner ? theme.palette.success.main : theme.palette.error.main}`,
+              },
+            }}
             aria-label={`Rating progress: ${Math.round(pct)} percent`}
             color={winner === "draw" ? "info" : winner ? "success" : "error"}
           />
-          <Typography variant="overline">2000</Typography>
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: "bold", color: "text.disabled" }}
+          >
+            2000
+          </Typography>
         </Box>
       </Box>
     </Box>

@@ -1,5 +1,6 @@
 import Button from "@mui/material/Button";
 import { useState, useEffect, useCallback } from "react";
+import { alpha } from "@mui/material/styles";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
@@ -41,8 +42,8 @@ const StartGameCountdown = ({
     const worker = new Worker(
       new URL(
         "../../../../../../../../../../workers/countdownWorker.ts",
-        import.meta.url
-      )
+        import.meta.url,
+      ),
     );
     worker.postMessage({
       progress: TOTAL_PROGRESS,
@@ -78,8 +79,17 @@ const StartGameCountdown = ({
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 1,
-          minHeight: "150px",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 4,
+          borderRadius: 4,
+          bgcolor: (theme) => alpha(theme.palette.background.paper, 0.6),
+          backdropFilter: "blur(10px)",
+          border: "1px solid",
+          borderColor: "divider",
+          boxShadow: 12,
+          minWidth: "220px",
+          gap: 3,
         }}
       >
         <Box
@@ -87,6 +97,8 @@ const StartGameCountdown = ({
             position: "relative",
             display: "flex",
             flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <CircularProgress
@@ -95,7 +107,11 @@ const StartGameCountdown = ({
               progress >= 80 ? "error" : progress >= 40 ? "warning" : "success"
             }
             value={progress}
-            size={100}
+            size={120}
+            thickness={5}
+            sx={{
+              filter: "drop-shadow(0 0 8px rgba(0,0,0,0.2))",
+            }}
           />
           <Box
             sx={{
@@ -105,7 +121,15 @@ const StartGameCountdown = ({
               transform: "translate(-50%, -50%)",
             }}
           >
-            <Typography variant="h4">{progress / PROGRESS_STEP}</Typography>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 900,
+                fontFamily: "monospace",
+              }}
+            >
+              {progress / PROGRESS_STEP}
+            </Typography>
           </Box>
         </Box>
         <Zoom in={true} timeout={500}>
@@ -114,6 +138,12 @@ const StartGameCountdown = ({
             color="error"
             onClick={cancelCountdown}
             disabled={progress < PROGRESS_STEP * 2}
+            sx={{
+              fontWeight: "bold",
+              borderRadius: 2,
+              px: 3,
+              textTransform: "none",
+            }}
           >
             Cancel
           </Button>
