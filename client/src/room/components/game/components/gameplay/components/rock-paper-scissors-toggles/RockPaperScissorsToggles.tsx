@@ -39,8 +39,8 @@ const RockPaperScissorsToggle = ({
       sx={{
         display: { xs: display ? "flex" : "none", sm: "flex" },
         position: { xs: "fixed", sm: "static" },
-        backgroundColor: "transparent",
-        borderTop: "none",
+        backgroundColor: { xs: "background.paper", sm: "transparent" },
+        borderTop: { xs: "1px solid", sm: "none" },
         zIndex: 1,
         bottom: 0,
         justifyContent: "center",

@@ -30,31 +30,50 @@ const Move = ({ playerChoice, player, delay }: Props) => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "primary.main",
-          borderRadius: 2,
-          boxShadow: 2,
-          minWidth: "150px",
+          backgroundColor: "background.paper",
+          borderRadius: 4,
+          boxShadow: 4,
+          minWidth: "160px",
+          p: 2,
+          border: "2px solid",
+          borderColor: "divider",
         }}
       >
         <Typography
-          variant="overline"
+          variant="subtitle2"
           sx={{
             overflow: "hidden",
             textOverflow: "ellipsis",
             maxWidth: "120px",
+            fontWeight: "bold",
+            color: "text.secondary",
+            textTransform: "uppercase",
+            letterSpacing: 1,
           }}
         >
-          {player.name}
+          {safeChoice}
         </Typography>
-        <img
-          src={`/images/icon-${safeChoice}.svg`}
-          alt={`${player.name} chose ${safeChoice}`} // More descriptive
-          width={50}
-          height={50}
-          role="img"
-          aria-label={`${player.name}'s choice: ${safeChoice}`}
-        />
-        <Typography variant="overline">{safeChoice}</Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "action.hover",
+            borderRadius: "50%",
+            width: 56,
+            height: 56,
+            boxShadow: "inset 0px 2px 4px rgba(0,0,0,0.1)",
+          }}
+        >
+          <img
+            src={`/images/icon-${safeChoice}.svg`}
+            alt={`${player.name} chose ${safeChoice}`}
+            width={36}
+            height={36}
+            role="img"
+            aria-label={`${player.name}'s choice: ${safeChoice}`}
+          />
+        </Box>
       </Box>
     </Zoom>
   );

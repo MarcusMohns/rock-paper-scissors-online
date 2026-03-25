@@ -13,36 +13,47 @@ const PreviousMove = ({ playerMove }: Props) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: "50%",
-        width: "30px",
-        height: "30px",
-        fontSize: "2rem",
+        width: 28,
+        height: 28,
+        fontSize: "1rem",
+        fontWeight: "bold",
+        color: "text.disabled",
       }}
     >
       ?
     </Box>
   );
+
   const safeMove = allowedMoves.includes(playerMove.move)
     ? playerMove.move
     : false;
   if (!safeMove) return null;
-  // Defends against path traversal attacks
 
   return (
     <Box
       sx={{
-        p: 0.5,
+        width: 40,
+        height: 40,
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         borderRadius: "50%",
-        border: playerMove.won ? "2px solid" : "2px solid transparent",
-        borderColor: playerMove.won
-          ? "success.dark"
-          : playerMove.move === "tbd"
-            ? "info.dark"
-            : "error.main",
+        border: "2px solid",
+        boxShadow: playerMove.move !== "tbd" ? 1 : 0,
+        transition: "all 0.2s ease-in-out",
+        backgroundColor:
+          playerMove.move === "tbd"
+            ? "action.hover"
+            : playerMove.won
+              ? "success.light"
+              : "error.light",
+        borderColor:
+          playerMove.move === "tbd"
+            ? "text.disabled"
+            : playerMove.won
+              ? "success.main"
+              : "error.main",
+        borderStyle: playerMove.move === "tbd" ? "dashed" : "solid",
       }}
     >
       {safeMove === "tbd" ? (
@@ -51,8 +62,8 @@ const PreviousMove = ({ playerMove }: Props) => {
         <img
           src={`/images/icon-${safeMove}.svg`}
           alt={safeMove}
-          width={30}
-          height={30}
+          width={24}
+          height={24}
         />
       )}
     </Box>

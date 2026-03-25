@@ -48,7 +48,10 @@ const Countdown = ({ handleEndRound }: Props) => {
     // Utilize a worker to handle the countdown logic
     // This is necessary because some browsers suspend the main thread when the tab is inactive
     const worker = new Worker(
-      new URL("../../../../../../../../workers/timerWorker.ts", import.meta.url)
+      new URL(
+        "../../../../../../../../workers/timerWorker.ts",
+        import.meta.url,
+      ),
     );
 
     worker.postMessage({
@@ -72,35 +75,62 @@ const Countdown = ({ handleEndRound }: Props) => {
       <Box
         sx={{
           width: "100%",
-          minWidth: "250px",
-          borderRadius: 2,
-          mt: 2,
-          p: 1,
+          maxWidth: "400px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          my: 4,
         }}
       >
-        <Box sx={{ my: 1, width: "100%", textAlign: "center" }}>
+        <Box
+          sx={{
+            height: 80,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 2,
+          }}
+        >
           <Zoom in key={word} timeout={400}>
-            <Typography variant="h4" key={word}>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: 4,
+                color:
+                  progress > 60
+                    ? "info.main"
+                    : progress > 40
+                      ? "success.main"
+                      : progress > 20
+                        ? "warning.main"
+                        : "error.main",
+                textShadow: "2px 2px 0px rgba(0,0,0,0.1)",
+              }}
+            >
               {word}
             </Typography>
           </Zoom>
         </Box>
         <LinearProgress
           sx={{
-            p: 0.5,
-            width: "75%",
-            mx: "auto",
+            width: "100%",
+            height: 12,
+            borderRadius: 6,
+            backgroundColor: "action.hover",
           }}
           variant="determinate"
           value={progress}
           color={
             progress > 60
-              ? "primary"
+              ? "info"
               : progress > 40
-              ? "success"
-              : progress > 20
-              ? "warning"
-              : "error"
+                ? "success"
+                : progress > 20
+                  ? "warning"
+                  : "error"
           }
         />
       </Box>

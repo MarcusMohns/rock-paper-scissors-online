@@ -25,8 +25,8 @@ const UserSettingsDrawer = () => {
     stats: user.stats,
   });
 
-  const handleSetUserMenuState = useCallback((user: UserType) => {
-    setUserMenuState(user);
+  const handleSetUserMenuState = useCallback((update: Partial<UserType>) => {
+    setUserMenuState((prev) => ({ ...prev, ...update }));
   }, []);
 
   const saveSettings = () => {
@@ -133,12 +133,7 @@ const UserSettingsDrawer = () => {
             label="Name"
             color="info"
             value={userMenuState.name}
-            onChange={(e) =>
-              handleSetUserMenuState({
-                ...userMenuState,
-                name: e.target.value.trim(),
-              })
-            }
+            onChange={(e) => handleSetUserMenuState({ name: e.target.value })}
             spellCheck={false}
           />
           <Box>
@@ -155,10 +150,8 @@ const UserSettingsDrawer = () => {
               value={userMenuState.themePreference}
               exclusive
               onChange={(_, newThemePreference) =>
-                handleSetUserMenuState({
-                  ...userMenuState,
-                  themePreference: newThemePreference,
-                })
+                newThemePreference &&
+                handleSetUserMenuState({ themePreference: newThemePreference })
               }
               aria-label="Theme"
             >
