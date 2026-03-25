@@ -33,7 +33,7 @@ const Chat = ({ chat }: Props) => {
       <TransitionGroup>
         {chat.map((chatMessage, index) => (
           <Grow in key={index}>
-            <Box sx={{ width: "100%" }}>
+            <Box sx={{ width: "100%", px: 1 }}>
               <Message chatMessage={chatMessage} />
             </Box>
           </Grow>

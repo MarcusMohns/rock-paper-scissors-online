@@ -27,10 +27,10 @@ const Message = ({ chatMessage }: Props) => {
   return (
     <ListItem
       sx={{
-        bgcolor: "primary.main",
+        bgcolor: "primary.light",
         borderRadius: 3,
-        my: 1,
-        boxShadow: 1,
+        boxShadow: 5,
+        mb: 1,
       }}
     >
       <ListItemIcon>

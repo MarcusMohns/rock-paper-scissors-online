@@ -55,9 +55,9 @@ export default function App() {
             bgcolor: "background.default",
             backgroundImage: `
               radial-gradient(at 10% 10%, ${alpha(theme.palette.primary.main, 0.05)} 0px, transparent 55%),
-              radial-gradient(at 90% 10%, ${alpha(theme.palette.secondary.main, 0.35)} 0px, transparent 55%),
-              radial-gradient(at 90% 90%, ${alpha(theme.palette.info.main, 0.25)} 0px, transparent 55%),
-              radial-gradient(at 10% 90%, ${alpha(theme.palette.success.main, 0.3)} 0px, transparent 55%)
+              radial-gradient(at 90% 10%, ${alpha(theme.palette.secondary.main, 0.25)} 0px, transparent 55%),
+              radial-gradient(at 90% 90%, ${alpha(theme.palette.info.main, 0.15)} 0px, transparent 55%),
+              radial-gradient(at 10% 90%, ${alpha(theme.palette.success.main, 0.25)} 0px, transparent 55%)
             `,
           })}
         >

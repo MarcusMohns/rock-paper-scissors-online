@@ -9,7 +9,7 @@ const LobbyChat = () => {
   return (
     <Paper
       className="lobby-chat"
-      elevation={1}
+      elevation={3}
       sx={{
         display: "flex",
         flexDirection: { xs: "column", lg: "row" },
