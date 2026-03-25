@@ -1,4 +1,5 @@
 import List from "@mui/material/List";
+import { alpha } from "@mui/material/styles";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -13,13 +14,23 @@ type Props = {
 };
 const UserList = ({ userList }: Props) => {
   return (
-    <List className="user-list" component="div">
+    <List className="user-list" component="div" sx={{ py: 1 }}>
       {userList.length === 0 && <ListItem>No users</ListItem>}
       <TransitionGroup>
         {userList.map((user) => {
           return (
             <Zoom key={user.id}>
-              <ListItem>
+              <ListItem
+                sx={{
+                  borderRadius: 2,
+                  mb: 0.5,
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: (theme) => alpha(theme.palette.action.hover, 0.1),
+                    transform: "translateX(8px)",
+                  },
+                }}
+              >
                 <ListItemIcon>
                   <UserAvatar user={user} size={40} />
                 </ListItemIcon>
@@ -32,13 +43,19 @@ const UserList = ({ userList }: Props) => {
                       sx={{
                         overflow: "hidden",
                         textOverflow: "ellipsis",
+                        fontWeight: "bold",
+                        color: "text.primary",
                       }}
                     >
                       {user.name}
                     </Typography>
                   }
                   secondary={
-                    <Typography variant="body2" fontSize={12}>
+                    <Typography
+                      variant="body2"
+                      fontSize={12}
+                      sx={{ color: "text.secondary", fontWeight: 500 }}
+                    >
                       Rating: {user.stats.rating}⭐
                     </Typography>
                   }

@@ -7,11 +7,13 @@ const LobbyUserList = () => {
   const { userList } = useUserList({ roomName: "lobby" });
   return (
     <Paper
-      elevation={0}
+      elevation={1}
       className="lobby-user-list"
       sx={{
         display: "flex",
         flexDirection: "column",
+        border: "1px solid",
+        borderColor: "divider",
         minHeight: { xs: "0", lg: "70vh" },
         minWidth: { xs: "30%", lg: "30%" },
         maxWidth: { xs: "100%", lg: "30%" },
@@ -19,8 +21,6 @@ const LobbyUserList = () => {
         px: { xs: 0, lg: 2 },
         ml: { xs: 0, lg: 2 },
         mt: { xs: 2, lg: 0 },
-        borderTop: { xs: "1px solid", lg: "none" },
-        bgcolor: "primary.main",
       }}
     >
       <Typography variant="h6" sx={{ fontWeight: 700, mt: { xs: 2, lg: 1 } }}>

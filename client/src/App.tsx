@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import "./App.css";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
-import { ThemeProvider } from "@mui/material/styles/";
+import { ThemeProvider, alpha } from "@mui/material/styles/";
 import { darkTheme, lightTheme } from "./themes.ts";
 import InfoBar from "./InfoBar.tsx";
 import Lobby from "./lobby/Lobby.tsx";
@@ -32,7 +32,7 @@ export default function App() {
       handleSetUser,
       storeStatsToLocalStorage,
     }),
-    [user, handleSetUser, storeStatsToLocalStorage]
+    [user, handleSetUser, storeStatsToLocalStorage],
   );
 
   return (
@@ -45,13 +45,21 @@ export default function App() {
         <Box
           component="main"
           className="main"
-          sx={{
+          sx={(theme) => ({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             width: "100%",
             overflow: "hidden",
-          }}
+            minHeight: "100vh",
+            bgcolor: "background.default",
+            backgroundImage: `
+              radial-gradient(at 10% 10%, ${alpha(theme.palette.primary.main, 0.05)} 0px, transparent 55%),
+              radial-gradient(at 90% 10%, ${alpha(theme.palette.secondary.main, 0.35)} 0px, transparent 55%),
+              radial-gradient(at 90% 90%, ${alpha(theme.palette.info.main, 0.25)} 0px, transparent 55%),
+              radial-gradient(at 10% 90%, ${alpha(theme.palette.success.main, 0.3)} 0px, transparent 55%)
+            `,
+          })}
         >
           <Navbar />
           {inRoom === "mainMenu" ? (
