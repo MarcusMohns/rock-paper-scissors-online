@@ -16,44 +16,21 @@ const Lobby = ({ joinMainMenu, joinRoom, createRoom }: Props) => {
   return (
     <Fade in timeout={600}>
       <Box
+        className="lobby-content"
+        component="section"
         sx={{
           display: "flex",
-          flexDirection: "column",
-          height: "100%",
+          flexDirection: { xs: "column", lg: "row" },
           width: "100%",
-          maxWidth: { xs: "100%", lg: "80%" },
+          height: "100%",
           p: { xs: 2 },
+          maxWidth: { xs: "100%", lg: "80%" },
+          justifyContent: "center",
+          gap: { xs: 3, lg: 4 },
         }}
-        className="lobby"
-        component="section"
       >
-        <Button
-          onClick={joinMainMenu}
-          color="info"
-          variant="outlined"
-          sx={{
-            width: "max-content",
-            mb: 4,
-            borderRadius: 2,
-          }}
-          startIcon={<ArrowCircleLeftRoundedIcon />}
-        >
-          Back to Main Menu
-        </Button>
-        <Box
-          className="lobby-content"
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", lg: "row" },
-            width: "100%",
-            justifyContent: "center",
-            gap: { xs: 3, lg: 4 },
-            height: "100%",
-          }}
-        >
-          <LobbyRoomList joinRoom={joinRoom} createRoom={createRoom} />
-          <LobbyChat />
-        </Box>
+        <LobbyRoomList joinRoom={joinRoom} createRoom={createRoom} />
+        <LobbyChat />
       </Box>
     </Fade>
   );

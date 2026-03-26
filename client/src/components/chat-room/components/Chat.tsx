@@ -5,7 +5,8 @@ import Box from "@mui/material/Box";
 import { TransitionGroup } from "react-transition-group";
 import Message from "./Message.tsx";
 import type { MessageType } from "../../../types";
-import { Typography } from "@mui/material";
+import { Typography, alpha } from "@mui/material";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 
 type Props = {
   chat: MessageType[];
@@ -19,6 +20,7 @@ const Chat = ({ chat }: Props) => {
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
   }, [chat]);
+
   return (
     <List
       ref={listRef}
@@ -29,45 +31,51 @@ const Chat = ({ chat }: Props) => {
         flexGrow: 1,
         overflow: "auto",
         mb: 3,
+        position: "relative",
       }}
     >
-      <TransitionGroup>
-        {chat.length > 0 ? (
-          chat.map((chatMessage, index) => (
-            <Grow in key={index}>
+      {chat.length > 0 ? (
+        <TransitionGroup>
+          {chat.map((chatMessage, index) => (
+            <Grow key={index}>
               <Box sx={{ width: "100%", px: 1 }}>
                 <Message chatMessage={chatMessage} />
               </Box>
             </Grow>
-          ))
-        ) : (
-          <Box
+          ))}
+        </TransitionGroup>
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            minHeight: "300px",
+            width: "100%",
+            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.05),
+            borderRadius: 4,
+            border: "1px dashed",
+            borderColor: "divider",
+          }}
+        >
+          <Typography
+            variant="overline"
             sx={{
               display: "flex",
-              justifyContent: "center",
-              mt: 4,
-              width: "100%",
+              alignItems: "center",
+              gap: 1,
+              fontWeight: "bold",
+              color: "text.secondary",
+              px: 3,
+              py: 1,
             }}
           >
-            <Typography
-              variant="overline"
-              sx={{
-                fontWeight: "bold",
-                color: "text.secondary",
-                bgcolor: "action.hover",
-                px: 3,
-                py: 1,
-                borderRadius: 2,
-                border: "1px solid",
-                borderColor: "divider",
-                boxShadow: 1,
-              }}
-            >
-              No messages yet
-            </Typography>
-          </Box>
-        )}
-      </TransitionGroup>
+            <ChatBubbleOutlineIcon fontSize="small" /> No messages yet
+          </Typography>
+        </Box>
+      )}
     </List>
   );
 };

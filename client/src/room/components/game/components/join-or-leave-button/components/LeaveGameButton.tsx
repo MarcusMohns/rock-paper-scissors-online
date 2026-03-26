@@ -58,7 +58,7 @@ const LeaveGameButton = ({ gameName, gameStatus, handleConcede }: Props) => {
     <>
       <Button
         variant="contained"
-        color="info"
+        color="error"
         startIcon={<LogoutIcon />}
         onClick={handleLeaveGameAction}
         size="small"

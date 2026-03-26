@@ -1,5 +1,4 @@
 import List from "@mui/material/List";
-import { alpha } from "@mui/material/styles";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -14,7 +13,7 @@ type Props = {
 };
 const UserList = ({ userList }: Props) => {
   return (
-    <List className="user-list" component="div" sx={{ py: 1 }}>
+    <List className="user-list">
       {userList.length === 0 && <ListItem>No users</ListItem>}
       <TransitionGroup>
         {userList.map((user) => {
@@ -24,11 +23,7 @@ const UserList = ({ userList }: Props) => {
                 sx={{
                   borderRadius: 2,
                   mb: 0.5,
-                  transition: "all 0.2s ease-in-out",
-                  "&:hover": {
-                    bgcolor: (theme) => alpha(theme.palette.action.hover, 0.1),
-                    transform: "translateX(8px)",
-                  },
+                  p: 2,
                 }}
               >
                 <ListItemIcon>

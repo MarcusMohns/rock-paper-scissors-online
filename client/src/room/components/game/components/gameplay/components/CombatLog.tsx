@@ -3,8 +3,11 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { List, ListItem, Typography } from "@mui/material";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import { alpha } from "@mui/material";
 import SubjectIcon from "@mui/icons-material/Subject";
 import { memo, useState } from "react";
 
@@ -37,6 +40,11 @@ const CombatLog = ({ log }: Props) => {
           px: 2,
           boxShadow: 2,
           transition: "all 0.2s ease-in-out",
+          bgcolor: (theme) => alpha(theme.palette.info.main, 0.75),
+          "&:hover": {
+            bgcolor: (theme) => alpha(theme.palette.info.main, 0.95),
+            boxShadow: 4,
+          },
         }}
       >
         Combat Log

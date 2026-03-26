@@ -58,15 +58,24 @@ const LobbyRoom = ({ room, joinRoom }: Props) => {
           <Box
             sx={{
               flexGrow: 1,
-              p: 1,
+              p: 1.5,
             }}
           >
-            <Typography variant="subtitle2">
-              Users ({room.users.length}/10):
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                color: "text.secondary",
+                mb: 1,
+                display: "block",
+              }}
+            >
+              Players ({room.users.length} / 10)
             </Typography>
             <TransitionGroup>
               {room.users.map((user) => (
-                <Zoom in key={user.socketId}>
+                <Zoom key={user.socketId}>
                   <Chip
                     variant="filled"
                     sx={{

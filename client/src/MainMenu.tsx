@@ -61,7 +61,7 @@ const MainMenu = ({ joinRoom, isConnected }: Props) => {
               textAlign: "center",
             }}
           >
-            RPS Arena
+            RPS Online
           </Typography>
           <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 6 }}>
             Your Rock Paper Scissors battleground

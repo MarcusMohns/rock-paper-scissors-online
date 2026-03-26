@@ -7,6 +7,7 @@ import Paper from "@mui/material/Paper";
 import { TransitionGroup } from "react-transition-group";
 import CreateRoomBtnDialog from "./CreateRoomBtnDialog";
 import useRoomList from "../../../hooks/useRoomList";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import type { ErrorType } from "../../../types";
 
 type Props = {
@@ -19,7 +20,7 @@ const LobbyRoomList = ({ joinRoom, createRoom }: Props) => {
   return (
     <Paper
       className="lobby-rooms"
-      elevation={3}
+      elevation={6}
       sx={{
         width: { xs: "100%", lg: "40%" },
         height: "100%",
@@ -29,14 +30,26 @@ const LobbyRoomList = ({ joinRoom, createRoom }: Props) => {
         display: "flex",
         flexDirection: "column",
         gap: 3,
+        boxShadow: 6,
       }}
     >
-      <Stack sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800 }}>
-          Rooms
-        </Typography>
-        <CreateRoomBtnDialog createRoom={createRoom} />
-      </Stack>
+      <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1.5 }}>
+        <MeetingRoomIcon color="info" sx={{ fontSize: 30 }} />
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            flexGrow: 1,
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography variant="h5" sx={{ fontWeight: 800 }}>
+            Rooms
+          </Typography>
+          <CreateRoomBtnDialog createRoom={createRoom} />
+        </Stack>
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -45,7 +58,7 @@ const LobbyRoomList = ({ joinRoom, createRoom }: Props) => {
       >
         <TransitionGroup>
           {roomList.map((room) => (
-            <Zoom in key={room.name}>
+            <Zoom key={room.name}>
               <Box sx={{ height: "100%", mb: 1 }}>
                 <LobbyRoom joinRoom={joinRoom} room={room} />
               </Box>

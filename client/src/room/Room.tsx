@@ -55,9 +55,15 @@ const Room = ({ roomName, joinRoom }: Props) => {
           <Button
             onClick={backToLobby}
             color="info"
-            variant="outlined"
+            variant="contained"
             disabled={inGame}
             sx={{
+              fontWeight: "bold",
+              textTransform: "none",
+              borderRadius: 2,
+              px: 3,
+              boxShadow: 2,
+              transition: "all 0.2s ease-in-out",
               width: "max-content",
               ml: { xs: 2, xl: 0 },
             }}
@@ -65,15 +71,21 @@ const Room = ({ roomName, joinRoom }: Props) => {
           >
             Leave Room
           </Button>
-          <Typography
-            variant="overline"
-            color="error"
-            sx={{
-              minHeight: "35px",
-            }}
-          >
-            {inGame && "In game"}
-          </Typography>
+          <Box sx={{ minHeight: "24px", mt: 0.5 }}>
+            {inGame && (
+              <Typography
+                variant="caption"
+                color="error"
+                sx={{
+                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                • Currently in game
+              </Typography>
+            )}
+          </Box>
         </Box>
         <Box
           className="info-game-container"
@@ -109,7 +121,8 @@ const Room = ({ roomName, joinRoom }: Props) => {
                 flexDirection: "column",
                 justifyContent: "center",
                 borderRadius: 4,
-                boxShadow: 3,
+                boxShadow: 6,
+                overflow: "hidden",
                 height: "100%",
                 width: { xs: "100%", xl: "50%" },
                 mx: { xs: 0, xl: 5 },
@@ -118,7 +131,14 @@ const Room = ({ roomName, joinRoom }: Props) => {
             >
               <Stack
                 direction="row"
-                sx={{ justifyContent: "space-between", p: 2 }}
+                sx={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  p: 2,
+                  bgcolor: "action.hover",
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                }}
               >
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                   Chat

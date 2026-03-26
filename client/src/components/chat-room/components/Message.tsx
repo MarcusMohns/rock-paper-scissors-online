@@ -29,7 +29,7 @@ const Message = ({ chatMessage }: Props) => {
       sx={{
         bgcolor: "primary.light",
         borderRadius: 3,
-        boxShadow: 5,
+        boxShadow: 3,
         mb: 1,
       }}
     >

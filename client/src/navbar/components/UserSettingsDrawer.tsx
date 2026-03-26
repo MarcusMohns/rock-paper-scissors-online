@@ -7,6 +7,7 @@ import Avatar from "@mui/material/Avatar";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { useCallback, useState, useContext } from "react";
+import SettingsIcon from "@mui/icons-material/Settings";
 import type { UserType } from "../../types";
 import ColorPickerPopover from "./ColorPickerPopover";
 import { UserContext } from "../../Context";
@@ -40,25 +41,21 @@ const UserSettingsDrawer = () => {
     <>
       <Button
         aria-describedby={"popover"}
-        variant="text"
-        color="inherit"
+        variant="contained"
+        color="secondary"
         onClick={() => setOpen(true)}
         sx={{
+          fontWeight: "bold",
           textTransform: "none",
-          borderRadius: 20,
-          padding: "4px 6px 4px 16px",
-          bgcolor: "primary.dark",
+          borderRadius: 2,
+          px: 2,
+          py: 0.5,
+          boxShadow: 2,
           width: "max-content",
           m: 2,
           ml: "auto",
-          color: "text.primary",
-          border: "1px solid transparent",
-          transition: "all 0.2s",
-          "&:hover": {
-            border: "1px solid",
-            borderColor: "divider",
-            backgroundColor: "action.hover",
-          },
+          transition: "all 0.2s ease-in-out",
+          "&:hover": { boxShadow: 4, transform: "translateY(-1px)" },
         }}
       >
         <Typography
@@ -92,42 +89,59 @@ const UserSettingsDrawer = () => {
         role="presentation"
         anchor="right"
         onClose={saveSettings}
+        PaperProps={{
+          sx: {
+            width: { xs: "100%", sm: "350px" },
+            borderRadius: "16px 0 0 16px",
+          },
+        }}
       >
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            p: 2,
+            bgcolor: "action.hover",
+            borderBottom: "1px solid",
+            borderColor: "divider",
           }}
         >
-          <Typography
-            sx={{
-              p: 2,
-              fontWeight: "bold",
-            }}
-          >
-            Settings
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <SettingsIcon color="info" />
+            <Typography sx={{ fontWeight: "bold" }}>Settings</Typography>
+          </Box>
           <Button
             onClick={closeSettings}
-            variant="text"
-            color="info"
+            color="inherit"
             sx={{
-              height: "max-content",
+              minWidth: "auto",
+              fontWeight: "bold",
+              textTransform: "none",
             }}
           >
-            ✖
+            Close
           </Button>
         </Box>
         <Box
           sx={{
             p: 2,
-            minHeight: "400px",
+            flexGrow: 1,
             display: "flex",
             flexDirection: "column",
             gap: 2,
           }}
         >
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: "bold",
+              textTransform: "uppercase",
+              color: "text.secondary",
+            }}
+          >
+            Profile
+          </Typography>
           <TextField
             id="outlined-required"
             label="Name"
@@ -135,17 +149,39 @@ const UserSettingsDrawer = () => {
             value={userMenuState.name}
             onChange={(e) => handleSetUserMenuState({ name: e.target.value })}
             spellCheck={false}
+            fullWidth
+            variant="outlined"
           />
-          <Box>
-            <Typography variant="subtitle2">Avatar Color</Typography>
+          <Box
+            sx={{
+              bgcolor: "action.hover",
+              p: 1.5,
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
+              Avatar Color
+            </Typography>
             <ColorPickerPopover
               userMenuState={userMenuState}
               handleSetUserMenuState={handleSetUserMenuState}
             />
           </Box>
 
-          <Box>
-            <Typography variant="subtitle2">Theme</Typography>
+          <Box
+            sx={{
+              bgcolor: "action.hover",
+              p: 1.5,
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
+              Theme Preference
+            </Typography>
             <ToggleButtonGroup
               value={userMenuState.themePreference}
               exclusive
@@ -154,16 +190,37 @@ const UserSettingsDrawer = () => {
                 handleSetUserMenuState({ themePreference: newThemePreference })
               }
               aria-label="Theme"
+              fullWidth
+              size="small"
             >
-              <ToggleButton value="dark">Dark 🌑</ToggleButton>
-              <ToggleButton value="light">Light ☀️</ToggleButton>
+              <ToggleButton
+                value="dark"
+                sx={{ fontWeight: "bold", textTransform: "none" }}
+              >
+                Dark 🌑
+              </ToggleButton>
+              <ToggleButton
+                value="light"
+                sx={{ fontWeight: "bold", textTransform: "none" }}
+              >
+                Light ☀️
+              </ToggleButton>
             </ToggleButtonGroup>
           </Box>
           <Button
             onClick={saveSettings}
             variant="contained"
             color="success"
-            sx={{ mt: "auto" }}
+            sx={{
+              mt: "auto",
+              fontWeight: "bold",
+              textTransform: "none",
+              borderRadius: 2,
+              py: 1.5,
+              boxShadow: 2,
+              transition: "all 0.2s ease-in-out",
+              "&:hover": { boxShadow: 4, transform: "translateY(-1px)" },
+            }}
           >
             Apply
           </Button>

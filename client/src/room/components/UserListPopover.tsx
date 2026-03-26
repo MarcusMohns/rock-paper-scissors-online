@@ -5,6 +5,7 @@ import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
 import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
 import useUserList from "../../hooks/useUserList";
+import { alpha } from "@mui/material";
 
 type Props = {
   roomName: string;
@@ -30,30 +31,41 @@ const UserListPopover = ({ roomName }: Props) => {
         flexDirection: { xs: "column", md: "row" },
       }}
     >
-      <Box className="chat-and-users">
-        <Button
-          aria-describedby={id}
-          variant="contained"
-          color="info"
-          size="small"
-          onClick={handleClick}
-        >
-          <SupervisedUserCircleIcon /> ({userList.length})
-        </Button>
-        <Popover
-          id={id}
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left",
-          }}
-          disableScrollLock={true}
-        >
-          <UserList userList={userList} />
-        </Popover>
-      </Box>
+      <Button
+        aria-describedby={id}
+        variant="contained"
+        color="info"
+        size="small"
+        onClick={handleClick}
+        sx={{
+          fontWeight: "bold",
+          textTransform: "none",
+          borderRadius: 2,
+          px: 2,
+          boxShadow: 2,
+          transition: "all 0.2s ease-in-out",
+          bgcolor: (theme) => alpha(theme.palette.info.main, 0.75),
+          "&:hover": {
+            bgcolor: (theme) => alpha(theme.palette.info.main, 0.95),
+            boxShadow: 4,
+          },
+        }}
+      >
+        <SupervisedUserCircleIcon /> ({userList.length})
+      </Button>
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        disableScrollLock={true}
+      >
+        <UserList userList={userList} />
+      </Popover>
     </Box>
   );
 };

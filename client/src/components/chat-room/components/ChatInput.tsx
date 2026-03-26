@@ -63,9 +63,10 @@ const ChatInput = ({ roomName }: Props) => {
       noValidate
       sx={{
         mt: "auto",
-        border: "1px solid",
-        borderColor: "#8d8d8d46",
-        borderRadius: 5,
+        border: "2px solid",
+        borderColor: "divider",
+        bgcolor: "background.main",
+        borderRadius: 3,
         p: 1,
       }}
     >
@@ -78,11 +79,19 @@ const ChatInput = ({ roomName }: Props) => {
         inputProps={{ maxLength: MAX_LEN, minLength: 1 }}
         endAdornment={
           <Button
-            variant="text"
+            variant="contained"
             type="submit"
             disabled={isLoading}
             color="info"
             size="small"
+            sx={{
+              fontWeight: "bold",
+              textTransform: "none",
+              borderRadius: 2,
+              px: 3,
+              boxShadow: 2,
+              transition: "all 0.2s ease-in-out",
+            }}
           >
             Send
           </Button>

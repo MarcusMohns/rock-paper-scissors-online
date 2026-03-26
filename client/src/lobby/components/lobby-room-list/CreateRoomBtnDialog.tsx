@@ -1,11 +1,11 @@
 import React from "react";
 import Dialog from "@mui/material/Dialog";
+import Box from "@mui/material/Box";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import DialogContentText from "@mui/material/DialogContentText";
 import { useState } from "react";
 import AddCircleRoundedIcon from "@mui/icons-material/AddCircleRounded";
 import ToastAlert from "../../../components/ToastAlert";
@@ -58,6 +58,7 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
           px: 2,
           boxShadow: 2,
           transition: "all 0.2s ease-in-out",
+          "&:hover": { boxShadow: 4, transform: "translateY(-1px)" },
           mt: "auto",
           ml: "auto",
           width: "max-content",
@@ -72,6 +73,7 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
         onClose={handleClose}
         aria-labelledby="create-room-alert"
         aria-describedby="alert-dialog-description"
+        PaperProps={{ sx: { borderRadius: 3 } }}
       >
         <DialogTitle
           id="create-room-alert"
@@ -80,37 +82,40 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
             backgroundColor: "background.paper",
           }}
         >
-          Create a room
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <AddCircleRoundedIcon color="success" /> Create a room
+          </Box>
         </DialogTitle>
         <DialogContent
           sx={{
             display: "flex",
-            justifyContent: "center",
+            flexDirection: "column",
+            gap: 2,
             backgroundColor: "background.paper",
-            height: "200px",
-            width: "350px",
+            minWidth: { xs: "280px", sm: "400px" },
+            pt: 1,
           }}
         >
-          <DialogContentText
-            id="create-room-alert-dialog-description"
-            component="div"
-          >
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Room name"
-              type="text"
-              fullWidth
-              color="info"
-              variant="standard"
-              value={dialogInput.roomName}
-              autoComplete="off"
-              error={!dialogInput.roomName}
-              helperText={!dialogInput.roomName ? "Room name required" : ""}
-              onChange={handleOnChange}
-            />
-          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Room Name"
+            type="text"
+            fullWidth
+            color="info"
+            variant="outlined"
+            value={dialogInput.roomName}
+            autoComplete="off"
+            error={!dialogInput.roomName && dialogInput.roomName !== ""}
+            helperText={
+              !dialogInput.roomName
+                ? "Required"
+                : "Enter a unique name for your battleground"
+            }
+            onChange={handleOnChange}
+            sx={{ mt: 1 }}
+          />
         </DialogContent>
         <DialogActions
           sx={{ backgroundColor: "background.paper", p: 2, pt: 0 }}

@@ -41,18 +41,7 @@ const Footer = () => {
           width: "max-content",
         }}
       >
-        Backgrounds by
-        <Link
-          href="https://bgjar.com"
-          variant="body2"
-          target="_blank"
-          rel="noopener"
-          color="inherit"
-          sx={{ mx: 0.5 }}
-        >
-          BGJar
-        </Link>
-        - Icons by
+        Icons by
         <Link
           href="https://icons8.com/"
           variant="body2"
