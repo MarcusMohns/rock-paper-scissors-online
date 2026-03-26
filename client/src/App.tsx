@@ -65,11 +65,7 @@ export default function App() {
           {inRoom === "mainMenu" ? (
             <MainMenu joinRoom={joinRoom} isConnected={isConnected} />
           ) : inRoom === "lobby" ? (
-            <Lobby
-              joinMainMenu={joinMainMenu}
-              joinRoom={joinRoom}
-              createRoom={createRoom}
-            />
+            <Lobby joinRoom={joinRoom} createRoom={createRoom} />
           ) : (
             <Room roomName={inRoom} joinRoom={joinRoom} />
           )}

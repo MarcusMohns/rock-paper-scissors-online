@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import { alpha } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useState } from "react";
