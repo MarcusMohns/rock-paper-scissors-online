@@ -52,7 +52,6 @@ const UserSettingsDrawer = () => {
           py: 0.5,
           boxShadow: 2,
           width: "max-content",
-          m: 2,
           ml: "auto",
           transition: "all 0.2s ease-in-out",
           "&:hover": { boxShadow: 4, transform: "translateY(-1px)" },

@@ -18,6 +18,7 @@ const Navbar = ({ joinMainMenu, inRoom }: Props) => {
         color="transparent"
         sx={{
           boxShadow: 0,
+          pt: 1,
         }}
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
