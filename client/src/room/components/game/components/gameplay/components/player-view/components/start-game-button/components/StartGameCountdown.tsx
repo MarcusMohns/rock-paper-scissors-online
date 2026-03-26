@@ -27,8 +27,7 @@ const StartGameCountdown = ({
   const startGame = useCallback(() => {
     // Start game at the end of countdown
     handleStartGame(gameName);
-    handleSetCountdownActive(false);
-  }, [handleSetCountdownActive, gameName, handleStartGame]);
+  }, [gameName, handleStartGame]);
 
   const cancelCountdown = useCallback(() => {
     // Cancel countdown for us and emit to the other player to do the same
@@ -61,9 +60,8 @@ const StartGameCountdown = ({
   useEffect(() => {
     if (progress === 0) {
       startGame();
-      handleSetCountdownActive(false);
     }
-  }, [progress, handleSetCountdownActive, startGame]);
+  }, [progress, startGame]);
 
   useEffect(() => {
     // Listen for the other player to cancel the countdown
