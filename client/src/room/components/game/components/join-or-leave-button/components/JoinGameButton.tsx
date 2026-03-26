@@ -1,10 +1,9 @@
 import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import { gamesSocket } from "../../../../../../socketio/socket";
-import { useCallback } from "react";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { useError } from "../../../../../../hooks/useError";
 import ToastAlert from "../../../../../../components/ToastAlert";
+import { useCallback } from "react";
 
 type Props = {
   gameName: string;
@@ -13,7 +12,7 @@ type Props = {
 const JoinGameButton = ({ gameName }: Props) => {
   const { error, handleSetError } = useError();
 
-  const joinGame = useCallback(() => {
+  const handleJoinGame = useCallback(() => {
     gamesSocket.emit(
       "createOrJoinGame",
       gameName,
@@ -21,34 +20,39 @@ const JoinGameButton = ({ gameName }: Props) => {
         if (response.status !== "ok") {
           handleSetError({ status: true, message: response.status });
         }
-      }
+      },
     );
   }, [gameName, handleSetError]);
 
   return (
-    <Box
-      sx={{
-        ml: { xs: "0px", sm: "auto" },
-      }}
-    >
+    <>
       <Button
         variant="contained"
         color="success"
         disabled={error.status}
-        onClick={joinGame}
-        size="medium"
-        endIcon={<ArrowDownwardIcon />}
-        sx={{ px: { xs: 1, sm: 2 } }}
+        startIcon={<SportsEsportsIcon />}
+        onClick={handleJoinGame}
+        size="small"
+        sx={{
+          fontWeight: "bold",
+          textTransform: "none",
+          borderRadius: 2,
+          px: 2,
+          boxShadow: 2,
+          transition: "all 0.2s ease-in-out",
+        }}
       >
         Join Game
       </Button>
-      <ToastAlert
-        open={error.status}
-        handleClose={() => handleSetError({ ...error, status: false })}
-        message={error.message}
-        severity="warning"
-      />
-    </Box>
+      {error && (
+        <ToastAlert
+          open={error.status}
+          handleClose={() => handleSetError({ status: false, message: "" })}
+          message={error.message}
+          severity="error"
+        />
+      )}
+    </>
   );
 };
 

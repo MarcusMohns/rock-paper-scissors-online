@@ -28,17 +28,15 @@ const UserListPopover = ({ roomName }: Props) => {
       sx={{
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
-        justifyContent: "flex-end",
       }}
     >
       <Box className="chat-and-users">
         <Button
           aria-describedby={id}
           variant="contained"
+          color="info"
+          size="small"
           onClick={handleClick}
-          sx={{
-            m: 1,
-          }}
         >
           <SupervisedUserCircleIcon /> ({userList.length})
         </Button>

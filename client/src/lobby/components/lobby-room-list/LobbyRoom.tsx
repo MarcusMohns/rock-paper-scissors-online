@@ -33,14 +33,15 @@ const LobbyRoom = ({ room, joinRoom }: Props) => {
         className="lobby-room"
         elevation={2}
         sx={{
-          bgcolor: "primary.main",
           p: 2,
           borderRadius: 3,
           alignItems: "flex-start",
           display: "flex",
           flexDirection: "column",
+          bgcolor: "action.hover",
+          border: "1px solid",
+          borderColor: "divider",
           transition: "transform 0.2s, box-shadow 0.2s",
-          "&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
         }}
       >
         <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
@@ -67,8 +68,12 @@ const LobbyRoom = ({ room, joinRoom }: Props) => {
               {room.users.map((user) => (
                 <Zoom in key={user.socketId}>
                   <Chip
-                    variant="outlined"
-                    sx={{ ml: 0.5, pl: 0.2, mt: 0.3 }}
+                    variant="filled"
+                    sx={{
+                      ml: 0.5,
+                      pl: 0.2,
+                      mt: 0.3,
+                    }}
                     avatar={<UserAvatar user={user} size={28} />}
                     label={user.name}
                   />
@@ -84,6 +89,12 @@ const LobbyRoom = ({ room, joinRoom }: Props) => {
             disabled={room.users.length >= 10 || error.status}
             endIcon={<PlayCircleFilledIcon />}
             sx={{
+              fontWeight: "bold",
+              textTransform: "none",
+              borderRadius: 2,
+              px: 3,
+              boxShadow: 2,
+              transition: "all 0.2s ease-in-out",
               mt: "auto",
             }}
           >

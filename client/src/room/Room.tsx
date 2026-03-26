@@ -11,6 +11,7 @@ import UserListPopover from "./components/UserListPopover";
 import RoomChat from "./components/RoomChat";
 import Game from "./components/game/Game";
 import RoomInfo from "./components/RoomInfo";
+import { Paper } from "@mui/material";
 
 type Props = {
   roomName: string;
@@ -81,7 +82,8 @@ const Room = ({ roomName, joinRoom }: Props) => {
             display: "flex",
             flexDirection: "column",
             height: "100%",
-            width: "100%",
+            width: { xs: "97%", xl: "100%" },
+            mx: "auto",
             py: { xs: 0, xl: 1 },
           }}
         >
@@ -100,13 +102,13 @@ const Room = ({ roomName, joinRoom }: Props) => {
               inGame={inGame}
               handleSetInGame={handleSetInGame}
             />
-            <Stack
-              className="room-chat"
-              direction="column"
+            <Paper
+              elevation={3}
               sx={{
                 display: "flex",
-                backgroundColor: "background.paper",
-                borderRadius: 1,
+                flexDirection: "column",
+                justifyContent: "center",
+                borderRadius: 4,
                 boxShadow: 3,
                 height: "100%",
                 width: { xs: "100%", xl: "50%" },
@@ -114,9 +116,17 @@ const Room = ({ roomName, joinRoom }: Props) => {
                 mt: 1,
               }}
             >
-              <UserListPopover roomName={roomName} />
+              <Stack
+                direction="row"
+                sx={{ justifyContent: "space-between", p: 2 }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                  Chat
+                </Typography>
+                <UserListPopover roomName={roomName} />
+              </Stack>
               <RoomChat roomName={roomName} />
-            </Stack>
+            </Paper>
           </Box>
           {/* The socketio 'room' we use to host the game is referred to as 'game', 'games', 'gameName' etc and is named the same as the room name  */}
         </Box>

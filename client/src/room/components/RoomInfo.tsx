@@ -20,11 +20,11 @@ const RoomInfo = ({ roomName }: Props) => {
     (updatedUser: UserType) => {
       // Update User List
       const updatedUsersState = usersInRoom.map((user) =>
-        user.id === updatedUser.id ? updatedUser : user
+        user.id === updatedUser.id ? updatedUser : user,
       );
       setUsersInRoom(updatedUsersState);
     },
-    [usersInRoom, setUsersInRoom]
+    [usersInRoom, setUsersInRoom],
   );
 
   useEffect(() => {
@@ -49,18 +49,22 @@ const RoomInfo = ({ roomName }: Props) => {
       className="room-info"
       sx={{
         display: "flex",
-        flexDirection: { xs: "column", sm: "row" },
+        flexDirection: "row",
         justifyContent: "flex-start",
+        flexWrap: "wrap",
         alignItems: "center",
         mt: { xs: 0, sm: 1 },
         px: { xs: 0, sm: 2 },
-        gap: { xs: 0, sm: 3 },
         borderBottom: "1px solid",
         borderColor: "divider",
       }}
     >
-      <Typography variant="overline">Room name: {roomName}</Typography>
-      <Typography variant="overline">Max users: 10</Typography>
+      <Typography variant="overline" sx={{ mr: 1 }}>
+        Room name: {roomName}
+      </Typography>
+      <Typography variant="overline" sx={{ mr: 1 }}>
+        Max users: 10
+      </Typography>
       <Box sx={{ display: "flex", flexDirection: "row" }}>
         <Typography
           variant="overline"

@@ -1,95 +1,115 @@
 import { useState } from "react";
 import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { gamesSocket } from "../../../../../../socketio/socket";
-import Typography from "@mui/material/Typography";
-import CloseIcon from "@mui/icons-material/Close";
+import { useError } from "../../../../../../hooks/useError";
+import type {
+  SetSocketDataResponse,
+  StatusType,
+} from "../../../../../../types";
+import ToastAlert from "../../../../../../components/ToastAlert";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+
 type Props = {
   gameName: string;
   inGame: boolean;
-  gameStatus: "waiting" | "playing" | "finished";
+  gameStatus: StatusType;
   handleConcede: () => void;
 };
 
-const LeaveGameButton = ({
-  gameName,
-  inGame,
-  gameStatus,
-  handleConcede,
-}: Props) => {
-  const [dialogOpen, setDialogOpen] = useState(false);
+const LeaveGameButton = ({ gameName, gameStatus, handleConcede }: Props) => {
+  const { error, handleSetError } = useError();
+  const [openLeaveConfirm, setOpenLeaveConfirm] = useState(false);
 
-  const leaveGame = (gameName: string) => {
-    gamesSocket.emit("leaveAllGames", gameName);
+  const handleOpenConfirm = () => setOpenLeaveConfirm(true);
+  const handleCloseConfirm = () => setOpenLeaveConfirm(false);
+
+  const emitLeaveGame = () => {
+    gamesSocket.emit(
+      "leaveAllGames",
+      gameName,
+      (response: SetSocketDataResponse) => {
+        if (response.status !== "ok") {
+          handleSetError({ status: true, message: response.status });
+        }
+      },
+    );
   };
 
-  const leaveAndLoseGame = (gameName: string) => {
-    gamesSocket.emit("leaveAllGames", gameName);
+  const handleLeaveGameAction = () => {
+    if (gameStatus === "playing") {
+      handleOpenConfirm();
+      return;
+    }
+    emitLeaveGame();
+  };
+
+  const onConfirmLeave = () => {
     handleConcede();
-  };
-
-  const handleClickOpenDialog = () => {
-    setDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setDialogOpen(false);
+    emitLeaveGame();
+    handleCloseConfirm();
   };
 
   return (
-    <Box
-      sx={{
-        ml: { xs: "0px", sm: "auto" },
-      }}
-    >
-      <Dialog
-        onClose={handleCloseDialog}
-        open={dialogOpen}
-        disableScrollLock={true}
-      >
-        <DialogTitle>Are you sure you want to leave the game?</DialogTitle>
-        <DialogContent>
-          <Typography variant="subtitle2">You will concede the game</Typography>
-          <DialogActions>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() => leaveAndLoseGame(gameName)}
-              size="large"
-            >
-              Yes
-            </Button>
-
-            <Button
-              variant="contained"
-              color="success"
-              onClick={handleCloseDialog}
-              size="large"
-            >
-              No
-            </Button>
-          </DialogActions>
-        </DialogContent>
-      </Dialog>
+    <>
       <Button
         variant="contained"
-        color="secondary"
-        endIcon={<CloseIcon />}
-        onClick={
-          inGame && gameStatus === "playing"
-            ? handleClickOpenDialog
-            : () => leaveGame(gameName)
-        }
-        size="medium"
-        sx={{ px: { xs: 1, sm: 2 } }}
+        color="info"
+        startIcon={<LogoutIcon />}
+        onClick={handleLeaveGameAction}
+        size="small"
+        sx={{
+          fontWeight: "bold",
+          textTransform: "none",
+          borderRadius: 2,
+          px: 2,
+          boxShadow: 2,
+          transition: "all 0.2s ease-in-out",
+        }}
       >
-        Leave Game
+        Leave Seat
       </Button>
-    </Box>
+
+      <Dialog open={openLeaveConfirm} onClose={handleCloseConfirm}>
+        <DialogTitle sx={{ fontWeight: "bold" }}>Leave Game?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Leaving the seat during an active game will count as a loss. Are you
+            sure?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button
+            onClick={handleCloseConfirm}
+            color="inherit"
+            sx={{ fontWeight: "bold", textTransform: "none" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={onConfirmLeave}
+            color="error"
+            variant="contained"
+            sx={{ fontWeight: "bold", textTransform: "none", borderRadius: 2 }}
+          >
+            Leave & Forfeit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {error && (
+        <ToastAlert
+          open={error.status}
+          handleClose={() => handleSetError({ status: false, message: "" })}
+          message={error.message}
+          severity="error"
+        />
+      )}
+    </>
   );
 };
 

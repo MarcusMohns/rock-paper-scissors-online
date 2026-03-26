@@ -51,7 +51,17 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
         onClick={handleClickOpen}
         color="success"
         variant="contained"
-        sx={{ mt: "auto", ml: "auto", width: "max-content" }}
+        sx={{
+          fontWeight: "bold",
+          textTransform: "none",
+          borderRadius: 2,
+          px: 2,
+          boxShadow: 2,
+          transition: "all 0.2s ease-in-out",
+          mt: "auto",
+          ml: "auto",
+          width: "max-content",
+        }}
         endIcon={<AddCircleRoundedIcon />}
       >
         Create Room
@@ -66,6 +76,7 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
         <DialogTitle
           id="create-room-alert"
           sx={{
+            fontWeight: "bold",
             backgroundColor: "background.paper",
           }}
         >
@@ -101,16 +112,23 @@ const CreateRoomBtnDialog = ({ createRoom }: Props) => {
             />
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ backgroundColor: "background.paper" }}>
-          <Button onClick={handleClose} variant="outlined" color="info">
+        <DialogActions
+          sx={{ backgroundColor: "background.paper", p: 2, pt: 0 }}
+        >
+          <Button
+            onClick={handleClose}
+            color="inherit"
+            sx={{ fontWeight: "bold", textTransform: "none" }}
+          >
             Close
           </Button>
           <Button
             onClick={handleCreateRoom}
             autoFocus
             variant="contained"
-            color="warning"
+            color="success"
             disabled={!dialogInput.roomName}
+            sx={{ fontWeight: "bold", textTransform: "none", borderRadius: 2 }}
           >
             Create
           </Button>

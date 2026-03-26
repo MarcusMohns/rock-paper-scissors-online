@@ -21,7 +21,7 @@ const Lobby = ({ joinMainMenu, joinRoom, createRoom }: Props) => {
           flexDirection: "column",
           height: "100%",
           width: "100%",
-          maxWidth: "80%",
+          maxWidth: { xs: "100%", lg: "80%" },
           p: { xs: 2 },
         }}
         className="lobby"

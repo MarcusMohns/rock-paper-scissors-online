@@ -59,7 +59,6 @@ const Game = ({ gameName, inGame, handleSetInGame }: Props) => {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "space-between",
           width: "100%",
           flexWrap: "wrap",
           p: 2,

@@ -17,8 +17,8 @@ const LobbyUserList = () => {
         minHeight: { xs: "0", lg: "70vh" },
         minWidth: { xs: "30%", lg: "30%" },
         maxWidth: { xs: "100%", lg: "30%" },
-        borderRadius: { xs: 0, lg: 2 },
-        px: { xs: 0, lg: 2 },
+        borderRadius: 2,
+        px: { xs: 2, lg: 2 },
         ml: { xs: 0, lg: 2 },
         mt: { xs: 2, lg: 0 },
       }}

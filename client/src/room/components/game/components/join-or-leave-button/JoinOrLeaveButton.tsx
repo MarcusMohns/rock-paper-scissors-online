@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import JoinGameButton from "./components/JoinGameButton";
 import LeaveGameButton from "./components/LeaveGameButton";
 import { memo } from "react";
@@ -15,16 +16,27 @@ const JoinOrLeaveButton = ({
   gameStatus,
   handleConcede,
 }: Props) => {
-  if (!inGame) return <JoinGameButton gameName={gameName} />;
-  else
-    return (
-      <LeaveGameButton
-        gameName={gameName}
-        inGame={inGame}
-        gameStatus={gameStatus}
-        handleConcede={handleConcede}
-      />
-    );
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        ml: { xs: 0, sm: "auto" },
+      }}
+    >
+      {!inGame ? (
+        <JoinGameButton gameName={gameName} />
+      ) : (
+        <LeaveGameButton
+          gameName={gameName}
+          inGame={inGame}
+          gameStatus={gameStatus}
+          handleConcede={handleConcede}
+        />
+      )}
+    </Box>
+  );
 };
 
 export default memo(JoinOrLeaveButton);
